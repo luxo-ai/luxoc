@@ -1,0 +1,25 @@
+# OSX
+.DS_Store
+
+# intellij settings
+.idea
+
+# gradle
+.gradle
+gradle
+gradlew*
+settings.gradle
+
+# tmp files
+*~
+
+# svd files
+*#
+
+# compiled files
+*.class
+
+# unwanted
+*.xml
+*.pom
+*.iml 
