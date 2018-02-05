@@ -1,6 +1,6 @@
 # Luxoc
 
-Author: Luis Serazo
+Author: Luis F. Serazo
 
 ## A compiler written in Java
 
