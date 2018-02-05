@@ -22,4 +22,7 @@ settings.gradle
 # unwanted
 *.xml
 *.pom
-*.iml 
+*.iml
+
+# git script
+push
