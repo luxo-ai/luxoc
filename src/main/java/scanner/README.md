@@ -23,3 +23,6 @@ where one token ends and another begins.
 ### Considerations
 
 Read from left to right, generating each token one at a time.
+
+Want to bound look-ahead to some constant because that will simplify
+the lexical analyzer.
