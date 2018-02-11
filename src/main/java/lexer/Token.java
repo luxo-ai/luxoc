@@ -7,7 +7,7 @@
  * @author Luis Serazo
  *
  */
-package main.java.scanner;
+package main.java.lexer;
 
 /**
  * Token class
@@ -21,7 +21,7 @@ public class Token{
 
     /**
      * Token constructor
-     * @param token a TokenType
+     * @param tType a TokenType
      * @param val a String with the TokenType value
      */
     public Token(TokenType tType, String val){
@@ -31,7 +31,7 @@ public class Token{
 
     /**
      * getTokenType: getter method for the token type
-     * @reutrn the Token type
+     * @return the Token type
      */
     public TokenType getTokenType(){
         return this.tType;
@@ -47,7 +47,7 @@ public class Token{
 
     /**
      * setTokenType: setter method for the Token type
-     * @param tType, a TokenType
+     * @param newType, a TokenType
      */
     public void setTokenType(TokenType newType){
         this.tType = newType;
@@ -55,7 +55,7 @@ public class Token{
 
     /**
      * setVal: setter method for the Token value
-     * @param val, a String representation
+     * @param newVal, a String representation
      */
     public void setVal(String newVal){
         this.val = newVal;
