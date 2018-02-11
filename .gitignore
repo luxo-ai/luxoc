@@ -19,6 +19,7 @@ settings.gradle
 
 # compiled files
 *.class
+out
 
 # unwanted files
 *.xml
