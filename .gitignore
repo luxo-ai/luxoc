@@ -3,8 +3,9 @@
 
 # intellij settings
 .idea
+*.iml
 
-# gradle
+# gradle settings and plugins
 .gradle
 gradle
 gradlew*
@@ -18,8 +19,16 @@ settings.gradle
 
 # compiled files
 *.class
+out
 
-# unwanted
+# unwanted files
 *.xml
 *.pom
-*.iml 
+
+# not ready
+fsm
+Tester.java
+
+
+# git script
+push
