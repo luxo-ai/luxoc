@@ -2,7 +2,7 @@
  * FILE: Token.java
  *
  * DESC: contains the Token class describing a token.
- *       A token is a <TokenType, val> pair.
+ *       A token is a <TokenType, value> pair.
  *
  * @author Luis Serazo
  *
@@ -15,19 +15,23 @@ package main.java.lexer;
 public class Token{
 
     /* TokenType of a type */
-    private TokenType tType;
-    /* value of a token */
-    private String val;
+    private final TokenType tType;
+    /* valueue of a token */
+    private final String value;
+
+
 
     /**
      * Token constructor
      * @param tType a TokenType
-     * @param val a String with the TokenType value
+     * @param value a String with the TokenType valueue
      */
-    public Token(TokenType tType, String val){
+    public Token(TokenType tType, String value){
         this.tType = tType;
-        this.val = val;
+        this.value = value;
     }
+
+
 
     /**
      * getTokenType: getter method for the token type
@@ -38,28 +42,28 @@ public class Token{
     }
 
     /**
-     * getVal: getter method for the value of the Token
-     * @return the value of the Token
+     * getvalue: getter method for the valueue of the Token
+     * @return the valueue of the Token
      */
-    public String getVal(){
-        return this.val;
+    public String getvalue(){
+        return this.value;
     }
 
     /**
      * setTokenType: setter method for the Token type
      * @param newType, a TokenType
      */
-    public void setTokenType(TokenType newType){
-        this.tType = newType;
-    }
+   // public void setTokenType(TokenType newType){
+  //      this.tType = newType;
+  //  }
 
     /**
-     * setVal: setter method for the Token value
-     * @param newVal, a String representation
+     * setvalue: setter method for the Token valueue
+     * @param newvalue, a String representation
      */
-    public void setVal(String newVal){
-        this.val = newVal;
-    }
+  //  public void setvalue(String newvalue){
+ //       this.value = newvalue;
+ //   }
 
     /**
      * toString: returns a string representation of this Token
@@ -67,7 +71,7 @@ public class Token{
      */
     @Override
     public String toString(){
-        return "< "+this.tType.getName()+" , "+this.val+" >";
+        return "< "+this.tType.getName()+" , "+this.value+" >";
     }
 
 } /* end of Token class */

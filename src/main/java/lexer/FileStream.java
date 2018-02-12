@@ -9,10 +9,7 @@
 package main.java.lexer;
 import main.java.lexer.errors.FileStructureError;
 import main.java.lexer.exceptions.ReaderUninitializedException;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.Stack;
 
 
@@ -24,6 +21,14 @@ public class FileStream {
      */
     /* end of a line */
     private static final char EOF = (char)-1;
+    private static final String validPascalChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" +
+                                                   "0123456789" +
+                                                   "[]{}()<>" +
+                                                   "+=-*/" +
+                                                   ".,;:" +
+                                                   "&|" +
+                                                   "\t\n ";
+
     
     /**
      * File handling structures:
@@ -107,10 +112,23 @@ public class FileStream {
     }
 
     /**
+     * popStack
+     */
+    public void popStack(int times){
+        while(times>0){
+            if(pbStack.empty()){ break; }
+            pbStack.pop();
+            times--;
+        }
+    }
+
+    /**
      * openFile: wrapper routine to open the file.
      */
     private void openFile(String filePath){
         try{
+            filePath = new File(filePath).getAbsolutePath();
+            System.out.println(filePath);
             /* initialize the buffered reader */
             this.bReader = new BufferedReader(new FileReader(filePath));
 
@@ -130,7 +148,32 @@ public class FileStream {
         }
     }
 
-    
+    /**
+     * closeFile: wrapper routine for closing the file.
+     */
+    public void closeFile(){
+        try{
+            /* check if the reader was even used (i,e: a file was even opened) */
+            if(this.bReader == null) throw new ReaderUninitializedException();
+
+            /* otherwise: reset any metadata */
+            this.line = null;
+            this.lineNum = 0;
+            this.fileChar = EOF;
+            this.charOffset = 0;
+
+            /* close the buffered reader */
+            this.bReader.close();
+        }
+        catch (ReaderUninitializedException e1){
+            System.out.print(e1);
+        }
+        catch (IOException e2){
+            System.out.println(e2);
+        }
+    }
+
+
 
     /**
      * isEOL: end of line?
@@ -175,16 +218,10 @@ public class FileStream {
      */
     public char nextChar(){
 
-        String pascalChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" +
-                             "0123456789" +
-                             "[]{}()<>" +
-                             "+=-*/" +
-                             ".,;:" +
-                             "&|" +
-                             "\t\n ";
+
 
         /* check the push back stack first and return the character at the top of the stack */
-        if(!pbStack.empty()){ return this.pbStack.pop(); }
+        if(!pbStack.empty()){ return this.pbStack.pop(); } // THIS WAS POP before
 
         /* skip over whitespace */
         if(Character.isWhitespace(this.fileChar) && this.fileChar != '\n'){
@@ -203,7 +240,7 @@ public class FileStream {
         char newChar = mvFilePointer();
 
         // we must ensure that the new character is valid
-        if(newChar != EOF && !pascalChars.contains(""+newChar)){ throw new FileStructureError();}
+        if(newChar != EOF && !validPascalChars.contains(""+newChar)){ throw new FileStructureError();}
 
         this.fileChar = newChar;
 

@@ -25,6 +25,10 @@ out
 *.xml
 *.pom
 
+# not ready
+fsm
+Tester.java
+
 
 # git script
 push
