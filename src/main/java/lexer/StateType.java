@@ -7,9 +7,10 @@ public enum StateType {
     NUMERIC(2),
     INTEGER(3),
     REAL(4),
-    ALPHABETIC(5),
-    IDENTIFIER(6),
-    ERROR(7);
+    EXPON(5),
+    ALPHABETIC(6),
+    IDENTIFIER(7),
+    ERROR(8);
 
     int id;
     StateType(int id){

@@ -7,10 +7,12 @@
  *
  */
 package main.java.lexer;
-import main.java.lexer.errors.FileStructureError;
-import main.java.lexer.exceptions.ReaderUninitializedException;
+import main.java.lexer.errors.LexerError;
+import main.java.lexer.exceptions.FileStreamException;
 import java.io.*;
 import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /* begin FileStream class */
@@ -21,7 +23,7 @@ public class FileStream {
      */
     /* end of a line */
     private static final char EOF = (char)-1;
-    private static final String validPascalChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" +
+    private static final String PascalChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" +
                                                    "0123456789" +
                                                    "[]{}()<>" +
                                                    "+=-*/" +
@@ -37,6 +39,8 @@ public class FileStream {
     private BufferedReader bReader = null;
     /* push back stack */
     private Stack<Character> pbStack = new Stack<>();
+    /* log stuff */
+    private static final Logger LOGGER = Logger.getLogger(FileStream.class.getName());
     
     /**
      * File metadata.
@@ -154,7 +158,7 @@ public class FileStream {
     public void closeFile(){
         try{
             /* check if the reader was even used (i,e: a file was even opened) */
-            if(this.bReader == null) throw new ReaderUninitializedException();
+            if(this.bReader == null) throw FileStreamException.ClosingUninitializedReader();
 
             /* otherwise: reset any metadata */
             this.line = null;
@@ -165,11 +169,14 @@ public class FileStream {
             /* close the buffered reader */
             this.bReader.close();
         }
-        catch (ReaderUninitializedException e1){
-            System.out.print(e1);
+        catch (FileStreamException ex1){
+            System.out.print(ex1.toString());
+          //  LOGGER.log(Level.WARNING, ex1.toString(), ex1);
         }
-        catch (IOException e2){
-            System.out.println(e2);
+        catch (IOException ex2){
+            System.out.println(ex2.toString());
+            ex2.printStackTrace(System.out);
+           // LOGGER.log(Level.WARNING, ex2.toString(), ex2);
         }
     }
 
@@ -198,8 +205,10 @@ public class FileStream {
             /* make sure we can move to the next line */
             try {
                 this.line = bReader.readLine();
-            } catch (IOException e1) {
-                System.out.println(e1);
+            } catch (IOException ex) {
+                System.out.println(ex.toString());
+                ex.printStackTrace(System.out);
+              //  LOGGER.log(Level.WARNING, ex.toString(), ex);
             }
             return ' ';
         }
@@ -240,7 +249,7 @@ public class FileStream {
         char newChar = mvFilePointer();
 
         // we must ensure that the new character is valid
-        if(newChar != EOF && !validPascalChars.contains(""+newChar)){ throw new FileStructureError();}
+        if(newChar != EOF && !PascalChars.contains(""+newChar)){ throw LexerError.InvalidCharacter(lineNum, newChar);}
 
         this.fileChar = newChar;
 
@@ -271,7 +280,9 @@ public class FileStream {
     /**
      * jumpComment: sub-routine for jumping over comments.
      */
-    private char jumpComment() {
+    private char jumpComment() throws LexerError{
+        /* save the start of the comment */
+        int commentStart = this.lineNum;
 
         /* grab the next character */
 
@@ -279,21 +290,27 @@ public class FileStream {
 
         try {
             /* skip over comments */
+            /* only ever breaking out of this loop if EOF (error) or } or { (error) */
             while (runner != EOF) {
                 /* keep skipping until we get to a closed bracket */
-                if (runner == '}') break;
+                if (runner == '}'){
+                    runner = mvFilePointer();
+                    if(runner == '}'){ throw LexerError.IllegalComment(lineNum, "{ ... }}"); }
+                    break;
+                }
 
-                if (runner == '{') throw new FileStructureError();
+                if (runner == '{'){ throw LexerError.IllegalComment(lineNum, "{ ... { ... }"); }
+
                 runner = mvFilePointer();
             }
             /* if the runner is EOF comment never ended */
-            if (runner == EOF) throw new FileStructureError();
+            if (runner == EOF) throw LexerError.UnclosedComment(lineNum);
             
-        } catch (FileStructureError e1) {
-            System.out.println("Comment Not Formatted Correctly" + e1);
-            e1.printStackTrace(System.out);
+        } catch (LexerError error) {
+           // LOGGER.log(Level.SEVERE, error.toString(), error);
+            throw error;
         }
-         return mvFilePointer();
+         return runner; //mvFilePointer();
     }
 
 } /* end of FileStream class */

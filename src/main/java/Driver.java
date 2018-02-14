@@ -14,7 +14,7 @@ public class Driver {
      //   in = reader.nextLine();
 
         /* Tokenizer for testing purposes (use user input) */
-        Tokenizer tkzr = new Tokenizer("examples/stdnt1_ex.pas");
+        Tokenizer tkzr = new Tokenizer("examples/comments.pas");
 
         /* always ask for input until Sys exception */
         try {
@@ -29,6 +29,9 @@ public class Driver {
             reader.close();
             System.out.println("Reader Closed");
         }
+
+       // System.out.println(tkzr.getNextToken());
+     //  System.out.println(tkzr.getNextToken());
 
 
     }

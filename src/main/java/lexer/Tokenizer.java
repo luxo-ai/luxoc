@@ -15,6 +15,8 @@ public class Tokenizer {
     /* constants */
     private static final char EOF = (char) -1;
     private static final char BLANK = ' ';
+    private static final int ID_MAX_LEN = 10;
+    private static final char EXP = 'e';
 
 
     private FileStream fStream;
@@ -183,6 +185,7 @@ public class Tokenizer {
      */
     public Token getNextToken() {
         String buffer = "";
+        int buffer_len = 0;
         /* we always start in this state */
         StateType state = StateType.TERMINAL;
 
@@ -272,18 +275,15 @@ public class Tokenizer {
                                 return new Token(TokenType.DOUBLEDOT, null);
                             }
                             /* check if real */
-                            else if (isNumber(currentChar)) {
-                                state = StateType.REAL;
-                            }
+                        //    else if (isNumber(currentChar)) {
+                          //      state = StateType.REAL;
+                            //    buffer += currentChar; // adding the .?
+                           // }
 
                             /* check if its an end marker */
-                            else if (currentChar == EOF || currentChar == BLANK) {
+                            else {
                                 return new Token(TokenType.ENDMARKER, null);
-                            } else {
-                                /* otherwise its probably something illegal */
-                                throw new LexerError("Illegal Syntax");
                             }
-                            continue;
 
                             /* Operators */
                         case '+':
@@ -362,14 +362,34 @@ public class Tokenizer {
                         /* check if it's also a dot */
                         if (currentChar == '.') {
                             /* if it is, then we push back the double dot */
-                            fStream.pushBack(currentChar);
+                            fStream.pushBack(currentChar); // DO WE NEED TO DO THIS ANYMORE??????
                             fStream.pushBack(currentChar);
                             /* and return the int constant */
                             return new Token(TokenType.INTCONSTANT, buffer); /* TODO: is this ok? (buffer is string) */
                         }
                         /* otherwise, this must have been a real */
-                        buffer += prevChar;
-                        state = StateType.REAL;
+                     //   buffer += prevChar;
+                      //  fStream.pushBack(prevChar);
+                        if(isNumber(currentChar)) {
+                            state = StateType.REAL;
+                            buffer += prevChar;
+                        }
+                     //   if(!(isNumber(currentChar) || currentChar == EXP)){
+                       //     throw LexerError.IllegalRealConstant(fStream.getLineNum(), buffer);
+                       // }
+                       // else if(currentChar == EXP){
+                        //    state = StateType.EXPON;
+                          //  currentChar = fStream.nextChar();
+                      //  }
+                       // else{
+                        else{
+                            fStream.pushBack(prevChar);
+                            continue;
+//                            state = StateType.TERMINAL;
+                        }
+
+                     //  state = StateType.REAL;
+                       // }
                     }
                     /* if its a blank, then we're done with the int */
                     else {
@@ -378,11 +398,38 @@ public class Tokenizer {
                     continue;
 
 
+                case EXPON: // is 1.5e+10 allowed?
+                    if(isNumber(currentChar) || currentChar == '+' || currentChar == '-'){
+                        buffer+=currentChar;
+                        currentChar = fStream.nextChar(); // must have at least 1 number
+                        if(isNumber(currentChar)){
+                            buffer+=currentChar;
+                            while(isNumber(currentChar)){
+                                currentChar = fStream.nextChar();
+                                if(!isNumber(currentChar)){
+                                    //   buffer += currentChar;
+                                    return new Token(TokenType.REALCONSTANT, buffer);
+                                }
+                                buffer += currentChar;
+                            }
+                        }
+
+                    }
+                    throw LexerError.IllegalRealConstant(fStream.getLineNum(), buffer);
+
+
 
                     /* if things are real (after the decimal point) */
                     /* TODO: scientific notation ????? */
                 case REAL:
-                    if (isNumber(currentChar)) {
+                  //  currentChar = fStream.nextChar();
+                    if(currentChar == EXP){
+                        buffer+=currentChar;
+                        currentChar = fStream.nextChar();
+                        state = StateType.EXPON;
+                    }
+
+                    else if (isNumber(currentChar)) {
                         /* keep adding to the buffer */
                         buffer += currentChar;
                         currentChar = fStream.nextChar();
@@ -400,8 +447,10 @@ public class Tokenizer {
                         state = StateType.IDENTIFIER;
                         /* move on */
                         currentChar = fStream.nextChar();
+                        buffer_len++;
+
                     } else {
-                        throw new LexerError("Invalid Syntax (invalid name)"); // TODO: handle comments like: {comment }}
+                        throw LexerError.IllegalIdentifierName(fStream.getLineNum(), buffer);
                         /* TODO: ^ the same */
                         // TODO: look at number 2 for lex conventions.
                         // TODO: handle scientific notation
@@ -412,9 +461,11 @@ public class Tokenizer {
 
                     /* must be an identifier or keyword */
                 case IDENTIFIER:
+
                     if (validIdentBody(currentChar)) {
                         /* collect everything */
                         buffer += currentChar;
+                        buffer_len++;
                         currentChar = fStream.nextChar();
                     }
                     else{
@@ -431,19 +482,21 @@ public class Tokenizer {
                             return oper;
                         }
 
+                        if(buffer_len > ID_MAX_LEN){ throw LexerError.IllegalIdentifierLength(fStream.getLineNum(), buffer, ID_MAX_LEN); }
+
                         /* otherwise, it was just a normal identifier */
                         return new Token(TokenType.IDENTIFIER, buffer);
                     }
                     continue;
 
                     /* something went wrong */
-                case ERROR:
-                    return null;
+             //   case ERROR:
+                 //   return null;
 
 
                 /* never should need to get here */
                 default:
-                    return null;
+                    state = StateType.TERMINAL;
 
             } /* end of state switch */
         } /* end of while loop */
