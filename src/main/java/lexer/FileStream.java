@@ -31,7 +31,6 @@ public class FileStream {
                                                    "&|" +
                                                    "\t\n ";
 
-    
     /**
      * File handling structures:
      */
@@ -132,7 +131,6 @@ public class FileStream {
     private void openFile(String filePath){
         try{
             filePath = new File(filePath).getAbsolutePath();
-            System.out.println(filePath);
             /* initialize the buffered reader */
             this.bReader = new BufferedReader(new FileReader(filePath));
 
@@ -145,10 +143,10 @@ public class FileStream {
         }
         /* handle exceptions */
         catch (FileNotFoundException e1){
-            System.out.print(e1);
+            System.out.println(e1.toString());
         }
         catch (IOException e2){
-            System.out.println(e2);
+            System.out.println(e2.toString());
         }
     }
 
@@ -165,7 +163,6 @@ public class FileStream {
             this.lineNum = 0;
             this.fileChar = EOF;
             this.charOffset = 0;
-
             /* close the buffered reader */
             this.bReader.close();
         }
@@ -179,7 +176,6 @@ public class FileStream {
            // LOGGER.log(Level.WARNING, ex2.toString(), ex2);
         }
     }
-
 
 
     /**
@@ -227,34 +223,46 @@ public class FileStream {
      */
     public char nextChar(){
 
-
-
         /* check the push back stack first and return the character at the top of the stack */
-        if(!pbStack.empty()){ return this.pbStack.pop(); } // THIS WAS POP before
+        if(!pbStack.empty()){
+            char pb = this.pbStack.pop();
+            if(pb=='{'){
+                skip();
+                return this.fileChar;
+            }
+            return pb;
+        }
 
         /* skip over whitespace */
-        if(Character.isWhitespace(this.fileChar) && this.fileChar != '\n'){
+        if(Character.isWhitespace(this.fileChar) || this.fileChar == '\t'){
+            boolean test = this.fileChar == '\t';
+            System.out.println("The char is: "+this.fileChar+test);
             skip();
             return this.fileChar;
+            //return ' ';
         }
 
         if(this.fileChar == '{'){
             skip();
             return this.fileChar;
         }
-
         /*
-         * otherwise: we move the file pointer once, set the fileChar, and return the character.
+         * otherwise
          */
+        char old = this.fileChar;
         char newChar = mvFilePointer();
-
-        // we must ensure that the new character is valid
-        if(newChar != EOF && !PascalChars.contains(""+newChar)){ throw LexerError.InvalidCharacter(lineNum, newChar);}
-
         this.fileChar = newChar;
 
-        return newChar;
+        // we must ensure that the new character is valid
+        if(newChar != EOF && !PascalChars.contains(""+newChar)){
+            throw LexerError.InvalidCharacter(lineNum, newChar);
+        }
 
+       if(this.fileChar == '{') {
+           pushBack(this.fileChar);
+           return ' ';
+       }
+       return this.fileChar;
     }
 
     /**
@@ -310,7 +318,6 @@ public class FileStream {
            // LOGGER.log(Level.SEVERE, error.toString(), error);
             throw error;
         }
-         return runner; //mvFilePointer();
+         return runner;
     }
-
 } /* end of FileStream class */

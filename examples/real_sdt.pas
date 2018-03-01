@@ -11,7 +11,7 @@ this or that and 3 div >= === **
 
 +not
 
-valid: 1, 1.2, 22.4444,program 2.21111, 2.2340000, 1..  5800
+valid: 1, 1.2, 22.4444,program 2.2e1111, 2.234e-0000, 1..  5e+800
 invalid result integer: {1., .111, 0.e, 0.111e, 05e+800.1, 1.5e1.5,}
 isvalid11
 1123e100 else {3notvalidID }
@@ -19,9 +19,9 @@ isvalid11
 { e3m 3m }
 300 return intcons value 300
 function    functions procedure
-fun{p}123.4 or 5 div5 8.0/3
-    {11.}0.005{e1} +**
-    {0e.} -19371{}0.21
+fun{}123.4 or 5 div5 8.0/3
+    {11.}0.00e-5{e1} +**
+    {0e.} -1937e1{}0.2e1
 (const+ 8)5.. 10 -3.1
 
 non-whitespace end

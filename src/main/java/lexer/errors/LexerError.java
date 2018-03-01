@@ -1,8 +1,13 @@
+/**
+ * File: LexerError.java
+ *
+ * Desc: Reports lexical errors.
+ *
+ * @author Luis Serazo
+ */
 package main.java.lexer.errors;
 
-import main.java.errors.CompilerError;
-
-public class LexerError extends CompilerError {
+public class LexerError extends Error {
 
     public LexerError(String msg){
         super(msg);

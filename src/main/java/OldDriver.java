@@ -3,7 +3,7 @@ package main.java;
 import main.java.lexer.Tokenizer;
 import java.util.Scanner;
 
-public class Driver {
+public class OldDriver {
 
     public static void main(String[] args) {
         /* String for reading in user input */
@@ -14,7 +14,7 @@ public class Driver {
      //   in = reader.nextLine();
 
         /* Tokenizer for testing purposes (use user input) */
-        Tokenizer tkzr = new Tokenizer("examples/comments.pas");
+        Tokenizer tkzr = new Tokenizer("examples/real_sdt.pas");
 
         /* always ask for input until Sys exception */
         try {

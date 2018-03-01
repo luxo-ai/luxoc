@@ -1,3 +1,12 @@
+/**
+ * File: FileStreamException.java
+ *
+ * Desc: For file exceptions
+ *
+ * @author Luis Serazo
+ *
+ */
+
 package main.java.lexer.exceptions;
 
 public class FileStreamException extends Exception {

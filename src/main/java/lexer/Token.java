@@ -16,9 +16,8 @@ public class Token{
 
     /* TokenType of a type */
     private final TokenType tType;
-    /* valueue of a token */
+    /* value of a token */
     private final String value;
-
 
 
     /**
@@ -30,8 +29,6 @@ public class Token{
         this.tType = tType;
         this.value = value;
     }
-
-
 
     /**
      * getTokenType: getter method for the token type
@@ -49,21 +46,6 @@ public class Token{
         return this.value;
     }
 
-    /**
-     * setTokenType: setter method for the Token type
-     * @param newType, a TokenType
-     */
-   // public void setTokenType(TokenType newType){
-  //      this.tType = newType;
-  //  }
-
-    /**
-     * setvalue: setter method for the Token valueue
-     * @param newvalue, a String representation
-     */
-  //  public void setvalue(String newvalue){
- //       this.value = newvalue;
- //   }
 
     /**
      * toString: returns a string representation of this Token
