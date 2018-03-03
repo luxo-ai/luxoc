@@ -11,6 +11,10 @@ import main.java.lexer.errors.LexerError;
 import main.java.token.Token;
 import main.java.token.TokenType;
 
+/**
+ * @deprecated revamp ASAP
+ *
+ */
 public class Tokenizer {
 
     /* constants */

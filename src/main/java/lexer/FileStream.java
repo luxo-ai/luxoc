@@ -16,6 +16,10 @@ import java.util.logging.Logger;
 
 
 /* begin FileStream class */
+
+/**
+ * @deprecated revamp ASAP
+ */
 public class FileStream {
 
     /**
