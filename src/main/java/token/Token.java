@@ -1,16 +1,15 @@
-/**
+/*
  * FILE: Token.java
  *
  * DESC: contains the Token class describing a token.
  *       A token is a <TokenType, value> pair.
  *
- * @author Luis Serazo
- *
  */
-package main.java.lexer;
+package main.java.token;
 
 /**
  * Token class
+ * @author Luis Serazo
  */
 public class Token{
 
@@ -34,17 +33,19 @@ public class Token{
      * getTokenType: getter method for the token type
      * @return the Token type
      */
-    public TokenType getTokenType(){
-        return this.tType;
-    }
+    public TokenType getTokenType(){ return this.tType; }
 
     /**
      * getvalue: getter method for the valueue of the Token
      * @return the valueue of the Token
      */
-    public String getvalue(){
-        return this.value;
-    }
+    public String getvalue(){ return this.value; }
+
+    /**
+     * getTypeIndex:
+     * @return the Token type index
+     */
+    public int getTypeIndex(){ return this.tType.getIndex(); }
 
 
     /**
@@ -52,8 +53,6 @@ public class Token{
      * @return a String representation of this Token.
      */
     @Override
-    public String toString(){
-        return "< "+this.tType.getName()+" , "+this.value+" >";
-    }
+    public String toString(){ return "< "+this.tType.getName()+" , "+this.value+" >"; }
 
 } /* end of Token class */

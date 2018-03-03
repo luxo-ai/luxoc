@@ -8,6 +8,8 @@
  */
 package main.java.lexer;
 import main.java.lexer.errors.LexerError;
+import main.java.token.Token;
+import main.java.token.TokenType;
 
 public class Tokenizer {
 
