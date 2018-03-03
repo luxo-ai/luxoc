@@ -83,7 +83,9 @@ public class Parser {
      */
     public void run(){
         /* while the current token type is not an EOF */
-        while(currentToken.getTokenType() != TokenType.ENDOFFILE){
+        // before, had: currentToken.getTokenType() != TokenType.ENDOFFILE
+        // but this missed a bunch of important cases.
+        while(!parStack.isEmpty()){
             /* set the predicted symbol to the top of the stack */
             predicted = parStack.pop();
 
@@ -137,19 +139,17 @@ public class Parser {
      */
     public void dumpStack(){
         System.out.println();
-        System.out.println("Dumping Stack: ");
-        Stack<GrammarSymbol> stackCopy = new Stack<>();
-        stackCopy.addAll(parStack);
-
-        while(!stackCopy.isEmpty()){
-            System.out.println("--> "+stackCopy.pop());
+        if(!parStack.isEmpty()) {
+            System.out.println("Dumping Stack: ");
+            Stack<GrammarSymbol> stackCopy = new Stack<>();
+            stackCopy.addAll(parStack);
+            while (!stackCopy.isEmpty()) {
+                System.out.println("--> " + stackCopy.pop());
+            }
+        }
+        else{
+            System.out.println("Empty Stack");
         }
     }
-
-
-    public static void main(String[] args) throws FileNotFoundException{
-        Parser ps = new Parser("examples/program.pas");
-        ps.run();
-    }
-}
+} /* end of Parser class */
 

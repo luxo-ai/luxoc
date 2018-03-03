@@ -15,4 +15,5 @@ The parser can be tested against any of the test files in /examples.
 The ParseDriver will be used to load and test a file. 
 
 
-
+#### Parse:
+to analyze (a sentence) into its parts and describe their syntactic roles.

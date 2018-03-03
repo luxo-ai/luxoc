@@ -42,6 +42,12 @@ public class Token{
     public String getvalue(){ return this.value; }
 
     /**
+     * isEOF: checks if the current Token is EOF
+     * @return True if the Token is EOF, False otherwise.
+     */
+    public boolean isEOF(){ return this.tType == TokenType.ENDOFFILE; }
+
+    /**
      * getTypeIndex:
      * @return the Token type index
      */
