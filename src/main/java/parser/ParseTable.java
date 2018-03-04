@@ -16,7 +16,7 @@ import java.util.Scanner;
 public class ParseTable {
 
     /* default path to the parse table data */
-    private static final String DEFAULT_PATH = "parse_tables/parsetable.dat";
+    private static final String DEFAULT_PATH = "parse_tables/parse_table.dat";
 
     /* save the abstract file from the pathname */
     private File parseData;
