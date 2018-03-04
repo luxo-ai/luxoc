@@ -16,6 +16,10 @@ import java.util.logging.Logger;
 
 
 /* begin FileStream class */
+
+/**
+ * @deprecated revamp ASAP
+ */
 public class FileStream {
 
     /**
@@ -236,7 +240,7 @@ public class FileStream {
         /* skip over whitespace */
         if(Character.isWhitespace(this.fileChar) || this.fileChar == '\t'){
             boolean test = this.fileChar == '\t';
-            System.out.println("The char is: "+this.fileChar+test);
+          //  System.out.println("The char is: "+this.fileChar+test);
             skip();
             return this.fileChar;
             //return ' ';
