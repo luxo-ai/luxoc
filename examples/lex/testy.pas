@@ -1,7 +1,8 @@
+{comment}
 program showRelations;
 var
   a, b: integer;
-
+1.0eeeeeeee
 begin
   a = 21;
   b = 10;
@@ -21,7 +22,7 @@ begin
       else
           { writeln('Line 3 - a is greater than b' );}
 
-          (* Lets change value of a and b *)
+          {(* Lets change value of a and b *)}
         a = 5;
   b = 20;
 

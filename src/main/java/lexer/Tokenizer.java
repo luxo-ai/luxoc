@@ -1,50 +1,64 @@
-/**
- * FILE: Tokenizer
+/*
+ * File: Tokenizer.java
  *
- * DESC: contains the tokenizer class.
- *
- * @author Luis Serazo
- *
+ * Desc: contains the tokenizer with the get
+ *       next Token method. Used in parsing.
  */
 package main.java.lexer;
+
 import main.java.lexer.errors.LexerError;
 import main.java.token.Token;
 import main.java.token.TokenType;
 
 /**
- * @deprecated revamp ASAP
+ * Tokenizer class
+ * @author Luis Serazo
  *
  */
 public class Tokenizer {
 
-    /* constants */
-    /* EOF: end of file character */
+    /*
+     * Constants:
+     * - SPACE: whitespace character.
+     * - EOF: end of file character.
+     * - ID_MAX: the max length of an identifier.
+     *
+     */
+    private static final char SPACE = ' ';
     private static final char EOF = (char) -1;
-    /* BLANK: a blank space character */
-    private static final char BLANK = ' ';
-    /* ID_MAX_LEN: the max length of any identifier */
-    private static final int ID_MAX_LEN = 100;
-    /* EXP: scientific notation character */
-    private static final char EXP = 'e';
+    private static final int ID_MAX = 20;
 
-    /* fStream, a FileStream */
+    /*
+     * Structures:
+     * - fStream: a FileStream for file handling
+     * - currentChar: the current character being analyzed (from file and push back)
+     * - prevToken: the previous Token.
+     * - keywords: a keyword map.
+     * - punctuation: a punctuation map.
+     *
+     */
     private FileStream fStream;
-    /* currentChar, the current character being analyzed */
     private char currentChar;
-    /* prevTokenType the TokenType of the last created Token */
-    private TokenType prevTokenType;
+    private Token prevToken;
+    private KeywordMap keywords;
+    private PunctuationMap punctuation;
 
     /**
      * Tokenizer constructor
+     *
      * @param filename, a file path for initializing the FileStream.
      */
     public Tokenizer(String filename) {
+        this.keywords = new KeywordMap();
+        this.punctuation = new PunctuationMap();
         this.fStream = new FileStream(filename);
         this.currentChar = fStream.getFileChar();
+
     }
 
     /**
      * isNumber: checks if the character is a number.
+     *
      * @param chr, the character being checked.
      * @return True, if it's a number and False otherwise.
      */
@@ -54,6 +68,7 @@ public class Tokenizer {
 
     /**
      * isLetter: checks if the character is letter.
+     *
      * @param chr, the character being checked.
      * @return True if it's a letter, and False otherwise.
      */
@@ -63,6 +78,7 @@ public class Tokenizer {
 
     /**
      * isSpecialChar: checks if the character is a special character.
+     *
      * @param chr, the character being checked.
      * @return True, if valid, False otherwise.
      */
@@ -72,6 +88,7 @@ public class Tokenizer {
 
     /**
      * validIdentStart: checks if the character is a valid identifier start.
+     *
      * @param chr, the character being checked.
      * @return True, if valid, False otherwise.
      */
@@ -82,6 +99,7 @@ public class Tokenizer {
 
     /**
      * validIdentBody: checks if the character is a valid identifier body.
+     *
      * @param chr, the character being checked.
      * @return True, if valid, False otherwise.
      */
@@ -89,475 +107,363 @@ public class Tokenizer {
         return (isLetter(chr) || isNumber(chr));
     }
 
-
     /**
-     * getKeyword: checks the string buffer and decides which kind of keyword is represented.
-     *             and returns a Token for that operator.
-     * @param buffer, the string buffer.
-     * @return a Token
+     * setPrevToken: setter method sets the previous Token.
+     *
+     * @param prevToken: the previous Token
      */
-    private Token getKeyword(String buffer) {
-        /* make adjustment to lowercase */
-        buffer = buffer.toLowerCase();
-        // just one big switch
-        switch (buffer) {
-
-            case "program":
-                prevTokenType = TokenType.PROGRAM;
-                return new Token(TokenType.PROGRAM, null);
-
-            case "begin":
-                prevTokenType = TokenType.BEGIN;
-                return new Token(TokenType.BEGIN, null);
-
-            case "end":
-                prevTokenType = TokenType.END;
-                return new Token(TokenType.END, null);
-
-            case "var":
-                prevTokenType = TokenType.VAR;
-                return new Token(TokenType.VAR, null);
-
-            case "function":
-                prevTokenType = TokenType.FUNCTION;
-                return new Token(TokenType.FUNCTION, null);
-
-            case "procedure":
-                prevTokenType = TokenType.PROCEDURE;
-                return new Token(TokenType.PROCEDURE, null);
-
-            case "result":
-                prevTokenType = TokenType.RESULT;
-                return new Token(TokenType.RESULT, null);
-
-            case "integer":
-                prevTokenType = TokenType.INTEGER;
-                return new Token(TokenType.INTEGER, null);
-
-            case "real":
-                prevTokenType = TokenType.REAL;
-                return new Token(TokenType.REAL, null);
-
-            case "array":
-                prevTokenType = TokenType.ARRAY;
-                return new Token(TokenType.ARRAY, null);
-
-            case "of":
-                prevTokenType = TokenType.OF;
-                return new Token(TokenType.OF, null);
-
-            case "if":
-                prevTokenType = TokenType.IF;
-                return new Token(TokenType.IF, null);
-
-            case "then":
-                prevTokenType = TokenType.THEN;
-                return new Token(TokenType.THEN, null);
-
-            case "else":
-                prevTokenType = TokenType.ELSE;
-                return new Token(TokenType.ELSE, null);
-
-            case "while":
-                prevTokenType = TokenType.WHILE;
-                return new Token(TokenType.WHILE, null);
-
-            case "do":
-                prevTokenType = TokenType.DO;
-                return new Token(TokenType.DO, null);
-
-            case "not":
-                prevTokenType = TokenType.NOT;
-                return new Token(TokenType.NOT, null);
-
-            default:
-                return null;
-        }
+    private void setPrevToken(Token prevToken) {
+        this.prevToken = prevToken;
     }
 
+
     /**
-     * getSpecialOP: checks the string buffer and decides which kind of operator is represented.
-     *             and returns a Token for that operator.
-     * @param buffer, the string buffer.
-     * @return a Token
+     * isKeyword:
      */
-    private Token getSpecialOP(String buffer) {
-        /* make adjustment to lowercase */
+    private boolean isKeyword(String buffer) {
         buffer = buffer.toLowerCase();
-        /* little switch */
-        switch (buffer) {
-            case "or":
-                prevTokenType = TokenType.ADDOP;
-                return new Token(TokenType.ADDOP, "3");
 
-            case "div":
-                prevTokenType = TokenType.MULOP;
-                return new Token(TokenType.MULOP, "3");
+        return (buffer.equals("program") ||
+                buffer.equals("begin") ||
+                buffer.equals("end") ||
+                buffer.equals("var") ||
+                buffer.equals("function") ||
+                buffer.equals("procedure") ||
+                buffer.equals("result") ||
+                buffer.equals("integer") ||
+                buffer.equals("real") ||
+                buffer.equals("array") ||
+                buffer.equals("of") ||
+                buffer.equals("if") ||
+                buffer.equals("then") ||
+                buffer.equals("else") ||
+                buffer.equals("while") ||
+                buffer.equals("do") ||
+                buffer.equals("not"));
+    }
 
-            case "mod":
-                prevTokenType = TokenType.MULOP;
-                return new Token(TokenType.MULOP, "4");
 
-            case "and":
-                prevTokenType = TokenType.MULOP;
-                return new Token(TokenType.MULOP, "5");
-
-            default:
-                return null;
-        }
+    /**
+     * isSpecialOp
+     *
+     * @param buffer
+     * @return
+     */
+    private boolean isSpecialOp(String buffer) {
+        buffer = buffer.toLowerCase();
+        return (buffer.equals("or") ||
+                buffer.equals("div") ||
+                buffer.equals("mod") ||
+                buffer.equals("and"));
     }
 
 
     /**
      * isBinaryAddop: checks if the previousTokenType is a binary addition operator.
+     *
      * @return True if binary and false if unary
      */
-    private boolean isBinaryAddop(){
-        return ((prevTokenType == TokenType.RIGHTPAREN) ||
-                (prevTokenType == TokenType.RIGHTBRACKET) ||
-                (prevTokenType == TokenType.IDENTIFIER) ||
-                (prevTokenType == TokenType.INTCONSTANT) ||
-                (prevTokenType == TokenType.REALCONSTANT));
+    private boolean isBinaryAddop() {
+        return ((this.prevToken.getTokenType() == TokenType.RIGHTPAREN) ||
+                (this.prevToken.getTokenType() == TokenType.RIGHTBRACKET) ||
+                (this.prevToken.getTokenType() == TokenType.IDENTIFIER) ||
+                (this.prevToken.getTokenType() == TokenType.INTCONSTANT) ||
+                (this.prevToken.getTokenType() == TokenType.REALCONSTANT));
     }
 
     /**
      * getPrevTokenType: getter method for the previous Token created.
+     *
      * @return this.prevTokenType
      */
-    public TokenType getPrevTokenType(){
-        return this.prevTokenType;
+    public TokenType prevTokenT() {
+        return this.prevToken.getTokenType();
+    }
+
+    /**
+     * eofToken: routine if we've reached the EOF
+     *
+     * @return an EOF Token.
+     */
+    private Token eofToken() {
+        /* bReader has already been closed */
+        if (this.fStream.getBReader() == null) {
+            /* then we've already set this.prevToken to EOF */
+            return this.prevToken;
+        } else {
+            /* otherwise, close the file */
+            fStream.closeFile();
+            this.prevToken = new Token(TokenType.ENDOFFILE, null);
+            return this.prevToken;
+        }
+    }
+
+    /**
+     * isPunctuation: determines if the character is a punctuation char.
+     *
+     * @return True if the char is punctuation, False otherwise.
+     */
+    private boolean isPunctuation(char chr) {
+        return (chr == ',' ||
+                chr == ';' ||
+                chr == ')' ||
+                chr == '(' ||
+                chr == ']' ||
+                chr == '[');
+    }
+
+    /**
+     * isOperator: determines if the character is an operator.
+     *
+     * @return True if the char is an operator, False otherwise.
+     */
+    private boolean isOperator(char chr) {
+        return (chr == '*' ||
+                chr == '/' ||
+                chr == '=');
+    }
+
+
+    /**
+     * getOperator:
+     *
+     * @return the operator Token
+     */
+    private Token getOperator(char chr) {
+        /* one big switch */
+        switch (chr) {
+            case '*':
+                this.prevToken = new Token(TokenType.MULOP, "1");
+                return this.prevToken;
+            case '/':
+                this.prevToken = new Token(TokenType.MULOP, "2");
+                return this.prevToken;
+            case '=':
+                this.prevToken = new Token(TokenType.RELOP, "1");
+                return this.prevToken;
+            default:
+                return null; /* this should never happen */
+        }
+    }
+
+    /**
+     * binaryDecision:
+     *
+     * @return True if binary decision, False otherwise.
+     */
+    private boolean binaryDecision(char chr) {
+        return (chr == ':' ||
+                chr == '.' ||
+                chr == '+' ||
+                chr == '-' ||
+                chr == '<' ||
+                chr == '>');
+    }
+
+    /**
+     * resolveBinary:
+     *
+     * @return Token of the binary operator or etc
+     */
+    private Token resolveBinary(char chr) {
+
+        switch (chr) {
+            /* Punctuation */
+            case ':':
+                currentChar = fStream.nextChar();
+                if (currentChar != '=') {
+                    return new Token(TokenType.COLON, null);
+                }
+                currentChar = fStream.nextChar();
+                this.prevToken = new Token(TokenType.ASSIGNOP, null);
+                return this.prevToken;
+
+            case '.':
+                currentChar = fStream.nextChar();
+                /* check if double dot (..) */
+                if (currentChar == '.') {
+                    /* remove the second dot */
+                    fStream.popStack(1);
+                    currentChar = fStream.nextChar();
+                    this.prevToken = new Token(TokenType.DOUBLEDOT, null);
+                    return this.prevToken;
+                }
+                /* if preceded by a number ?. No need to consider this case since buffer is "" */
+                /* check if its an end marker */
+                this.prevToken = new Token(TokenType.ENDMARKER, null);
+                return this.prevToken;
+
+
+            /* Operators */
+            case '+':
+                currentChar = fStream.nextChar();
+                if (isBinaryAddop()) {
+                    this.prevToken = new Token(TokenType.ADDOP, "1");
+                    return this.prevToken;
+                }
+                this.prevToken = new Token(TokenType.UNARYPLUS, null);
+                return this.prevToken;
+
+
+            case '-':
+                currentChar = fStream.nextChar();
+                if (isBinaryAddop()) {
+                    this.prevToken = new Token(TokenType.ADDOP, "2");
+                    return this.prevToken;
+                }
+                this.prevToken = new Token(TokenType.UNARYMINUS, null);
+                return this.prevToken;
+
+
+            case '<':
+                currentChar = fStream.nextChar();
+
+                if (currentChar == '>') {
+                    currentChar = fStream.nextChar();
+                    this.prevToken = new Token(TokenType.RELOP, "2");
+                    return this.prevToken;
+
+                } else if (currentChar == '=') {
+                    currentChar = fStream.nextChar();
+                    this.prevToken = new Token(TokenType.RELOP, "5");
+                    return this.prevToken;
+                }
+                this.prevToken = new Token(TokenType.RELOP, "3");
+                return this.prevToken;
+
+            case '>':
+                currentChar = fStream.nextChar();
+                if (currentChar == '=') {
+                    currentChar = fStream.nextChar();
+                    this.prevToken = new Token(TokenType.RELOP, "6");
+                    return this.prevToken;
+                }
+                this.prevToken = new Token(TokenType.RELOP, "4");
+                return this.prevToken;
+
+            default:
+                return null; /* don't expect to get here */
+        }
     }
 
 
     /**
      * getNextToken: does the main work for tokenization.
+     *
      * @return a Token
      */
     public Token getNextToken() {
         String buffer = "";
-        int buffer_len = 0;
-        /* we always start in this state */
-        StateType state = StateType.TERMINAL;
 
-        /* loop through the DFA until we arrive at a final state */
+        /* main loop */
         while (true) {
+            /* if we've reached EOF just keep returning EOF */
             if (currentChar == EOF) {
-                fStream.closeFile();
-                prevTokenType = TokenType.ENDOFFILE;
-                return new Token(TokenType.ENDOFFILE, null);
+                return eofToken();
             }
-            /* otherwise */
-            switch (state) {
 
-                /* terminal symbols */
-                case TERMINAL:
-                    /* types of terminal symbols */
-                    switch (currentChar) {
+            /* if SPACE, we get the next char and continue */
+            if ((currentChar == SPACE || currentChar == '\n') && buffer.isEmpty()) {
+                currentChar = fStream.nextChar();
+            }
 
-                        case BLANK:
-                            currentChar = fStream.nextChar(); /* skip blanks */
-                            continue;
+            if (isPunctuation(currentChar) && buffer.isEmpty()) {
+                // jump to punctuation subroutine
+                char prev = currentChar; /* this is confusing may want to put this in getPunc logic */
+                currentChar = fStream.nextChar();
+                this.prevToken = punctuation.getPunc(prev);
+                return this.prevToken;
+            }
 
-                            /* Punctuation (have null values) */
-                        case ',':
-                            currentChar = fStream.nextChar();
-                            prevTokenType = TokenType.COMMA;
-                            return new Token(TokenType.COMMA, null); /* returning breaks all */
+            if (isOperator(currentChar) && buffer.isEmpty()) {
+                // jump to operator subroutine // why do this? if not doing it else where (num + ident)
+                char prev = currentChar;
+                currentChar = fStream.nextChar();
+                return getOperator(prev);
+            }
 
-                        case ';':
-                            currentChar = fStream.nextChar();
-                            prevTokenType = TokenType.SEMICOLON;
-                            return new Token(TokenType.SEMICOLON, null);
-
-                        case ')':
-                            currentChar = fStream.nextChar();
-                            prevTokenType = TokenType.RIGHTPAREN;
-                            return new Token(TokenType.RIGHTPAREN, null);
-
-                        case '(':
-                            currentChar = fStream.nextChar();
-                            prevTokenType = TokenType.LEFTPAREN;
-                            return new Token(TokenType.LEFTPAREN, null);
-
-                        case ']':
-                            currentChar = fStream.nextChar();
-                            prevTokenType = TokenType.RIGHTBRACKET;
-                            return new Token(TokenType.RIGHTBRACKET, null);
-
-                        case '[':
-                            currentChar = fStream.nextChar();
-                            prevTokenType = TokenType.LEFTBRACKET;
-                            return new Token(TokenType.LEFTBRACKET, null);
-
-                        /* Operators */
-                        case '*':
-                            currentChar = fStream.nextChar();
-                            prevTokenType = TokenType.MULOP;
-                            return new Token(TokenType.MULOP, "1");
-
-                        case '/':
-                            currentChar = fStream.nextChar();
-                            prevTokenType = TokenType.MULOP;
-                            return new Token(TokenType.MULOP, "2");
-
-                        case '=':
-                            currentChar = fStream.nextChar();
-                            prevTokenType = TokenType.RELOP;
-                            return new Token(TokenType.RELOP, "1");
-
-                        default:
-                            state = StateType.DECISION; /* jump to the next types */
-                            continue;
-                    }
-
-                case DECISION:
-                    /* types of double takes */
-                    switch (currentChar) {
-
-                        /* Punctuation */
-                        case ':':
-                            currentChar = fStream.nextChar();
-                            if (currentChar != '=') {
-                                return new Token(TokenType.COLON, null);
-                            } else {
-                                currentChar = fStream.nextChar();
-                                prevTokenType = TokenType.ASSIGNOP;
-                                return new Token(TokenType.ASSIGNOP, null);
-                            }
-
-                        case '.':
-                            currentChar = fStream.nextChar();
-
-                            /* check if double dot (..) */
-                            if (currentChar == '.') {
-                                /* remove the second dot */
-                                fStream.popStack(1);
-                                currentChar = fStream.nextChar();
-                                prevTokenType = TokenType.DOUBLEDOT;
-                                return new Token(TokenType.DOUBLEDOT, null);
-                            }
-                            /* check if real */
-
-                            /* check if its an end marker */
-                            else {
-                                prevTokenType = TokenType.ENDMARKER;
-                                return new Token(TokenType.ENDMARKER, null);
-                            }
-
-                            /* Operators */
-                        case '+':
-                            currentChar = fStream.nextChar();
-                            //if (validIdentStart(currentChar) || isNumber(currentChar)) {
-                            if(!isBinaryAddop()){
-                                prevTokenType = TokenType.UNARYPLUS;
-                                return new Token(TokenType.UNARYPLUS, null);
-                            }
-                            prevTokenType = TokenType.ADDOP;
-                            return new Token(TokenType.ADDOP, "1");
-
-                        case '-':
-                            currentChar = fStream.nextChar();
-                            if(!isBinaryAddop()){
-                                prevTokenType = TokenType.UNARYMINUS;
-                                return new Token(TokenType.UNARYMINUS, null);
-                            }
-                            prevTokenType = TokenType.ADDOP;
-                            return new Token(TokenType.ADDOP, "2");
+            // NonTerminals
+            if (binaryDecision(currentChar) && buffer.isEmpty()) {
+                return resolveBinary(currentChar);
+            }
 
 
-                        case '<':
-                            currentChar = fStream.nextChar();
+            if (isNumber(currentChar)) {
+                buffer += currentChar;
+                currentChar = fStream.nextChar();
 
-                            if (currentChar == '>') {
-                                currentChar = fStream.nextChar();
-                                prevTokenType = TokenType.RELOP;
-                                return new Token(TokenType.RELOP, "2");
-                            } else if (currentChar == '=') {
-                                currentChar = fStream.nextChar();
-                                prevTokenType = TokenType.RELOP;
-                                return new Token(TokenType.RELOP, "5");
-                            }
-                            prevTokenType = TokenType.RELOP;
-                            return new Token(TokenType.RELOP, "3");
-
-
-                        case '>':
-                            currentChar = fStream.nextChar();
-                            if (currentChar == '=') {
-                                currentChar = fStream.nextChar();
-                                prevTokenType = TokenType.RELOP;
-                                return new Token(TokenType.RELOP, "6");
-                            }
-                            prevTokenType = TokenType.RELOP;
-                            return new Token(TokenType.RELOP, "4");
-
-                        default:
-                            state = StateType.NUMERIC; /* move into next state */
-                            continue;
-                    }
-
-                    /* checks to see if things are numeric */
-                case NUMERIC:
+                if (currentChar == '.') {
+                    char prev = currentChar;
+                    currentChar = fStream.nextChar();
+                    // check if numeric ?
                     if (isNumber(currentChar)) {
-                        /* if the char is a number, we add it to the buffer */
-                        buffer += currentChar;
-                        currentChar = fStream.nextChar();
-                        /* move to state int */
-                        state = StateType.INTEGER;
+                        buffer += prev; /* add the decimal to the buffer */
+                        return getReal(buffer);
+                        // GO INTO REAL CASE
                     } else {
-                        /* otherwise, probably is alphabetic */
-                        state = StateType.ALPHABETIC;
-                    }
-                    continue;
-
-                    /* checks for integers or numeric things in general */
-                case INTEGER:
-                    if (isNumber(currentChar)) {
-                        /* keep adding to the buffer thinking its an int */
-                        buffer += currentChar;
-                        currentChar = fStream.nextChar();
-                    }
-                    /* either an array or a real */
-                    else if (currentChar == '.') {
-                        /* record this dot */
-                        char prevChar = currentChar;
-                        /* move to the next */
-                        currentChar = fStream.nextChar();
-                        /* check if it's also a dot */
-                        if (currentChar == '.') {
-                            /* if it is, then we push back the double dot */
-                            fStream.pushBack(currentChar);
-                            fStream.pushBack(currentChar);
-                            /* and return the int constant */
-                            prevTokenType = TokenType.INTCONSTANT;
-                            return new Token(TokenType.INTCONSTANT, buffer); /* TODO: is this ok? (buffer is string) */
-                        }
-                        /* otherwise, this must have been a real */
-                        if(isNumber(currentChar)) {
-                            state = StateType.REAL;
-                            buffer += prevChar;
-                        }
-                        else{
-
-                            fStream.pushBack(prevChar);
-                            prevTokenType = TokenType.INTCONSTANT;
-                            return new Token(TokenType.INTCONSTANT, buffer);
-                        }
-                    }
-                    /* if its a blank, then we're done with the int */
-                    else {
-                        prevTokenType = TokenType.INTCONSTANT;
-                        return new Token(TokenType.INTCONSTANT, buffer); /* TODO: is this ok? (buffer is string) */
-                    }
-                    continue;
-
-                case EXPON:
-                    String old_buff = buffer;
-                    buffer += EXP;
-                    char prev;
-                    if(isNumber(currentChar) || currentChar == '+' || currentChar == '-'){
-                        prev = currentChar;
-                        buffer+=currentChar;
-                        currentChar = fStream.nextChar();
-                        if(isNumber(currentChar)){
-                            buffer+=currentChar;
-                            while(isNumber(currentChar)){
-                                currentChar = fStream.nextChar();
-                                if(!isNumber(currentChar)){
-                                    prevTokenType = TokenType.REALCONSTANT;
-                                    return new Token(TokenType.REALCONSTANT, buffer);
-                                }
-                                buffer += currentChar;
-                            }
-                        }
-                        else if(isNumber(prev)){
-                            prevTokenType = TokenType.REALCONSTANT;
-                            return new Token(TokenType.REALCONSTANT, buffer);
-                        }
-                        else{
-                           fStream.pushBack(currentChar);
-                           fStream.pushBack(prev);
-
-                           currentChar = EXP;
-                           prevTokenType = TokenType.REALCONSTANT;
-                           return new Token(TokenType.REALCONSTANT, old_buff);
-                        }
-
-                    }
-                    else{
+                        /* anything else needs to be pushed back and must have been end of the number (double dot handled above) */
                         fStream.pushBack(currentChar);
-                        currentChar = EXP;
-                        prevTokenType = TokenType.REALCONSTANT;
-                        return new Token(TokenType.REALCONSTANT, old_buff);
-
+                        fStream.pushBack(prev);
+                        this.prevToken = new Token(TokenType.INTCONSTANT, buffer);
+                        return this.prevToken;
                     }
+                }
+                /* anything else */
+                else if (!isNumber(currentChar)) {
+                    this.prevToken = new Token(TokenType.INTCONSTANT, buffer);
+                    return this.prevToken;
+                }
+                continue;
+            }
 
-                case REAL:
-                    if(Character.toLowerCase(currentChar) == EXP){
-                        currentChar = fStream.nextChar();
-                        state = StateType.EXPON;
-                    }
+            if (validIdentStart(currentChar)) {
+                buffer += currentChar;
+                currentChar = fStream.nextChar();
+                return getIdent(buffer);
+            }
+        }
+    }
 
-                    else if (isNumber(currentChar)) {
-                        /* keep adding to the buffer */
-                        buffer += currentChar;
-                        currentChar = fStream.nextChar();
-                    } else {
-                        /* real ended */
-                        prevTokenType = TokenType.REALCONSTANT;
-                        return new Token(TokenType.REALCONSTANT, buffer);
-                    }
-                    continue;
+    /**
+     * getIdent:
+     */
+    private Token getIdent(String buffer) {
+        // MAYBE USE A STRING BUFFER....
+        /* may not enter if just one char like: 'a;' */
+        while (validIdentBody(currentChar) && buffer.length() <= ID_MAX) {
+            buffer += currentChar;
+            currentChar = fStream.nextChar();
+        }
+        if (buffer.length() > ID_MAX) {
+            throw LexerError.IllegalIdentifierLength(fStream.getLineNum(), buffer, ID_MAX);
+        }
+        /* otherwise must have broken for the other condition */
 
-                    /* check if things are alphabetic  */
-                case ALPHABETIC:
-                    buffer += currentChar;
-                    if (validIdentStart(currentChar)) {
-                        state = StateType.IDENTIFIER;
-                        /* move on */
-                        currentChar = fStream.nextChar();
-                        buffer_len++;
-                    } else {
-                        throw LexerError.IllegalIdentifierName(fStream.getLineNum(), buffer);
-                    }
-                    continue;
+        if (isKeyword(buffer) || isSpecialOp(buffer)) {
+            this.prevToken = keywords.getKeyword(buffer);
+            return this.prevToken;
+        }
+        /* otherwise was just a normal identifier */
+        // push back ???
+        this.prevToken = new Token(TokenType.IDENTIFIER, buffer);
+        return this.prevToken;
+    }
 
-                    /* must be an identifier or keyword */
-                case IDENTIFIER:
 
-                    if (validIdentBody(currentChar)) {
-                        /* collect everything */
-                        buffer += currentChar;
-                        buffer_len++;
-                        currentChar = fStream.nextChar();
-                    }
-                    else{
-                        /* if its a blank, we're done with the identifier */
-                        Token keyword = getKeyword(buffer);
-                        /* first, we check if its a keyword */
-                        if (keyword != null) {
-                            return keyword;
-                        }
-
-                        /* if not a keyword, we check if its a special operator */
-                        Token oper = getSpecialOP(buffer);
-                        if (oper != null) {
-                            return oper;
-                        }
-
-                        if(buffer_len > ID_MAX_LEN){ throw LexerError.IllegalIdentifierLength(fStream.getLineNum(), buffer, ID_MAX_LEN); }
-
-                        /* otherwise, it was just a normal identifier */
-                        prevTokenType = TokenType.IDENTIFIER;
-                        return new Token(TokenType.IDENTIFIER, buffer);
-                    }
-                    continue;
-
-                /* never should need to get here */
-                default:
-                    state = StateType.TERMINAL;
-
-            } /* end of state switch */
-        } /* end of while loop */
-    } /* end of getNextToken method */
-} /* end of Tokenizer class */
+    private Token getReal(String buffer) {
+        System.out.println("Entered");
+        /* accumulate the decimal digits for the real */
+        while (isNumber(currentChar)) {
+            buffer += currentChar;
+            currentChar = fStream.nextChar();
+        }
+        /* if the current character is not a number */
+        if (currentChar == 'e') {
+            // handle this. .....-->
+            return null;
+        } else {
+            this.prevToken = new Token(TokenType.REALCONSTANT, buffer);
+            return this.prevToken;
+        }
+    }
+}

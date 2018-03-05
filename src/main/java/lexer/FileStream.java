@@ -1,69 +1,72 @@
-/**
- * FILE: FileStream.java
+/*
+ * File: FileStream.java
  *
- * DESC: contains the FileStream class
- *
- * @author Luis Serazo
+ * Desc: contains the FileStream class.
  *
  */
 package main.java.lexer;
+
 import main.java.lexer.errors.LexerError;
 import main.java.lexer.exceptions.FileStreamException;
 import java.io.*;
 import java.util.Stack;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
-/* begin FileStream class */
-
 /**
- * @deprecated revamp ASAP
+ * FileStream class
+ * @author Luis Serazo
+ *
  */
 public class FileStream {
 
-    /**
+    /*
      * Constants:
+     * - COMNT_START: the character that precedes a comment.
+     * - COMNT_END: the character that ends a comment.
+     * - EOF: the character found at the end of a file.
+     * - SPACE: whitespace.
+     * - PASCAL: the characters accepted by the language.
      */
-    /* end of a line */
+    private static final char COMNT_START = '{';
+    private static final char COMNT_END = '}';
     private static final char EOF = (char)-1;
-    private static final String PascalChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" +
-                                                   "0123456789" +
-                                                   "[]{}()<>" +
-                                                   "+=-*/" +
-                                                   ".,;:" +
-                                                   "&|" +
-                                                   "\t\n ";
+    private static final char SPACE = ' ';
+    private static final String PASCAL =
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" +
+            "0123456789" +
+            "[]{()<>" +
+            "+=-*/" +
+            ".,;:" +
+            "&|" +
+            "\t\n ";
 
-    /**
+    /*
      * File handling structures:
+     * - file: an abstract representation of the file
+     * - bReader: a BufferedReader for reading the file
+     * - pbStack: push back stack
+     * - logger: structure to log problems
      */
-    /* a buffer for reading the file */
+    private File file;
     private BufferedReader bReader = null;
-    /* push back stack */
     private Stack<Character> pbStack = new Stack<>();
-    /* log stuff */
     private static final Logger LOGGER = Logger.getLogger(FileStream.class.getName());
-    
-    /**
-     * File metadata.
-     */
-    /* which line is being read */
-    private int lineNum;
-    /* the line being currently read */
-    private String line;
-    /* the current character offset in the line */
-    private int charOffset;
-    /* the current character being read in the FILE */
-    private char fileChar;
 
-    /**
-     * additional metadata.
+    /*
+     * FileStream metadata:
+     * - lineNum: the current line number being analyzed
+     * - line: the actual line being analyzed
+     * - charOffset: the character offset for the character being obtained
+     * - fileChar: the current character in the file being analyzed
+     * - filePath: the path to the file
      */
-    /* the file path */
+    private int lineNum;
+    private String line;
+    private int charOffset;
+    private char fileChar;
     private String filePath;
-    
-    
+
+
     /**
      * FileStream constructor
      * @param filePath the path to the file
@@ -77,7 +80,7 @@ public class FileStream {
      * getReader: getter method for the BufferedReader
      * @return this.bReader
      */
-    public BufferedReader getReader() {
+    public BufferedReader getBReader() {
         return this.bReader;
     }
 
@@ -99,6 +102,7 @@ public class FileStream {
 
     /**
      * getLine: getter method for the current line of the file
+     * @return the current line being analyzed
      */
     public String getLine() {
         return this.line;
@@ -106,6 +110,7 @@ public class FileStream {
 
     /**
      * getFilePath: getter method for the file path
+     * @return the path to the file
      */
     public String getFilePath() {
         return this.filePath;
@@ -113,19 +118,20 @@ public class FileStream {
 
     /**
      * pushBack: wraps around stack push (simply makes things more readable)
+     * @param chr: a file character.
      */
     public void pushBack(char chr){
         pbStack.push(chr);
     }
 
     /**
-     * popStack
+     * popStack: pops  the stack n times
+     * @param n: the number of times the stack will be popped.
      */
-    public void popStack(int times){
-        while(times>0){
-            if(pbStack.empty()){ break; }
+    public void popStack(int n){
+        while(n>0 && !pbStack.isEmpty()){
             pbStack.pop();
-            times--;
+            n--;
         }
     }
 
@@ -134,11 +140,12 @@ public class FileStream {
      */
     private void openFile(String filePath){
         try{
-            filePath = new File(filePath).getAbsolutePath();
+            /* set abstract File representation */
+            this.file = new File(filePath);
             /* initialize the buffered reader */
-            this.bReader = new BufferedReader(new FileReader(filePath));
+            this.bReader = new BufferedReader(new FileReader(this.file.getAbsolutePath()));
 
-            /* otherwise continue as usual */
+            /* initialize the line and other metadata */
             this.line = bReader.readLine();
             this.lineNum = 1;
             /* use get char to set the offset and set the current character */
@@ -146,11 +153,8 @@ public class FileStream {
             skip();
         }
         /* handle exceptions */
-        catch (FileNotFoundException e1){
-            System.out.println(e1.toString());
-        }
-        catch (IOException e2){
-            System.out.println(e2.toString());
+        catch (IOException | LexerError e){ /* subclass of FileNotFoundException */
+            System.out.println(e.toString());
         }
     }
 
@@ -169,68 +173,70 @@ public class FileStream {
             this.charOffset = 0;
             /* close the buffered reader */
             this.bReader.close();
+            this.bReader = null;
         }
-        catch (FileStreamException ex1){
-            System.out.print(ex1.toString());
-          //  LOGGER.log(Level.WARNING, ex1.toString(), ex1);
-        }
-        catch (IOException ex2){
-            System.out.println(ex2.toString());
-            ex2.printStackTrace(System.out);
-           // LOGGER.log(Level.WARNING, ex2.toString(), ex2);
+        /* handle exceptions */
+        catch (FileStreamException | IOException e){
+            System.out.print(e.toString());
+            e.printStackTrace(System.out);
+            //  LOGGER.log(Level.WARNING, ex1.toString(), ex1);
         }
     }
 
 
     /**
      * isEOL: end of line?
+     * @return True if we've reached the end of the current line, False otherwise.
      */
     private boolean isEOL(){ return this.charOffset >= this.line.length(); }
 
+    /**
+     * isEOF: end of file?
+     * @return True if the file char is EOF, False otherwise.
+     */
+    private boolean isEOF(){ return this.fileChar == EOF; }
+
 
     /**
-     * mvFilePointer:
+     * mvFilePointer: method for obtaining the next character in the file.
+     * @return the next char in the file
      */
     private char mvFilePointer() {
-
-        if (this.line == null) {
-            return EOF;
-        }
+        /* check if the current line is EOF */
+        if (this.line == null) { return EOF; }
 
         /* need to move to the next line */
         if (isEOL()) {
             this.charOffset = 0;
             this.lineNum++;
-
             /* make sure we can move to the next line */
             try {
                 this.line = bReader.readLine();
+                /* catch and exceptions */
             } catch (IOException ex) {
                 System.out.println(ex.toString());
                 ex.printStackTrace(System.out);
-              //  LOGGER.log(Level.WARNING, ex.toString(), ex);
+                //  LOGGER.log(Level.WARNING, ex.toString(), ex);
             }
-            return ' ';
+            return SPACE;
         }
-
+        /* otherwise: */
         char nxtChar = this.line.charAt(this.charOffset);
-
         this.charOffset++;
-
-
+        /* return the next character */
         return nxtChar;
     }
 
 
     /**
      * nextChar: grab the next character.
+     * @return the next character (from the file or the push back stack)
      */
-    public char nextChar(){
-
+    public char nextChar() {
         /* check the push back stack first and return the character at the top of the stack */
-        if(!pbStack.empty()){
+        if (!pbStack.empty()) {
             char pb = this.pbStack.pop();
-            if(pb=='{'){
+            if (pb == '{') {
                 skip();
                 return this.fileChar;
             }
@@ -238,15 +244,15 @@ public class FileStream {
         }
 
         /* skip over whitespace */
-        if(Character.isWhitespace(this.fileChar) || this.fileChar == '\t'){
+        if (Character.isWhitespace(this.fileChar) || this.fileChar == '\t') {
             boolean test = this.fileChar == '\t';
-          //  System.out.println("The char is: "+this.fileChar+test);
+            //  System.out.println("The char is: "+this.fileChar+test);
             skip();
             return this.fileChar;
             //return ' ';
         }
 
-        if(this.fileChar == '{'){
+        if (this.fileChar == '{') {
             skip();
             return this.fileChar;
         }
@@ -258,34 +264,38 @@ public class FileStream {
         this.fileChar = newChar;
 
         // we must ensure that the new character is valid
-        if(newChar != EOF && !PascalChars.contains(""+newChar)){
+        if (newChar != EOF && !PASCAL.contains("" + newChar)) {
             throw LexerError.InvalidCharacter(lineNum, newChar);
         }
 
-       if(this.fileChar == '{') {
-           pushBack(this.fileChar);
-           return ' ';
-       }
-       return this.fileChar;
+        if (this.fileChar == '{') {
+            pushBack(this.fileChar);
+            return ' ';
+        }
+        return this.fileChar;
     }
+
+
 
     /**
      * skip: sub-routine for skipping white space.
      */
     private void skip(){
+        /* copy the current file character */
         char runner = this.fileChar;
+
         /* skip if the current character is the beginning of a comment or whitespace */
-        while(runner == '{' || Character.isWhitespace(runner)){
+        while(runner == COMNT_START || Character.isWhitespace(runner)){
             /* if the character is the start of a comment, skip it */
-            if (runner == '{'){
+            if (runner == COMNT_START){
                 runner = jumpComment();
             }
-            /* otherwise mv the br pointer */
+            /* otherwise mv the file pointer */
             else {
                 runner =  mvFilePointer();
             }
         }
-
+        /* set the file character */
         this.fileChar = runner;
     }
 
@@ -297,31 +307,34 @@ public class FileStream {
         int commentStart = this.lineNum;
 
         /* grab the next character */
-
         char runner = mvFilePointer();
 
         try {
             /* skip over comments */
-            /* only ever breaking out of this loop if EOF (error) or } or { (error) */
             while (runner != EOF) {
                 /* keep skipping until we get to a closed bracket */
-                if (runner == '}'){
+                if (runner == COMNT_END){
                     runner = mvFilePointer();
-                    if(runner == '}'){ throw LexerError.IllegalComment(lineNum, "{ ... }}"); }
+                    if(runner == COMNT_END){
+                        throw LexerError.IllegalComment(commentStart, "{ ... }}");
+                    }
                     break;
                 }
-
-                if (runner == '{'){ throw LexerError.IllegalComment(lineNum, "{ ... { ... }"); }
-
+                if (runner == COMNT_START){
+                    throw LexerError.IllegalComment(commentStart, "{ ... { ... }");
+                }
+                /* continue to iterate through the file */
                 runner = mvFilePointer();
             }
             /* if the runner is EOF comment never ended */
-            if (runner == EOF) throw LexerError.UnclosedComment(lineNum);
-            
+            if (runner == EOF){ throw LexerError.UnclosedComment(commentStart); }
+
         } catch (LexerError error) {
-           // LOGGER.log(Level.SEVERE, error.toString(), error);
+            // LOGGER.log(Level.SEVERE, error.toString(), error);
             throw error;
         }
-         return runner;
+        return runner;
     }
 } /* end of FileStream class */
+
+
