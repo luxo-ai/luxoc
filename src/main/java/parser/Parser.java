@@ -150,9 +150,7 @@ public class Parser {
      * panic: the panic mode routine discussed in the assignment instructions.
      * @param error: a ParseError
      */
-    public void panic(ParseError error) throws LexerError, ParseError{
-        testCount++;
-        System.out.println("TEST");
+    private void panic(ParseError error) throws LexerError, ParseError{
         /* add this error to the list */
         this.errorList.add(error);
 
@@ -167,20 +165,16 @@ public class Parser {
                 while(parStack.pop() != NonTerminal.statement_list_tail){
                     if(parStack.isEmpty()){
                         printErrors();
-                        System.out.println("ONE");
                         dumpStack();
                         throw error; }
-                        System.out.println("IN LOOP");
                 }
             }
             else {
                 printErrors();
-                System.out.println("TWO");
                 throw error; } /* throw error indicating that production wasn't pushed */
         }
         else {
             printErrors();
-            System.out.println("THREE");
             throw error; } /* throw error if token is EOF (unrecoverable error) */
     }
 
@@ -188,11 +182,7 @@ public class Parser {
      * printErrors: prints error list
      *
      */
-    public void printErrors(){
-        System.out.println("Size");
-        System.out.println(errorList.size());
-        System.out.println("COUNT: ");
-        System.out.println(testCount);
+    private void printErrors(){
         Iterator listIter = errorList.iterator();
         while(listIter.hasNext()){
             System.out.println(listIter.next());

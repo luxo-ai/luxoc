@@ -236,7 +236,7 @@ public class FileStream {
         /* check the push back stack first and return the character at the top of the stack */
         if (!pbStack.empty()) {
             char pb = this.pbStack.pop();
-            if (pb == '{') {
+            if (pb == COMNT_START) {
                 skip();
                 return this.fileChar;
             }
@@ -245,21 +245,17 @@ public class FileStream {
 
         /* skip over whitespace */
         if (Character.isWhitespace(this.fileChar) || this.fileChar == '\t') {
-            boolean test = this.fileChar == '\t';
-            //  System.out.println("The char is: "+this.fileChar+test);
             skip();
             return this.fileChar;
-            //return ' ';
         }
 
-        if (this.fileChar == '{') {
+        if (this.fileChar == COMNT_START) {
             skip();
             return this.fileChar;
         }
         /*
          * otherwise
          */
-        char old = this.fileChar;
         char newChar = mvFilePointer();
         this.fileChar = newChar;
 
@@ -268,9 +264,9 @@ public class FileStream {
             throw LexerError.InvalidCharacter(lineNum, newChar);
         }
 
-        if (this.fileChar == '{') {
+        if (this.fileChar == COMNT_START) {
             pushBack(this.fileChar);
-            return ' ';
+            return SPACE;
         }
         return this.fileChar;
     }
