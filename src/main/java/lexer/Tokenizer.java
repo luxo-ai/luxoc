@@ -33,11 +33,15 @@ public class Tokenizer {
      * - fStream: a FileStream for file handling
      * - currentChar: the current character being analyzed (from file and push back)
      * - prevToken: the previous Token.
+     * - keywords: a keyword map.
+     * - punctuation: a punctuation map.
      *
      */
     private FileStream fStream;
     private char currentChar;
     private Token prevToken;
+    private KeywordMap keywords;
+    private PunctuationMap punctuation;
 
     /**
      * Tokenizer constructor
@@ -45,8 +49,11 @@ public class Tokenizer {
      * @param filename, a file path for initializing the FileStream.
      */
     public Tokenizer(String filename) {
+        this.keywords = new KeywordMap();
+        this.punctuation = new PunctuationMap();
         this.fStream = new FileStream(filename);
         this.currentChar = fStream.getFileChar();
+
     }
 
     /**
@@ -109,91 +116,6 @@ public class Tokenizer {
         this.prevToken = prevToken;
     }
 
-    /**
-     * getKeyword: checks the string buffer and decides which kind of keyword is
-     * represented. and returns a Token for that operator.
-     *
-     * @param buffer, the string buffer.
-     * @return a Token
-     */
-    private Token getKeyword(String buffer) {
-        /* make adjustment to lowercase */
-        buffer = buffer.toLowerCase();
-        // just one big switch
-        switch (buffer) {
-
-            case "program":
-                this.prevToken = new Token(TokenType.PROGRAM, null);
-                return this.prevToken;
-
-            case "begin":
-                this.prevToken = new Token(TokenType.BEGIN, null);
-                return this.prevToken;
-
-            case "end":
-                this.prevToken = new Token(TokenType.END, null);
-                return this.prevToken;
-
-            case "var":
-                this.prevToken = new Token(TokenType.VAR, null);
-                return this.prevToken;
-
-            case "function":
-                this.prevToken = new Token(TokenType.FUNCTION, null);
-                return this.prevToken;
-
-            case "procedure":
-                this.prevToken = new Token(TokenType.PROCEDURE, null);
-                return this.prevToken;
-
-            case "result":
-                this.prevToken = new Token(TokenType.RESULT, null);
-                return this.prevToken;
-
-            case "integer":
-                this.prevToken = new Token(TokenType.INTEGER, null);
-                return this.prevToken;
-
-            case "real":
-                this.prevToken = new Token(TokenType.REAL, null);
-                return this.prevToken;
-
-            case "array":
-                this.prevToken = new Token(TokenType.ARRAY, null);
-                return this.prevToken;
-
-            case "of":
-                this.prevToken = new Token(TokenType.OF, null);
-                return this.prevToken;
-
-            case "if":
-                this.prevToken = new Token(TokenType.IF, null);
-                return this.prevToken;
-
-            case "then":
-                this.prevToken = new Token(TokenType.THEN, null);
-                return this.prevToken;
-
-            case "else":
-                this.prevToken = new Token(TokenType.ELSE, null);
-                return this.prevToken;
-
-            case "while":
-                this.prevToken = new Token(TokenType.WHILE, null);
-                return this.prevToken;
-
-            case "do":
-                this.prevToken = new Token(TokenType.DO, null);
-                return this.prevToken;
-
-            case "not":
-                this.prevToken = new Token(TokenType.NOT, null);
-                return this.prevToken;
-
-            default:
-                return null;
-        }
-    }
 
     /**
      * isKeyword:
@@ -220,38 +142,6 @@ public class Tokenizer {
                 buffer.equals("not"));
     }
 
-    /**
-     * getSpecialOP: checks the string buffer and decides which kind of operator is
-     * represented and returns a Token for that operator.
-     *
-     * @param buffer, the string buffer.
-     * @return a Token
-     */
-    private Token getSpecialOP(String buffer) {
-        /* make adjustment to lowercase */
-        buffer = buffer.toLowerCase();
-        /* little switch */
-        switch (buffer) {
-            case "or":
-                this.prevToken = new Token(TokenType.ADDOP, "3");
-                return this.prevToken;
-
-            case "div":
-                this.prevToken = new Token(TokenType.MULOP, "3");
-                return this.prevToken;
-
-            case "mod":
-                this.prevToken = new Token(TokenType.MULOP, "4");
-                return this.prevToken;
-
-            case "and":
-                this.prevToken = new Token(TokenType.MULOP, "5");
-                return this.prevToken;
-
-            default:
-                return null;
-        }
-    }
 
     /**
      * isSpecialOp
@@ -333,37 +223,6 @@ public class Tokenizer {
                 chr == '=');
     }
 
-    /**
-     * getPunctuation:
-     *
-     * @return the punctuation Token.
-     */
-    private Token getPunctuation(char chr) {
-        /* one big switch */
-        switch (chr) {
-            case ',':
-                this.prevToken = new Token(TokenType.COMMA, null);
-                return this.prevToken;
-            case ';':
-                this.prevToken = new Token(TokenType.SEMICOLON, null);
-                return this.prevToken;
-            case ')':
-                this.prevToken = new Token(TokenType.RIGHTPAREN, null);
-                return this.prevToken;
-            case '(':
-                this.prevToken = new Token(TokenType.LEFTPAREN, null);
-                return this.prevToken;
-            case ']':
-                this.prevToken = new Token(TokenType.RIGHTBRACKET, null);
-                return this.prevToken;
-            case '[':
-                this.prevToken = new Token(TokenType.LEFTBRACKET, null);
-                return this.prevToken;
-            default:
-                return null; /* should never reach default */
-
-        }
-    }
 
     /**
      * getOperator:
@@ -438,21 +297,23 @@ public class Tokenizer {
             /* Operators */
             case '+':
                 currentChar = fStream.nextChar();
-                if (!isBinaryAddop()) {
-                    this.prevToken = new Token(TokenType.UNARYPLUS, null);
+                if (isBinaryAddop()) {
+                    this.prevToken = new Token(TokenType.ADDOP, "1");
                     return this.prevToken;
                 }
-                this.prevToken = new Token(TokenType.ADDOP, "1");
+                this.prevToken = new Token(TokenType.UNARYPLUS, null);
                 return this.prevToken;
+
 
             case '-':
                 currentChar = fStream.nextChar();
-                if (!isBinaryAddop()) {
-                    this.prevToken = new Token(TokenType.UNARYMINUS, null);
+                if (isBinaryAddop()) {
+                    this.prevToken = new Token(TokenType.ADDOP, "2");
                     return this.prevToken;
                 }
-                this.prevToken = new Token(TokenType.ADDOP, "2");
+                this.prevToken = new Token(TokenType.UNARYMINUS, null);
                 return this.prevToken;
+
 
             case '<':
                 currentChar = fStream.nextChar();
@@ -493,8 +354,6 @@ public class Tokenizer {
      */
     public Token getNextToken() {
         String buffer = "";
-        boolean real = false;
-        boolean ident = false;
 
         /* main loop */
         while (true) {
@@ -504,21 +363,20 @@ public class Tokenizer {
             }
 
             /* if SPACE, we get the next char and continue */
-            if (currentChar == SPACE || currentChar == '\n') {
+            if ((currentChar == SPACE || currentChar == '\n') && buffer.isEmpty()) {
                 currentChar = fStream.nextChar();
-                continue;
             }
 
             if (isPunctuation(currentChar) && buffer.isEmpty()) {
                 // jump to punctuation subroutine
                 char prev = currentChar; /* this is confusing may want to put this in getPunc logic */
                 currentChar = fStream.nextChar();
-                return getPunctuation(prev);
-
+                this.prevToken = punctuation.getPunc(prev);
+                return this.prevToken;
             }
 
             if (isOperator(currentChar) && buffer.isEmpty()) {
-                // jump to operator subroutine
+                // jump to operator subroutine // why do this? if not doing it else where (num + ident)
                 char prev = currentChar;
                 currentChar = fStream.nextChar();
                 return getOperator(prev);
@@ -529,21 +387,19 @@ public class Tokenizer {
                 return resolveBinary(currentChar);
             }
 
-            /* IDENTIFIERS AND NUMBERS */
-            if (isNumber(currentChar) && !real && !ident) {
+
+            if (isNumber(currentChar)) {
                 buffer += currentChar;
                 currentChar = fStream.nextChar();
-
-                /* this is a parse error .. but could handle here I guess? */
-                // if(isLetter(currentChar)){ throw LexerError.IllegalIdentifierName(3, "Identifiers cannot start with numbers"); }
 
                 if (currentChar == '.') {
                     char prev = currentChar;
                     currentChar = fStream.nextChar();
                     // check if numeric ?
                     if (isNumber(currentChar)) {
-                        real = true;
                         buffer += prev; /* add the decimal to the buffer */
+                        return getReal(buffer);
+                        // GO INTO REAL CASE
                     } else {
                         /* anything else needs to be pushed back and must have been end of the number (double dot handled above) */
                         fStream.pushBack(currentChar);
@@ -560,60 +416,54 @@ public class Tokenizer {
                 continue;
             }
 
-            if (real && !ident) {
-                /* came here because we saw a .  (this was added to the buffer). current char is a number */
-                buffer += currentChar; // add the number following the decimal point.
-                currentChar = fStream.nextChar();
-
-                if (!isNumber(currentChar)) {
-                    /* scientific notation */
-                    if (currentChar == 'e') {
-                        // handle this.
-                    } else {
-                        // push current ?
-                        this.prevToken = new Token(TokenType.REALCONSTANT, buffer);
-                        return this.prevToken;
-                    }
-                }
-                /* otherwise was a number and was keep adding stuff on */
-                else {
-                    continue;
-                }
-            }
-
-            if (isLetter(currentChar) && !ident) {
-                if (validIdentStart(currentChar)) {
-                    ident = true;
-                    buffer += currentChar;
-                    currentChar = fStream.nextChar();
-                } else {
-                    throw LexerError.IllegalIdentifierName(3, "illegal");
-                }
-            }
-
-            if (ident) {
+            if (validIdentStart(currentChar)) {
                 buffer += currentChar;
                 currentChar = fStream.nextChar();
-                if (buffer.length() > ID_MAX) {
-                    throw LexerError.IllegalIdentifierLength(fStream.getLineNum(), buffer, ID_MAX);
-                }
-
-                if (!validIdentBody(currentChar)) {
-                    if (isKeyword(buffer)) {
-                        this.prevToken = getKeyword(buffer);
-                        return this.prevToken;
-                    }
-                    if (isSpecialOp(buffer)) {
-                        this.prevToken = getSpecialOP(buffer);
-                        return this.prevToken;
-                    }
-                    // push current back on stack?
-                    /* otherwise */
-                    this.prevToken = new Token(TokenType.IDENTIFIER, buffer);
-                    return this.prevToken;
-                }
-                /* otherwise if valid ident body */
+                return getIdent(buffer);
             }
+        }
+    }
+
+    /**
+     * getIdent:
+     */
+    private Token getIdent(String buffer) {
+        // MAYBE USE A STRING BUFFER....
+        /* may not enter if just one char like: 'a;' */
+        while (validIdentBody(currentChar) && buffer.length() <= ID_MAX) {
+            buffer += currentChar;
+            currentChar = fStream.nextChar();
+        }
+        if (buffer.length() > ID_MAX) {
+            throw LexerError.IllegalIdentifierLength(fStream.getLineNum(), buffer, ID_MAX);
+        }
+        /* otherwise must have broken for the other condition */
+
+        if (isKeyword(buffer) || isSpecialOp(buffer)) {
+            this.prevToken = keywords.getKeyword(buffer);
+            return this.prevToken;
+        }
+        /* otherwise was just a normal identifier */
+        // push back ???
+        this.prevToken = new Token(TokenType.IDENTIFIER, buffer);
+        return this.prevToken;
+    }
+
+
+    private Token getReal(String buffer) {
+        System.out.println("Entered");
+        /* accumulate the decimal digits for the real */
+        while (isNumber(currentChar)) {
+            buffer += currentChar;
+            currentChar = fStream.nextChar();
+        }
+        /* if the current character is not a number */
+        if (currentChar == 'e') {
+            // handle this. .....-->
+            return null;
+        } else {
+            this.prevToken = new Token(TokenType.REALCONSTANT, buffer);
+            return this.prevToken;
         }
     }
 }

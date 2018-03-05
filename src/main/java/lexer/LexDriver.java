@@ -11,6 +11,7 @@ public class LexDriver {
 
             Tokenizer tknz = new Tokenizer(args[0]);
 
+
             do {
                 System.out.println(tknz.getNextToken());
             } while(tknz.prevTokenT() != TokenType.ENDOFFILE);

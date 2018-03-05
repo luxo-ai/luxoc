@@ -232,51 +232,49 @@ public class FileStream {
      * nextChar: grab the next character.
      * @return the next character (from the file or the push back stack)
      */
-    public char nextChar(){
-        /* check the push back stack first */
-        if(!pbStack.empty()){ return pbStack.pop(); }
+    public char nextChar() {
+        /* check the push back stack first and return the character at the top of the stack */
+        if (!pbStack.empty()) {
+            char pb = this.pbStack.pop();
+            if (pb == '{') {
+                skip();
+                return this.fileChar;
+            }
+            return pb;
+        }
 
         /* skip over whitespace */
-        if(Character.isWhitespace(this.fileChar) || this.fileChar == '\t'){
+        if (Character.isWhitespace(this.fileChar) || this.fileChar == '\t') {
+            boolean test = this.fileChar == '\t';
+            //  System.out.println("The char is: "+this.fileChar+test);
             skip();
-           // return this.fileChar; // return the next thing (we skipped last current (WS))
-            return SPACE;
-        } // jj mm . gets j gets j gets blank. ends when sees WS. Picks up again on WS
-          // other one returns old one
-        /* skip over comments */
-        if(this.fileChar == COMNT_START){
-            skip();
-           // return this.fileChar; /* x {comment} y is xy */ // we want TO BE BEHIND BR tho.
-           // return this.fileChar;
-            //if(!isEOF()) {
-             //   char old = this.fileChar; // make sure works for:
-             //   this.fileChar = mvFilePointer(); // x{comment}ym    [x]
-           //     return old;                      // x {comment} ym  [x]
-                                                 // x{comment} ym   [ ] doesnt work here.
-         //   }
-            return SPACE;
+            return this.fileChar;
+            //return ' ';
         }
 
-        // xy + ms
-
-        /* otherwise */
-        char oldChar = this.fileChar; // x
-        char newChar = mvFilePointer(); // y
-
-        // we must ensure that the returned character is valid
-        if(oldChar != EOF && !PASCAL.contains(""+oldChar)){
-            throw LexerError.InvalidCharacter(lineNum, oldChar);
+        if (this.fileChar == '{') {
+            skip();
+            return this.fileChar;
         }
+        /*
+         * otherwise
+         */
+        char old = this.fileChar;
+        char newChar = mvFilePointer();
         this.fileChar = newChar;
 
-        // xx{comment}yy
-        // x{comment}y return x this.file char is x next time check x if WS
-       // if(this.fileChar == COMNT_START) {
-         //   pushBack(this.fileChar);
-        //    return ' ';
-       // }
-        return oldChar;
+        // we must ensure that the new character is valid
+        if (newChar != EOF && !PASCAL.contains("" + newChar)) {
+            throw LexerError.InvalidCharacter(lineNum, newChar);
+        }
+
+        if (this.fileChar == '{') {
+            pushBack(this.fileChar);
+            return ' ';
+        }
+        return this.fileChar;
     }
+
 
 
     /**
