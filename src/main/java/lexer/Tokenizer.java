@@ -145,9 +145,8 @@ public class Tokenizer {
 
     /**
      * isSpecialOp
-     *
-     * @param buffer
-     * @return
+     * @param buffer a String buffer
+     * @return True if the buffer is a special operator, False otherwise.
      */
     private boolean isSpecialOp(String buffer) {
         buffer = buffer.toLowerCase();
@@ -354,7 +353,6 @@ public class Tokenizer {
      */
     public Token getNextToken() {
         String buffer = "";
-
         /* main loop */
         while (true) {
             /* if we've reached EOF just keep returning EOF */
@@ -387,7 +385,6 @@ public class Tokenizer {
                 return resolveBinary(currentChar);
             }
 
-
             if (isNumber(currentChar)) {
                 buffer += currentChar;
                 currentChar = fStream.nextChar();
@@ -401,6 +398,7 @@ public class Tokenizer {
                         return getReal(buffer);
                         // GO INTO REAL CASE
                     } else {
+                        // Need to set the current char ????
                         /* anything else needs to be pushed back and must have been end of the number (double dot handled above) */
                         fStream.pushBack(currentChar);
                         fStream.pushBack(prev);
@@ -451,7 +449,6 @@ public class Tokenizer {
 
 
     private Token getReal(String buffer) {
-        System.out.println("Entered");
         /* accumulate the decimal digits for the real */
         while (isNumber(currentChar)) {
             buffer += currentChar;
@@ -459,11 +456,54 @@ public class Tokenizer {
         }
         /* if the current character is not a number */
         if (currentChar == 'e') {
-            // handle this. .....-->
-            return null;
+            char lookAhead = fStream.nextChar();
+            if(isNumber(lookAhead)){
+                buffer += currentChar; // e
+                buffer += lookAhead;  // the number
+                currentChar = fStream.nextChar();
+                return getExp(buffer); // GET EXP
+            }
+            else if(isExpSign(lookAhead)){
+                char pastSign = fStream.nextChar();
+                if(isNumber(pastSign)){
+                    buffer += currentChar; // e
+                    buffer += lookAhead; // +/-
+                    buffer += pastSign; // the number
+                    currentChar = fStream.nextChar();
+                    return getExp(buffer); // GET EXP
+                }
+                else{
+                    fStream.pushBack(pastSign); // whatever it was
+                    fStream.pushBack(lookAhead); // +/-
+                    /* currentChar is left as e, as desired */
+                    this.prevToken = new Token(TokenType.REALCONSTANT, buffer);
+                    return this.prevToken;
+                }
+            }
+            /* otherwise was just a subsequent identifier. */
+            else{
+                fStream.pushBack(lookAhead);
+                this.prevToken = new Token(TokenType.REALCONSTANT, buffer);
+                return this.prevToken;
+            }
         } else {
             this.prevToken = new Token(TokenType.REALCONSTANT, buffer);
             return this.prevToken;
         }
     }
-}
+
+    private boolean isExpSign(char chr){
+        return (chr == '+' || chr == '-');
+    }
+
+    private Token getExp(String buffer){
+        while(isNumber(currentChar)){
+            buffer += currentChar;
+            currentChar = fStream.nextChar();
+        }
+        /* break loop when encounters a non number */
+        this.prevToken = new Token(TokenType.REALCONSTANT, buffer);
+        return this.prevToken;
+    }
+
+} /* end of Tokenizer class */

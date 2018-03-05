@@ -24,7 +24,7 @@ lines
 program
 test: 1, 2.2e1111111, 2.123e-1000 2.234e-1000
 
-var i : integersss: or integer;[];.;(;);:;
+var i : integersss: or integer;[];.;(;);:;[9]
 
 begin begin function procedure result
   package Println();

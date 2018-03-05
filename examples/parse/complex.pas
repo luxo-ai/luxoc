@@ -33,7 +33,7 @@ FUNCTION addTwo(x,y: Real): result Real;
   BEGIN
     { must have something before setting result }
     x := x;
-    result := x + y
+    resulth := x + y {cannot have : 'result'}
   END
 
 FUNCTION multTwo(x,y: Real): result Real;
