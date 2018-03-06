@@ -52,7 +52,8 @@ public class Tokenizer {
         this.keywords = new KeywordMap();
         this.punctuation = new PunctuationMap();
         this.fStream = new FileStream(filename);
-        this.currentChar = fStream.getFileChar();
+        this.currentChar = fStream.nextChar(); // skip the first, its a duplicate.
+       // this.currentChar = fStream.getFileChar();
 
     }
 
@@ -176,7 +177,7 @@ public class Tokenizer {
      * @return this.prevTokenType
      */
     public TokenType prevTokenT() {
-        return this.prevToken.getTokenType();
+        return this.prevToken.getTokenType(); //.getTokenType();
     }
 
     /**
@@ -504,6 +505,10 @@ public class Tokenizer {
         /* break loop when encounters a non number */
         this.prevToken = new Token(TokenType.REALCONSTANT, buffer);
         return this.prevToken;
+    }
+
+    public int getLineNum(){
+        return fStream.getLineNum();
     }
 
 } /* end of Tokenizer class */

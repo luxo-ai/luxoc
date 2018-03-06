@@ -6,6 +6,7 @@
  */
 package main.java.parser.errors;
 import main.java.grammar.GrammarSymbol;
+import main.java.token.Token;
 
 /**
  * ParseError class
@@ -20,23 +21,22 @@ public class ParseError extends Error{
     private ParseError(String msg){ super(msg); }
 
     /**
-     * NoMatch: parse error when there is no error.
-     * @param g1
-     * @param g2
-     * @return
+     * NoMatch: parse error when there is no match between two GrammarSymbols.
+     * @param g1: the first GrammarSymbol
+     * @param g2: the second GrammarSymbol
+     * @return a ParseError
      */
     public static ParseError NoMatch(GrammarSymbol g1, GrammarSymbol g2){
         return new ParseError(g1+" Does not match: "+g2);
     }
 
     /**
-     * Unexpected: parse error when an unexpected symbol appears.
-     * @param g
-     * @param g2
-     * @return
+     * Unexpected: parse error when an unexpected Token appears.
+     * @param tok: Token in question
+     * @return a ParseError
      */
-    public static ParseError Unexpected(GrammarSymbol g, GrammarSymbol g2){
-        return new ParseError(""+g+" and "+g2);
+    public static ParseError Unexpected(Token tok){
+        return new ParseError("Unexpected Token: "+tok.toString());
     }
 
 }

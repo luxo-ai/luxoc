@@ -155,6 +155,7 @@ public class FileStream {
         /* handle exceptions */
         catch (IOException | LexerError e){ /* subclass of FileNotFoundException */
             System.out.println(e.toString());
+            e.printStackTrace(System.out);
         }
     }
 
@@ -235,40 +236,32 @@ public class FileStream {
     public char nextChar() {
         /* check the push back stack first and return the character at the top of the stack */
         if (!pbStack.empty()) {
-            char pb = this.pbStack.pop();
-            if (pb == COMNT_START) {
-                skip();
-                return this.fileChar;
-            }
-            return pb;
+            return this.pbStack.pop();
         }
 
         /* skip over whitespace */
         if (Character.isWhitespace(this.fileChar) || this.fileChar == '\t') {
             skip();
-            return this.fileChar;
+            return SPACE;
         }
 
         if (this.fileChar == COMNT_START) {
             skip();
-            return this.fileChar;
+            return SPACE;
         }
         /*
          * otherwise
          */
-        char newChar = mvFilePointer();
-        this.fileChar = newChar;
+        char old = this.fileChar;
+        int preLine = this.lineNum;
+        this.fileChar = mvFilePointer();
 
-        // we must ensure that the new character is valid
-        if (newChar != EOF && !PASCAL.contains("" + newChar)) {
-            throw LexerError.InvalidCharacter(lineNum, newChar);
+
+        if (old != EOF && !PASCAL.contains("" + old)) {
+            throw LexerError.InvalidCharacter(preLine, old);
         }
 
-        if (this.fileChar == COMNT_START) {
-            pushBack(this.fileChar);
-            return SPACE;
-        }
-        return this.fileChar;
+        return old;
     }
 
 

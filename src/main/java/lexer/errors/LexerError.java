@@ -30,7 +30,7 @@ public class LexerError extends Error {
     }
 
     public static LexerError IllegalIdentifierLength(int lineNum, String ident, int max){
-        return new LexerError("Illegal identifier: "+ident+" on line: "+lineNum+". Identifiers can not be longer than "+max+" characters.");
+        return new LexerError("Illegal identifier: "+ident+"... on line: "+lineNum+". Identifiers can not be longer than "+max+" characters.");
     }
 
     public static LexerError IllegalRealConstant(int lineNum, String constant){

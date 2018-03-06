@@ -109,7 +109,6 @@ public class Parser {
                 }
                 /* otherwise, the match was bad and we record the error */
                 else {
-                   // throw ParseError.NoMatch(predicted, currentToken.getTokenType());
                     panic(ParseError.NoMatch(predicted, currentToken.getTokenType()));
                 }
             }
@@ -121,9 +120,7 @@ public class Parser {
 
                 /* check if the table rule is an error */
                 if(tableRule == ERROR){
-                   // dumpStack();
-                   // throw ParseError.Unexpected(predicted, currentToken.getTokenType());
-                    panic(ParseError.Unexpected(predicted, currentToken.getTokenType()));
+                    panic(ParseError.Unexpected(currentToken));
                 }
                 else{
                     /* we only care about productions whose RHS is not the empty string */
