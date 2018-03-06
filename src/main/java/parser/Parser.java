@@ -35,14 +35,14 @@ public class Parser {
 
     /* current Token */
     private Token currentToken;
-
     /* predicted grammar symbol */
     private GrammarSymbol predicted;
-
     /* linked list of errors for recovery */
     private LinkedList<Error> errorList;
 
-    private static int testCount = 0;
+    /* debug boolean */
+    private boolean debug = false;
+
 
     /**
      * Parser constructor
@@ -98,17 +98,28 @@ public class Parser {
         // before, had: currentToken.getTokenType() != TokenType.ENDOFFILE
         // but this missed a bunch of important cases.
         while(!parStack.isEmpty()){
+            if(debug){ dumpStack(); }
+
             /* set the predicted symbol to the top of the stack */
             predicted = parStack.pop();
+            if(debug){
+                System.out.print("Predicted: "+predicted+ " with Token: "+currentToken.toString()+" ==> ");
+               // System.out.println("\n");
+            }
 
             /* check if the predicted symbol is a token type */
             if(predicted.isToken()){
                 /* if it is, we try to match the move */
                 if(predicted == currentToken.getTokenType()){
+                    if(debug){
+                        System.out.println("MATCH FOUND");
+                        System.out.println("\n");
+                    }
                     currentToken = tokenizer.getNextToken(); /* match found */
                 }
                 /* otherwise, the match was bad and we record the error */
                 else {
+                   // System.out.println("");
                     panic(ParseError.NoMatch(predicted, currentToken.getTokenType()));
                 }
             }
@@ -127,15 +138,28 @@ public class Parser {
                     if(tableRule > 0){
                         /* get the RHS symbols */
                         GrammarSymbol[] gRules = rhsTable.getRules(tableRule);
+                        if(debug){
+                            System.out.println("PUSHING: "+rhsTable.rulesToString(tableRule));
+                            System.out.println("\n");
+                        }
                         /* push the symbols on the stack */
                         for(int k = gRules.length-1; k > -1; k--){
                             parStack.push(gRules[k]);
+                        }
+                    }else{
+                        if(debug){
+                            System.out.println("EPSILON");
+                            System.out.println("\n");
                         }
                     }
                 }
             }
             /* if the predicted symbol is a semantic action, continue */
             else if(predicted.isSemAction()){
+                if(debug){
+                    System.out.println("POP UNUSED ACTION");
+                    System.out.println("\n");
+                }
                 continue;
             }
         }
@@ -191,18 +215,26 @@ public class Parser {
      * dumpStack: routine that prints the contents of the stack.
      *
      */
-    public void dumpStack(){
-        System.out.println();
+    private void dumpStack(){
         if(!parStack.isEmpty()) {
-            System.out.println("Dumping Stack: ");
+            System.out.println("Parse Stack: ");
             Stack<GrammarSymbol> stackCopy = new Stack<>();
             stackCopy.addAll(parStack);
+            System.out.print("[ ");
+            System.out.print(stackCopy.pop());
             while (!stackCopy.isEmpty()) {
-                System.out.println("--> " + stackCopy.pop());
+                System.out.print(", "+stackCopy.pop());
             }
+            System.out.println(" ]");
+           // System.out.println();
         }
         else{
             System.out.println("Empty Stack");
         }
     }
+
+    public void debugMode(){
+        this.debug = true;
+    }
+
 } /* end of Parser class */

@@ -202,4 +202,18 @@ public class RHS {
      */
     public GrammarSymbol[] getRules(int offset) { return gRules[offset]; }
 
+    /**
+     * ruleToString
+     */
+    public String rulesToString(int offset){
+        String result = "";
+        GrammarSymbol[] rules = getRules(offset);
+        result += "[";
+        for (GrammarSymbol sym: rules){
+            result += " "+sym;
+        }
+        result += " ]";
+        return result;
+    }
+
 } /* end of RHS class */

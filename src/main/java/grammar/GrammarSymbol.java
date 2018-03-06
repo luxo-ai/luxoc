@@ -18,4 +18,5 @@ public interface GrammarSymbol {
     boolean isNonTerminal();
     boolean isToken();
     boolean isSemAction();
+
 }
