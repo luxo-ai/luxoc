@@ -2,22 +2,21 @@
 
 Author: Luis F. Serazo
 
-### A parser package
+### A Parser Package
 
 This package contains all the parsing material. It
 uses the tokenizer to get the next Token in the file and 
 parses the file through and LL(1) method. 
 
+#### Parsing
 
-### How to use and test
+To parse is to analyze a sentence into its parts and describe their syntactic roles.
 
-The parser can be tested against any of the test files in /examples.
-The ParseDriver will be used to load and test a file. 
+### How to Test
 
-
-#### Parse:
-to analyze (a sentence) into its parts and describe their syntactic roles.
-
+The parser can be tested against any of the test files in /examples/parse.
+The ParseDriver will be used to load and test a file. You can use the debug option
+(```-d``` or ```--debug```) to print the stack during parsing. 
 
 ### Pseudo Code
 

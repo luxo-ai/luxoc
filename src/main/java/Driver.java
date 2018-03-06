@@ -10,7 +10,7 @@ import main.java.parser.Parser;
 import java.io.FileNotFoundException;
 
 /**
- * Driver class
+ * Driver class for testing the parser
  * @author Luis Serazo
  *
  */

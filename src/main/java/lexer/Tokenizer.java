@@ -52,9 +52,7 @@ public class Tokenizer {
         this.keywords = new KeywordMap();
         this.punctuation = new PunctuationMap();
         this.fStream = new FileStream(filename);
-        this.currentChar = fStream.nextChar(); // skip the first, its a duplicate.
-       // this.currentChar = fStream.getFileChar();
-
+        this.currentChar = fStream.nextChar(); /* skip the first, its a duplicate. */
     }
 
     /**
