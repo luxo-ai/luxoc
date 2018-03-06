@@ -14,7 +14,7 @@ To parse is to analyze a sentence into its parts and describe their syntactic ro
 
 ### How to Test
 
-The parser can be tested against any of the test files in /examples/parse.
+The parser can be tested against any of the test files in */examples/parse*.
 The ParseDriver will be used to load and test a file. You can use the debug option
 (```-d``` or ```--debug```) to print the stack during parsing. 
 
