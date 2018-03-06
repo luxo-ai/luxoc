@@ -82,4 +82,4 @@ public enum NonTerminal implements GrammarSymbol{
      */
     public boolean isSemAction(){ return false; }
 
-}
+} /* end of NonTerminal class */

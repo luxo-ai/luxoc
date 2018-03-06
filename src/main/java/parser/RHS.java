@@ -203,4 +203,3 @@ public class RHS {
     public GrammarSymbol[] getRules(int offset) { return gRules[offset]; }
 
 } /* end of RHS class */
-

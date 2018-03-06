@@ -37,5 +37,3 @@ public class LexerError extends Error {
         return new LexerError("Illegal real constant: "+constant+" on line: "+lineNum+". Real constants must be contain only one decimal point and each decimal point must be followed by at least one number.");
     }
 }
-
-

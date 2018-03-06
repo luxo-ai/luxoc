@@ -108,4 +108,4 @@ public class ParseTable {
      */
     public File getFile(){ return parseData; }
 
-}
+} /* end of ParseTable class */

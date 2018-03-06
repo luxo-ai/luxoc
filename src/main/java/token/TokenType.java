@@ -70,7 +70,6 @@ public enum TokenType implements GrammarSymbol {
      */
     public int getIndex(){ return this.index; }
 
-
     /**
      * getName: getter method for the name of the TokenType.
      * @return the name of the TokenType
@@ -78,7 +77,6 @@ public enum TokenType implements GrammarSymbol {
     public String getName(){
         return this.name;
     }
-
 
     /**
      * isToken: determines if this GrammarSymbol is a Token
