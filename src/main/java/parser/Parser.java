@@ -104,7 +104,6 @@ public class Parser {
             predicted = parStack.pop();
             if(debug){
                 System.out.print("Predicted: "+predicted+ " with Token: "+currentToken.toString()+" ==> ");
-               // System.out.println("\n");
             }
 
             /* check if the predicted symbol is a token type */
@@ -119,7 +118,6 @@ public class Parser {
                 }
                 /* otherwise, the match was bad and we record the error */
                 else {
-                   // System.out.println("");
                     panic(ParseError.NoMatch(predicted, currentToken.getTokenType()));
                 }
             }
@@ -160,6 +158,7 @@ public class Parser {
                     System.out.println("POP UNUSED ACTION");
                     System.out.println("\n");
                 }
+                /* skip semantic actions */
                 continue;
             }
         }
@@ -226,7 +225,6 @@ public class Parser {
                 System.out.print(", "+stackCopy.pop());
             }
             System.out.println(" ]");
-           // System.out.println();
         }
         else{
             System.out.println("Empty Stack");

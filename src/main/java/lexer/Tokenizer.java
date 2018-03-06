@@ -286,7 +286,6 @@ public class Tokenizer {
                     this.prevToken = new Token(TokenType.DOUBLEDOT, null);
                     return this.prevToken;
                 }
-                /* if preceded by a number ?. No need to consider this case since buffer is "" */
                 /* check if its an end marker */
                 this.prevToken = new Token(TokenType.ENDMARKER, null);
                 return this.prevToken;
@@ -366,14 +365,14 @@ public class Tokenizer {
 
             if (isPunctuation(currentChar) && buffer.isEmpty()) {
                 // jump to punctuation subroutine
-                char prev = currentChar; /* this is confusing may want to put this in getPunc logic */
+                char prev = currentChar;
                 currentChar = fStream.nextChar();
                 this.prevToken = punctuation.getPunc(prev);
                 return this.prevToken;
             }
 
             if (isOperator(currentChar) && buffer.isEmpty()) {
-                // jump to operator subroutine // why do this? if not doing it else where (num + ident)
+                // jump to operator subroutine
                 char prev = currentChar;
                 currentChar = fStream.nextChar();
                 return getOperator(prev);
@@ -394,10 +393,9 @@ public class Tokenizer {
                     // check if numeric ?
                     if (isNumber(currentChar)) {
                         buffer += prev; /* add the decimal to the buffer */
-                        return getReal(buffer);
-                        // GO INTO REAL CASE
+                        return getReal(buffer); /* get the REAL */
+
                     } else {
-                        // Need to set the current char ????
                         /* anything else needs to be pushed back and must have been end of the number (double dot handled above) */
                         fStream.pushBack(currentChar);
                         fStream.pushBack(prev);
@@ -405,12 +403,49 @@ public class Tokenizer {
                         return this.prevToken;
                     }
                 }
+                /* taken from getReal method */
+                /* TODO: get rid of boilerplate. */
+                if (currentChar == 'e') {
+                    char lookAhead = fStream.nextChar();
+                    if(isNumber(lookAhead)){
+                        buffer += currentChar; // e
+                        buffer += lookAhead;  // the number
+                        currentChar = fStream.nextChar();
+                        return getExp(buffer); // GET EXP
+                    }
+                    else if(isExpSign(lookAhead)){
+                        char pastSign = fStream.nextChar();
+                        if(isNumber(pastSign)){
+                            buffer += currentChar; // e
+                            buffer += lookAhead; // +/-
+                            buffer += pastSign; // the number
+                            currentChar = fStream.nextChar();
+                            return getExp(buffer); // GET EXP
+                        }
+                        else{
+                            fStream.pushBack(pastSign); // whatever it was
+                            fStream.pushBack(lookAhead); // +/-
+                            /* currentChar is left as e, as desired */
+                            this.prevToken = new Token(TokenType.REALCONSTANT, buffer);
+                            return this.prevToken;
+                        }
+                    }
+                    /* otherwise was just a subsequent identifier. */
+                    else{
+                        fStream.pushBack(lookAhead);
+                        this.prevToken = new Token(TokenType.INTCONSTANT, buffer);
+                        return this.prevToken;
+                    }
+                } /* end of taken from getReal method */
+
                 /* anything else */
                 else if (!isNumber(currentChar)) {
                     this.prevToken = new Token(TokenType.INTCONSTANT, buffer);
                     return this.prevToken;
                 }
-                continue;
+                else{
+                    continue;
+                }
             }
 
             if (validIdentStart(currentChar)) {
@@ -425,7 +460,7 @@ public class Tokenizer {
      * getIdent:
      */
     private Token getIdent(String buffer) {
-        // MAYBE USE A STRING BUFFER....
+        /* consider using a String buffer instead */
         /* may not enter if just one char like: 'a;' */
         while (validIdentBody(currentChar) && buffer.length() <= ID_MAX) {
             buffer += currentChar;
@@ -441,7 +476,6 @@ public class Tokenizer {
             return this.prevToken;
         }
         /* otherwise was just a normal identifier */
-        // push back ???
         this.prevToken = new Token(TokenType.IDENTIFIER, buffer);
         return this.prevToken;
     }
