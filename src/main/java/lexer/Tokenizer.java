@@ -191,7 +191,7 @@ public class Tokenizer {
         } else {
             /* otherwise, close the file */
             fStream.closeFile();
-            this.prevToken = new Token(TokenType.ENDOFFILE, null);
+            this.prevToken = new Token(TokenType.ENDOFFILE, null, fStream.getLineNum());
             return this.prevToken;
         }
     }
@@ -229,15 +229,16 @@ public class Tokenizer {
      */
     private Token getOperator(char chr) {
         /* one big switch */
+        int lineNum = fStream.getLineNum();
         switch (chr) {
             case '*':
-                this.prevToken = new Token(TokenType.MULOP, "1");
+                this.prevToken = new Token(TokenType.MULOP, "1", lineNum);
                 return this.prevToken;
             case '/':
-                this.prevToken = new Token(TokenType.MULOP, "2");
+                this.prevToken = new Token(TokenType.MULOP, "2", lineNum);
                 return this.prevToken;
             case '=':
-                this.prevToken = new Token(TokenType.RELOP, "1");
+                this.prevToken = new Token(TokenType.RELOP, "1", lineNum);
                 return this.prevToken;
             default:
                 return null; /* this should never happen */
@@ -264,16 +265,16 @@ public class Tokenizer {
      * @return Token of the binary operator or etc
      */
     private Token resolveBinary(char chr) {
-
+        int lineNum = fStream.getLineNum();
         switch (chr) {
             /* Punctuation */
             case ':':
                 currentChar = fStream.nextChar();
                 if (currentChar != '=') {
-                    return new Token(TokenType.COLON, null);
+                    return new Token(TokenType.COLON, null, lineNum);
                 }
                 currentChar = fStream.nextChar();
-                this.prevToken = new Token(TokenType.ASSIGNOP, null);
+                this.prevToken = new Token(TokenType.ASSIGNOP, null, lineNum);
                 return this.prevToken;
 
             case '.':
@@ -283,11 +284,11 @@ public class Tokenizer {
                     /* remove the second dot */
                     fStream.popStack(1);
                     currentChar = fStream.nextChar();
-                    this.prevToken = new Token(TokenType.DOUBLEDOT, null);
+                    this.prevToken = new Token(TokenType.DOUBLEDOT, null, lineNum);
                     return this.prevToken;
                 }
                 /* check if its an end marker */
-                this.prevToken = new Token(TokenType.ENDMARKER, null);
+                this.prevToken = new Token(TokenType.ENDMARKER, null, lineNum);
                 return this.prevToken;
 
 
@@ -295,20 +296,20 @@ public class Tokenizer {
             case '+':
                 currentChar = fStream.nextChar();
                 if (isBinaryAddop()) {
-                    this.prevToken = new Token(TokenType.ADDOP, "1");
+                    this.prevToken = new Token(TokenType.ADDOP, "1", lineNum);
                     return this.prevToken;
                 }
-                this.prevToken = new Token(TokenType.UNARYPLUS, null);
+                this.prevToken = new Token(TokenType.UNARYPLUS, null, lineNum);
                 return this.prevToken;
 
 
             case '-':
                 currentChar = fStream.nextChar();
                 if (isBinaryAddop()) {
-                    this.prevToken = new Token(TokenType.ADDOP, "2");
+                    this.prevToken = new Token(TokenType.ADDOP, "2", lineNum);
                     return this.prevToken;
                 }
-                this.prevToken = new Token(TokenType.UNARYMINUS, null);
+                this.prevToken = new Token(TokenType.UNARYMINUS, null, lineNum);
                 return this.prevToken;
 
 
@@ -317,25 +318,25 @@ public class Tokenizer {
 
                 if (currentChar == '>') {
                     currentChar = fStream.nextChar();
-                    this.prevToken = new Token(TokenType.RELOP, "2");
+                    this.prevToken = new Token(TokenType.RELOP, "2", lineNum);
                     return this.prevToken;
 
                 } else if (currentChar == '=') {
                     currentChar = fStream.nextChar();
-                    this.prevToken = new Token(TokenType.RELOP, "5");
+                    this.prevToken = new Token(TokenType.RELOP, "5", lineNum);
                     return this.prevToken;
                 }
-                this.prevToken = new Token(TokenType.RELOP, "3");
+                this.prevToken = new Token(TokenType.RELOP, "3", lineNum);
                 return this.prevToken;
 
             case '>':
                 currentChar = fStream.nextChar();
                 if (currentChar == '=') {
                     currentChar = fStream.nextChar();
-                    this.prevToken = new Token(TokenType.RELOP, "6");
+                    this.prevToken = new Token(TokenType.RELOP, "6", lineNum);
                     return this.prevToken;
                 }
-                this.prevToken = new Token(TokenType.RELOP, "4");
+                this.prevToken = new Token(TokenType.RELOP, "4", lineNum);
                 return this.prevToken;
 
             default:
@@ -366,16 +367,18 @@ public class Tokenizer {
             if (isPunctuation(currentChar) && buffer.isEmpty()) {
                 // jump to punctuation subroutine
                 char prev = currentChar;
-                currentChar = fStream.nextChar();
                 this.prevToken = punctuation.getPunc(prev);
+                this.prevToken.setLineNum(fStream.getLineNum()); // SET
+                currentChar = fStream.nextChar();
                 return this.prevToken;
             }
 
             if (isOperator(currentChar) && buffer.isEmpty()) {
                 // jump to operator subroutine
                 char prev = currentChar;
+                Token op = getOperator(prev); // SET in here
                 currentChar = fStream.nextChar();
-                return getOperator(prev);
+                return op;
             }
 
             // NonTerminals
@@ -384,6 +387,7 @@ public class Tokenizer {
             }
 
             if (isNumber(currentChar)) {
+                int lineNum = fStream.getLineNum();
                 buffer += currentChar;
                 currentChar = fStream.nextChar();
 
@@ -393,25 +397,25 @@ public class Tokenizer {
                     // check if numeric ?
                     if (isNumber(currentChar)) {
                         buffer += prev; /* add the decimal to the buffer */
-                        return getReal(buffer); /* get the REAL */
+                        return getReal(buffer, lineNum); /* get the REAL */
 
                     } else {
                         /* anything else needs to be pushed back and must have been end of the number (double dot handled above) */
                         fStream.pushBack(currentChar);
                         fStream.pushBack(prev);
-                        this.prevToken = new Token(TokenType.INTCONSTANT, buffer);
+                        this.prevToken = new Token(TokenType.INTCONSTANT, buffer, lineNum);
                         return this.prevToken;
                     }
                 }
                 /* taken from getReal method */
                 /* TODO: get rid of boilerplate. */
-                if (currentChar == 'e') {
+                if (currentChar == 'e' || currentChar == 'E') {
                     char lookAhead = fStream.nextChar();
                     if(isNumber(lookAhead)){
                         buffer += currentChar; // e
                         buffer += lookAhead;  // the number
                         currentChar = fStream.nextChar();
-                        return getExp(buffer); // GET EXP
+                        return getExp(buffer, lineNum); // GET EXP
                     }
                     else if(isExpSign(lookAhead)){
                         char pastSign = fStream.nextChar();
@@ -420,27 +424,27 @@ public class Tokenizer {
                             buffer += lookAhead; // +/-
                             buffer += pastSign; // the number
                             currentChar = fStream.nextChar();
-                            return getExp(buffer); // GET EXP
+                            return getExp(buffer, lineNum); // GET EXP
                         }
                         else{
                             fStream.pushBack(pastSign); // whatever it was
                             fStream.pushBack(lookAhead); // +/-
                             /* currentChar is left as e, as desired */
-                            this.prevToken = new Token(TokenType.REALCONSTANT, buffer);
+                            this.prevToken = new Token(TokenType.REALCONSTANT, buffer, lineNum);
                             return this.prevToken;
                         }
                     }
                     /* otherwise was just a subsequent identifier. */
                     else{
                         fStream.pushBack(lookAhead);
-                        this.prevToken = new Token(TokenType.INTCONSTANT, buffer);
+                        this.prevToken = new Token(TokenType.INTCONSTANT, buffer, lineNum);
                         return this.prevToken;
                     }
                 } /* end of taken from getReal method */
 
                 /* anything else */
                 else if (!isNumber(currentChar)) {
-                    this.prevToken = new Token(TokenType.INTCONSTANT, buffer);
+                    this.prevToken = new Token(TokenType.INTCONSTANT, buffer, lineNum);
                     return this.prevToken;
                 }
                 else{
@@ -449,9 +453,10 @@ public class Tokenizer {
             }
 
             if (validIdentStart(currentChar)) {
+                int lineNum = fStream.getLineNum();
                 buffer += currentChar;
                 currentChar = fStream.nextChar();
-                return getIdent(buffer);
+                return getIdent(buffer, lineNum);
             }
         }
     }
@@ -459,7 +464,7 @@ public class Tokenizer {
     /**
      * getIdent:
      */
-    private Token getIdent(String buffer) {
+    private Token getIdent(String buffer, int lineNum) {
         /* consider using a String buffer instead */
         /* may not enter if just one char like: 'a;' */
         while (validIdentBody(currentChar) && buffer.length() <= ID_MAX) {
@@ -473,28 +478,29 @@ public class Tokenizer {
 
         if (isKeyword(buffer) || isSpecialOp(buffer)) {
             this.prevToken = keywords.getKeyword(buffer);
+            this.prevToken.setLineNum(lineNum);
             return this.prevToken;
         }
         /* otherwise was just a normal identifier */
-        this.prevToken = new Token(TokenType.IDENTIFIER, buffer);
+        this.prevToken = new Token(TokenType.IDENTIFIER, buffer, lineNum);
         return this.prevToken;
     }
 
 
-    private Token getReal(String buffer) {
+    private Token getReal(String buffer, int lineNum) {
         /* accumulate the decimal digits for the real */
         while (isNumber(currentChar)) {
             buffer += currentChar;
             currentChar = fStream.nextChar();
         }
         /* if the current character is not a number */
-        if (currentChar == 'e') {
+        if (currentChar == 'e' || currentChar == 'E') {
             char lookAhead = fStream.nextChar();
             if(isNumber(lookAhead)){
                 buffer += currentChar; // e
                 buffer += lookAhead;  // the number
                 currentChar = fStream.nextChar();
-                return getExp(buffer); // GET EXP
+                return getExp(buffer, lineNum); // GET EXP
             }
             else if(isExpSign(lookAhead)){
                 char pastSign = fStream.nextChar();
@@ -503,24 +509,24 @@ public class Tokenizer {
                     buffer += lookAhead; // +/-
                     buffer += pastSign; // the number
                     currentChar = fStream.nextChar();
-                    return getExp(buffer); // GET EXP
+                    return getExp(buffer, lineNum); // GET EXP
                 }
                 else{
                     fStream.pushBack(pastSign); // whatever it was
                     fStream.pushBack(lookAhead); // +/-
                     /* currentChar is left as e, as desired */
-                    this.prevToken = new Token(TokenType.REALCONSTANT, buffer);
+                    this.prevToken = new Token(TokenType.REALCONSTANT, buffer, lineNum);
                     return this.prevToken;
                 }
             }
             /* otherwise was just a subsequent identifier. */
             else{
                 fStream.pushBack(lookAhead);
-                this.prevToken = new Token(TokenType.REALCONSTANT, buffer);
+                this.prevToken = new Token(TokenType.REALCONSTANT, buffer, lineNum);
                 return this.prevToken;
             }
         } else {
-            this.prevToken = new Token(TokenType.REALCONSTANT, buffer);
+            this.prevToken = new Token(TokenType.REALCONSTANT, buffer, lineNum);
             return this.prevToken;
         }
     }
@@ -529,13 +535,13 @@ public class Tokenizer {
         return (chr == '+' || chr == '-');
     }
 
-    private Token getExp(String buffer){
+    private Token getExp(String buffer, int lineNum){
         while(isNumber(currentChar)){
             buffer += currentChar;
             currentChar = fStream.nextChar();
         }
         /* break loop when encounters a non number */
-        this.prevToken = new Token(TokenType.REALCONSTANT, buffer);
+        this.prevToken = new Token(TokenType.REALCONSTANT, buffer, lineNum);
         return this.prevToken;
     }
 
