@@ -218,7 +218,10 @@ public class Tokenizer {
         /* if the current character is not a number */
         if (Character.toUpperCase(currentChar) == EXP) { return getScientific(buffer, lineNum, false); }
 
-        if (isLetter(currentChar)) { throw LexerError.IllegalIdentifierName(lineNum, buffer); }
+        if (isLetter(currentChar)) {
+            String identifier = illegalIdentAccumulator(buffer);
+            throw LexerError.IllegalIdentifierName(lineNum, identifier);
+        }
         // if letter ! identifiers must start with letters!!!! and can't have .
 
         fStream.pushBack(currentChar);
@@ -241,9 +244,13 @@ public class Tokenizer {
                 currentChar = fStream.nextChar();
                 return getExp(buffer, lineNum, fromInt, lookAhead == '+'); // GET EXP
             }
-            else{ throw LexerError.IllegalIdentifierName(lineNum, buffer); } // whatever it was
+            else{
+                throw LexerError.IllegalIdentifierName(lineNum, buffer+currentChar); // current char still e
+            } // whatever it was
         }
-        throw LexerError.IllegalIdentifierName(lineNum, buffer);
+        fStream.pushBack(lookAhead);
+        String identifier = illegalIdentAccumulator(buffer+currentChar);
+        throw LexerError.IllegalIdentifierName(lineNum, identifier);
     }
 
 
@@ -290,11 +297,23 @@ public class Tokenizer {
             return getNumber(buffer, lineNum);
         }
 
-        if(isLetter(currentChar)){ throw LexerError.IllegalIdentifierName(lineNum, buffer); }
+        if(isLetter(currentChar)){
+            String identifier = illegalIdentAccumulator(buffer);
+            throw LexerError.IllegalIdentifierName(lineNum, identifier);
+        }
         // check if its a letter >> identifiers can't start with numbers!!!!!!
 
         fStream.pushBack(currentChar);
         return new Token(TokenType.INTCONSTANT, buffer, lineNum);
+    }
+
+    private String illegalIdentAccumulator(String buffer){
+        currentChar = fStream.nextChar();
+        if(isNumber(currentChar) || isLetter(currentChar)){
+            buffer += currentChar;
+            return illegalIdentAccumulator(buffer);
+        }
+        return buffer;
     }
 
 } /* end of Tokenizer class */

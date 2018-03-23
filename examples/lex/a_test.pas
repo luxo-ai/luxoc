@@ -11,7 +11,7 @@ foo
 +-
 bar
 {These should be handled well}
-0.2e1 {0.3ell} {4.844e+} 6.6776222{e: 6945.21893e. 0.2e+kggg}
+0.2e1 {0.3ell} {4844eioio}+ 6.6776222{e: 6945.21893e. 0.2e+kggg}
 5. or 5.0 OR 5.000
 1.{comment}hello404World
 
