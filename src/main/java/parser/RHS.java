@@ -22,15 +22,13 @@ public class RHS {
      * RHS constructor
      * Note: calls loadSym routine.
      */
-    public RHS() {
-        loadSym();
-    }
+    public RHS() { loadSym(); }
 
     /**
      * loadSym: creates grammar symbol table
      * and sets gRules.
      */
-    public void loadSym() {
+    private void loadSym() {
         this.gRules = new GrammarSymbol[][] {
 
 /* dummy element */

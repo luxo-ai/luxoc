@@ -22,7 +22,7 @@ public class KeywordMap {
      * Keyword map constructor
      *
      */
-    public KeywordMap(){
+    KeywordMap(){
         this.keywords = new HashMap<>();
 
         /* populate the hashmap */
@@ -54,9 +54,20 @@ public class KeywordMap {
     /**
      * getKeyword
      */
-    public Token getKeyword(String buffer){
+    public Token getKeyword(String buffer, int lineNum){
         buffer = buffer.toLowerCase();
-        return keywords.get(buffer);
+        Token keywordToken = keywords.get(buffer);
+        keywordToken.setLineNum(lineNum);
+        return keywordToken;
     }
+
+    /**
+     * isKeyword
+     */
+    public boolean isKeyword(String buffer){
+        String lowerCase = buffer.toLowerCase();
+        return keywords.containsKey(lowerCase);
+    }
+
 
 }

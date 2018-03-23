@@ -75,7 +75,7 @@ public class Token{
      * @return a String representation of this Token.
      */
     @Override
-    public String toString(){ return "< "+this.tType.getName()+" , "+this.value+" >"; }
+    public String toString(){ return "[ "+this.tType.getName()+" , "+this.value+" ]"; }
 
     /**
      * getLineNum:

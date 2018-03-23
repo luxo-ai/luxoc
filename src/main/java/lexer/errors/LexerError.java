@@ -26,7 +26,7 @@ public class LexerError extends Error {
     }
 
     public static LexerError IllegalIdentifierName(int lineNum, String ident){
-        return new LexerError("Illegal identifier: "+ident+" on line: "+lineNum+". Identifiers must be begin with a letter and have a body of only alphabetical and numerical characters");
+        return new LexerError("Illegal identifier: "+ident+"... on line: "+lineNum+". Identifiers must be begin with a letter and have a body of only alphabetical and numerical characters");
     }
 
     public static LexerError IllegalIdentifierLength(int lineNum, String ident, int max){

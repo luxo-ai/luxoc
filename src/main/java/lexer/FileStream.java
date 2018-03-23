@@ -25,13 +25,13 @@ public class FileStream {
      * - COMNT_END: the character that ends a comment.
      * - EOF: the character found at the end of a file.
      * - SPACE: whitespace.
-     * - PASCAL: the characters accepted by the language.
+     * - VALID_CHAR: the characters accepted by the language.
      */
     private static final char COMNT_START = '{';
     private static final char COMNT_END = '}';
     private static final char EOF = (char)-1;
     private static final char SPACE = ' ';
-    private static final String PASCAL =
+    private static final String VALID_CHAR =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" +
             "0123456789" +
             "[]{()<>" +
@@ -100,6 +100,7 @@ public class FileStream {
         return this.fileChar;
     }
 
+
     /**
      * getLine: getter method for the current line of the file
      * @return the current line being analyzed
@@ -125,14 +126,10 @@ public class FileStream {
     }
 
     /**
-     * popStack: pops  the stack n times
-     * @param n: the number of times the stack will be popped.
+     * popStack: pops the stack n times
      */
-    public void popStack(int n){
-        while(n>0 && !pbStack.isEmpty()){
-            pbStack.pop();
-            n--;
-        }
+    public void popPushBack(){
+        if(!pbStack.empty()){ pbStack.pop(); }
     }
 
     /**
@@ -238,7 +235,6 @@ public class FileStream {
         if (!pbStack.empty()) {
             return this.pbStack.pop();
         }
-
         /* skip over whitespace */
         if (Character.isWhitespace(this.fileChar) || this.fileChar == '\t') {
             skip();
@@ -256,11 +252,9 @@ public class FileStream {
         int preLine = this.lineNum;
         this.fileChar = mvFilePointer();
 
-
-        if (old != EOF && !PASCAL.contains("" + old)) {
+        if (old != EOF && !VALID_CHAR.contains("" + old)) {
             throw LexerError.InvalidCharacter(preLine, old);
         }
-
         return old;
     }
 
@@ -304,14 +298,11 @@ public class FileStream {
                 /* keep skipping until we get to a closed bracket */
                 if (runner == COMNT_END){
                     runner = mvFilePointer();
-                    if(runner == COMNT_END){
-                        throw LexerError.IllegalComment(commentStart, "{ ... }}");
-                    }
+                    /* look ahead */
+                    if(runner == COMNT_END){ throw LexerError.IllegalComment(commentStart, "{ ... }}"); }
                     break;
                 }
-                if (runner == COMNT_START){
-                    throw LexerError.IllegalComment(commentStart, "{ ... { ... }");
-                }
+                if (runner == COMNT_START){ throw LexerError.IllegalComment(commentStart, "{ ... { ... }"); }
                 /* continue to iterate through the file */
                 runner = mvFilePointer();
             }
