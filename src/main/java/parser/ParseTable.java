@@ -30,7 +30,7 @@ public class ParseTable {
      * ParseTable constructor
      * @throws FileNotFoundException if we cannot locate the file.
      */
-    public ParseTable() throws FileNotFoundException{
+    ParseTable() throws FileNotFoundException{
         parseMatrix = new int[ROWS][COLS];
         loadMatrix();
     }
@@ -40,7 +40,7 @@ public class ParseTable {
      * @param filePath: location of a different parse file
      * @throws FileNotFoundException if we cannot locate the file.
      */
-    public ParseTable(String filePath) throws FileNotFoundException{
+    ParseTable(String filePath) throws FileNotFoundException{
         parseMatrix = new int[ROWS][COLS];
         loadMatrix(filePath);
     }

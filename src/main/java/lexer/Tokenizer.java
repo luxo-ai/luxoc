@@ -135,6 +135,7 @@ public class Tokenizer {
     /**
      * Tokenizer is centered around this method.
      * getNextToken: retrieves the next Token in the file.
+     * Note: contains small recursion.
      * @return the next Token in the file.
      */
     public Token getNextToken() {
@@ -273,6 +274,7 @@ public class Tokenizer {
 
     /**
      * getNumber: returns the constant at this point in the file.
+     * Note: RECURSIVE
      * @param buffer: the number as a string.
      * @param lineNum: the line number where the number began in the file.
      * @return a real or integer constant Token.
@@ -310,6 +312,7 @@ public class Tokenizer {
      * illegalIdentAccumulator: accumulates the rest of an illegal identifier
      *                          after it's already been detected. Passed to the
      *                          LexicalError.
+     * Note: RECURSIVE
      * @param buffer: the already accumulated illegal identifier up until the detection point.
      * @return the full illegal identifier.
      */

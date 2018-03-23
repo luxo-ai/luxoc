@@ -17,10 +17,8 @@ public class Token{
     private final TokenType tType;
     /* value of a token */
     private final String value;
-
     /* metadata */
     private int lineNum;
-
 
 
     /**
@@ -68,7 +66,6 @@ public class Token{
      * @return the Token type index
      */
     public int getTypeIndex(){ return this.tType.getIndex(); }
-
 
     /**
      * toString: returns a string representation of this Token

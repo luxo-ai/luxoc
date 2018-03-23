@@ -11,7 +11,6 @@ import main.java.token.TokenType;
 
 /**
  * RHS table class
- *
  */
 public class RHS {
 
@@ -22,7 +21,7 @@ public class RHS {
      * RHS constructor
      * Note: calls loadSym routine.
      */
-    public RHS() { loadSym(); }
+    RHS() { loadSym(); }
 
     /**
      * loadSym: creates grammar symbol table
@@ -201,7 +200,8 @@ public class RHS {
     public GrammarSymbol[] getRules(int offset) { return gRules[offset]; }
 
     /**
-     * ruleToString
+     * ruleToString: creates a string representation of the rules in the offset.
+     * @param offset: the offset into the array.
      */
     public String rulesToString(int offset){
         String result = "";

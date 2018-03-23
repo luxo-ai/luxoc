@@ -3,10 +3,13 @@
  *
  * Desc: Reports lexical errors.
  *
- * @author Luis Serazo
  */
 package main.java.lexer.errors;
 
+/**
+ * LexerError
+ * @author Luis Serazo
+ */
 public class LexerError extends Error {
 
     private LexerError(String msg){

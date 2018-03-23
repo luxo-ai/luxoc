@@ -3,12 +3,14 @@
  *
  * Desc: For file exceptions
  *
- * @author Luis Serazo
- *
  */
 
 package main.java.lexer.exceptions;
 
+/**
+ * FileStreamException
+ * @author Luis Serazo
+ */
 public class FileStreamException extends Exception {
 
     private FileStreamException(String msg){ super(msg); }

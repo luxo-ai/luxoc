@@ -181,7 +181,6 @@ public class FileStream {
         }
     }
 
-
     /**
      * isEOL: end of line?
      * @return True if we've reached the end of the current line, False otherwise.
@@ -193,7 +192,6 @@ public class FileStream {
      * @return True if the file char is EOF, False otherwise.
      */
     private boolean isEOF(){ return this.fileChar == EOF; }
-
 
     /**
      * mvFilePointer: method for obtaining the next character in the file.
@@ -225,16 +223,13 @@ public class FileStream {
         return nxtChar;
     }
 
-
     /**
      * nextChar: grab the next character.
      * @return the next character (from the file or the push back stack)
      */
     public char nextChar() {
         /* check the push back stack first and return the character at the top of the stack */
-        if (!pbStack.empty()) {
-            return this.pbStack.pop();
-        }
+        if (!pbStack.empty()) { return this.pbStack.pop(); }
         /* skip over whitespace */
         if (Character.isWhitespace(this.fileChar) || this.fileChar == '\t') {
             skip();
@@ -246,7 +241,7 @@ public class FileStream {
             return SPACE;
         }
         /*
-         * otherwise
+         * otherwise:
          */
         char old = this.fileChar;
         int preLine = this.lineNum;
@@ -258,8 +253,6 @@ public class FileStream {
         return old;
     }
 
-
-
     /**
      * skip: sub-routine for skipping white space.
      */
@@ -270,13 +263,9 @@ public class FileStream {
         /* skip if the current character is the beginning of a comment or whitespace */
         while(runner == COMNT_START || Character.isWhitespace(runner)){
             /* if the character is the start of a comment, skip it */
-            if (runner == COMNT_START){
-                runner = jumpComment();
-            }
+            if (runner == COMNT_START){ runner = jumpComment(); }
             /* otherwise mv the file pointer */
-            else {
-                runner =  mvFilePointer();
-            }
+            else { runner =  mvFilePointer(); }
         }
         /* set the file character */
         this.fileChar = runner;
@@ -315,4 +304,5 @@ public class FileStream {
         }
         return runner;
     }
+
 } /* end of FileStream class */
