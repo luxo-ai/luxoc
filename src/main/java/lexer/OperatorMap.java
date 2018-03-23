@@ -90,13 +90,15 @@ public class OperatorMap {
         char next = fStream.nextChar();
         switch(op){
             case ':':
-                if(next != '='){ return punctuation.getPunc(':', lineNum); }
-                return getSpecialOP(":=", lineNum);
+                if(next == '='){ return getSpecialOP(":=", lineNum); }
+                fStream.pushBack(next);
+                return punctuation.getPunc(':', lineNum);
                 
             case '.':
-                if(next != '.'){ return punctuation.getPunc('.', lineNum); } // end marker.
-                fStream.popPushBack(); /* may be able to get rid of this? Doesn't hurt to add it though */
-                return getSpecialOP("..", lineNum);
+                if(next == '.'){ return getSpecialOP("..", lineNum); }
+               // fStream.popPushBack(); /* may be able to get rid of this? Doesn't hurt to add it though */
+                fStream.pushBack(next);
+                return punctuation.getPunc('.', lineNum); // end marker
             
             case '+':
                 fStream.pushBack(next);
@@ -111,10 +113,12 @@ public class OperatorMap {
             case '<':
                 if(next == '>'){ return getSpecialOP("==", lineNum); }
                 if(next == '='){ return getSpecialOP("<=", lineNum); }
+                fStream.pushBack(next);
                 return getSimpleOP('<', lineNum);
                 
             case '>': /* must be followed by a number? or identifier? Or is this not a part of the lexer */
                 if(next == '='){ return getSpecialOP(">=", lineNum); }
+                fStream.pushBack(next);
                 return getSimpleOP('>', lineNum);
                 
             default:

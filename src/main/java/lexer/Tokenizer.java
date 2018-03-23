@@ -20,6 +20,7 @@ public class Tokenizer {
     /*
      * Constants:
      * - SPACE: whitespace character.
+     * - EXP: scientific notation symbol.
      * - EOF: end of file character.
      * - ID_MAX: the max length of an identifier.
      *
@@ -35,7 +36,8 @@ public class Tokenizer {
      * - currentChar: the current character being analyzed (from file and push back)
      * - prevToken: the previous Token.
      * - keywords: a keyword map.
-     * - punctuation: a punctuation map.
+     * - punctuation: a punctuation mapping.
+     * - operators: an operator mapping.
      *
      */
     private FileStream fStream;
@@ -58,14 +60,18 @@ public class Tokenizer {
     }
 
     /**
+     * getPrevToken: getter method for the previous Token.
+     * @return the previous Token
+     */
+    protected Token getPrevToken() { return this.prevToken; }
+
+    /**
      * isNumber: checks if the character is a number.
      *
      * @param chr, the character being checked.
      * @return True, if it's a number and False otherwise.
      */
-    private boolean isNumber(char chr) {
-        return (chr >= '0' && chr <= '9');
-    }
+    private boolean isNumber(char chr) { return (chr >= '0' && chr <= '9'); }
 
     /**
      * isLetter: checks if the character is letter.
@@ -73,9 +79,7 @@ public class Tokenizer {
      * @param chr, the character being checked.
      * @return True if it's a letter, and False otherwise.
      */
-    private boolean isLetter(char chr) {
-        return ((chr >= 'a' && chr <= 'z' || chr >= 'A' && chr <= 'Z'));
-    }
+    private boolean isLetter(char chr) { return ((chr >= 'a' && chr <= 'z' || chr >= 'A' && chr <= 'Z')); }
 
     /**
      * isSpecialChar: checks if the character is a special character.
@@ -83,9 +87,7 @@ public class Tokenizer {
      * @param chr, the character being checked.
      * @return True, if valid, False otherwise.
      */
-    private boolean isSpecialChar(char chr) {
-        return ((chr == '_') || (chr == '-'));
-    }
+    private boolean isSpecialChar(char chr) { return ((chr == '_') || (chr == '-')); }
 
     /**
      * validIdentStart: checks if the character is a valid identifier start.
@@ -93,10 +95,7 @@ public class Tokenizer {
      * @param chr, the character being checked.
      * @return True, if valid, False otherwise.
      */
-    private boolean validIdentStart(char chr) {
-        return (isLetter(chr));
-    }
-
+    private boolean validIdentStart(char chr) { return (isLetter(chr)); }
 
     /**
      * validIdentBody: checks if the character is a valid identifier body.
@@ -104,111 +103,104 @@ public class Tokenizer {
      * @param chr, the character being checked.
      * @return True, if valid, False otherwise.
      */
-    private boolean validIdentBody(char chr) {
-        return (isLetter(chr) || isNumber(chr));
-    }
-
+    private boolean validIdentBody(char chr) { return (isLetter(chr) || isNumber(chr)); }
 
     /**
-     * getPrevToken: getter method for the previous Token.
-     * @return the previous Token
+     * isPlusOrMinus: checks if the character is either a plus or minus.
+     *                The purpose of this method is for readability.
+     * @param chr, the character being checked
+     * @return True, if a plus or minus, False otherwise
      */
-    public Token getPrevToken() { return prevToken; }
-
-
     private boolean isPlusOrMinus(char chr){ return (chr == '+' || chr == '-'); }
 
-
     /**
-     * getPrevTokenType: getter method for the previous Token created.
-     *
-     * @return this.prevTokenType
+     * prevTokenT: returns the previous Token Type created.
+     * @return the previous Token Type
      */
-    public TokenType prevTokenT() {
-        return this.prevToken.getTokenType(); //.getTokenType();
-    }
+    public TokenType prevTokenT() { return this.prevToken.getTokenType(); }
 
     /**
-     * eofToken: routine if we've reached the EOF
-     *
+     * eofToken: routine if EOF has been reached. The routine closes the
+     *           fStream upon initially reaching EOF.
      * @return an EOF Token.
      */
     private Token eofToken() {
-        /* bReader has already been closed */
-        if (this.fStream.getBReader() == null) {
-            /* then we've already set this.prevToken to EOF */
-            return this.prevToken;
-        } else {
-            /* otherwise, close the file */
-            fStream.closeFile();
-            this.prevToken = new Token(TokenType.ENDOFFILE, null, fStream.getLineNum());
-            return this.prevToken;
-        }
+        /* if bReader has already been closed, we've already set prevToken to EOF */
+        if (this.fStream.getBReader() == null) { return this.prevToken; }
+        /* otherwise, close the file */
+        fStream.closeFile();
+        return this.prevToken = new Token(TokenType.ENDOFFILE, null, fStream.getLineNum());
     }
 
-
     /**
-     * getNextToken: does the main work for tokenization.
-     *
-     * @return a Token
+     * Tokenizer is centered around this method.
+     * getNextToken: retrieves the next Token in the file.
+     * @return the next Token in the file.
      */
     public Token getNextToken() {
         currentChar = fStream.nextChar();
-
         /* if SPACE, we get the next char and continue */
-        if ((currentChar == SPACE || currentChar == '\n')) { return getNextToken(); }
-
+        if ((currentChar == SPACE || currentChar == '\n')) { return getNextToken(); } /* should only need do recursion once */
         /* if we've reached EOF just keep returning EOF */
         if (currentChar == EOF) { return eofToken(); }
-
+        /* check if character is some kind of punctuation */
         if (punctuation.isPunctuation(currentChar)) {
             return this.prevToken = punctuation.getPunc(currentChar, fStream.getLineNum());
         }
-
+        /* check it its an operator (both simple and complex) */
         if (operators.isSimpleOp(currentChar)) {
             return this.prevToken = operators.getSimpleOP(currentChar, fStream.getLineNum());
         }
-
         if (operators.isSpecialOP(currentChar)) {
             /* pass control to the operator map */
             return this.prevToken = operators.resolveSpecialOp(currentChar, prevToken, fStream, punctuation);
         }
-
+        /* maybe it's a number. */
         if (isNumber(currentChar)) {
             return this.prevToken = getNumber(""+currentChar, fStream.getLineNum());
         }
-
+        /* if not, try seeing if it's an identifier */
         if (validIdentStart(currentChar)) {
-            return this.prevToken = getIdent(""+currentChar, fStream.getLineNum());
+            return this.prevToken = getIdentifier(""+currentChar, fStream.getLineNum());
         }
-
+        /* otherwise, it must have been something the language does not accept */
         throw LexerError.InvalidCharacter(fStream.getLineNum(), currentChar);
     }
 
     /**
-     * getIdent:
+     * getIdentifier: returns the identifier at this point in the file.
+     * @param buffer: the identifier as a string.
+     * @param lineNum: the line number where the identifier starts.
+     * @return an identifier Token.
      */
-    private Token getIdent(String buffer, int lineNum) {
+    private Token getIdentifier(String buffer, int lineNum) {
+        /* retrieve the next character after the start of the identifier */
         currentChar = fStream.nextChar();
-        /* consider using a String buffer instead */
-        /* may not enter if just one char like: 'a;' */
+
         while (validIdentBody(currentChar) && buffer.length() <= ID_MAX) {
             buffer += currentChar;
             currentChar = fStream.nextChar();
         }
+        /* check if the length exceeds the max */
         if (buffer.length() > ID_MAX) {
             throw LexerError.IllegalIdentifierLength(fStream.getLineNum(), buffer, ID_MAX);
         }
-        /* otherwise must have broken for the other condition */
+        /* otherwise must have not entered the loop for the other condition. Add back the current character */
+        fStream.pushBack(currentChar);
 
+        /* check if the identifier was actually a keyword */
         if (keywords.isKeyword(buffer)) { return keywords.getKeyword(buffer, lineNum); }
 
         /* otherwise was just a normal identifier */
-        fStream.pushBack(currentChar);
         return new Token(TokenType.IDENTIFIER, buffer, lineNum);
     }
 
-
+    /**
+     * getReal: returns the real number at this point in the file.
+     * @param buffer: the real number as a string.
+     * @param lineNum: the line number where the real starts.
+     * @return a real constant Token.
+     */
     private Token getReal(String buffer, int lineNum) {
         /* accumulate the decimal digits for the real */
         while (isNumber(currentChar)) {
@@ -218,43 +210,54 @@ public class Tokenizer {
         /* if the current character is not a number */
         if (Character.toUpperCase(currentChar) == EXP) { return getScientific(buffer, lineNum, false); }
 
+        /* identifiers cannot start with letters */
         if (isLetter(currentChar)) {
             String identifier = illegalIdentAccumulator(buffer);
             throw LexerError.IllegalIdentifierName(lineNum, identifier);
         }
-        // if letter ! identifiers must start with letters!!!! and can't have .
 
         fStream.pushBack(currentChar);
         return new Token(TokenType.REALCONSTANT, buffer, lineNum);
     }
 
+    /**
+     * getScientific: returns the scientific notation number at this point in the file.
+     * @param buffer: the SN number as a string.
+     * @param lineNum: the line number where the SN number starts.
+     * @param fromInt: boolean indicating that whether the proc. began the SN from an integer context.
+     * @return a real or integer constant Token.
+     */
     private Token getScientific(String buffer, int lineNum, boolean fromInt) {
         char lookAhead = fStream.nextChar();
 
         if(isNumber(lookAhead)){
             buffer += "" + EXP + lookAhead; // e + the number currentChar is E
             currentChar = fStream.nextChar();
-            return getExp(buffer, lineNum, fromInt, true); // >>????
+            return accumulateExp(buffer, lineNum, fromInt, true);
         }
-
         if(isPlusOrMinus(lookAhead)){
             char pastSign = fStream.nextChar();
             if(isNumber(pastSign)){
-                buffer += ""+ EXP + lookAhead + pastSign ; // e ; +/- ; the number current is E
+                buffer += ""+ EXP + lookAhead + pastSign ; // e ; +/- ; (the number current is E)
                 currentChar = fStream.nextChar();
-                return getExp(buffer, lineNum, fromInt, lookAhead == '+'); // GET EXP
+                return accumulateExp(buffer, lineNum, fromInt, lookAhead == '+');
             }
-            else{
-                throw LexerError.IllegalIdentifierName(lineNum, buffer+currentChar); // current char still e
-            } // whatever it was
+            else{ throw LexerError.IllegalIdentifierName(lineNum, buffer+currentChar); } // current char still e
         }
         fStream.pushBack(lookAhead);
         String identifier = illegalIdentAccumulator(buffer+currentChar);
         throw LexerError.IllegalIdentifierName(lineNum, identifier);
     }
 
-
-    private Token getExp(String buffer, int lineNum, boolean fromInt, boolean plusSign){ // after exp sign
+    /**
+     * accumulateExp: an accumulator function for getScientific (helps out with the process).
+     * @param buffer: the SN number as a string.
+     * @param lineNum: the line number where the SN number starts.
+     * @param fromInt: boolean indicating that whether the proc. began the SN from an integer context.
+     * @param plusSign: boolean indicating if a plusSign was used in the context.
+     * @return a real or integer constant Token.
+     */
+    private Token accumulateExp(String buffer, int lineNum, boolean fromInt, boolean plusSign){ // after exp sign
         while(isNumber(currentChar)){
             buffer += currentChar;
             currentChar = fStream.nextChar();
@@ -268,15 +271,14 @@ public class Tokenizer {
         return new Token(TokenType.REALCONSTANT, buffer, lineNum);
     }
 
-
     /**
-     * RECURSIVE --- maybe use some dynamic programming.
-     * @param buffer
-     * @return
+     * getNumber: returns the constant at this point in the file.
+     * @param buffer: the number as a string.
+     * @param lineNum: the line number where the number began in the file.
+     * @return a real or integer constant Token.
      */
     private Token getNumber(String buffer, int lineNum){
         currentChar = fStream.nextChar();
-
         if(currentChar == '.'){
             currentChar = fStream.nextChar();
             if(isNumber(currentChar)) {
@@ -289,24 +291,28 @@ public class Tokenizer {
                 return new Token(TokenType.INTCONSTANT, buffer, lineNum);
             }
         }
-
         if(Character.toUpperCase(currentChar) == EXP){ return getScientific(buffer, lineNum, true); }
 
         if(isNumber(currentChar)){
             buffer += currentChar;
             return getNumber(buffer, lineNum);
         }
-
+        /* identifiers cannot begin with numbers */
         if(isLetter(currentChar)){
             String identifier = illegalIdentAccumulator(buffer);
             throw LexerError.IllegalIdentifierName(lineNum, identifier);
         }
-        // check if its a letter >> identifiers can't start with numbers!!!!!!
-
         fStream.pushBack(currentChar);
         return new Token(TokenType.INTCONSTANT, buffer, lineNum);
     }
 
+    /**
+     * illegalIdentAccumulator: accumulates the rest of an illegal identifier
+     *                          after it's already been detected. Passed to the
+     *                          LexicalError.
+     * @param buffer: the already accumulated illegal identifier up until the detection point.
+     * @return the full illegal identifier.
+     */
     private String illegalIdentAccumulator(String buffer){
         currentChar = fStream.nextChar();
         if(isNumber(currentChar) || isLetter(currentChar)){

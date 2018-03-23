@@ -1,4 +1,4 @@
-/**
+/*
  * File: LexerError.java
  *
  * Desc: Reports lexical errors.
@@ -9,7 +9,7 @@ package main.java.lexer.errors;
 
 public class LexerError extends Error {
 
-    public LexerError(String msg){
+    private LexerError(String msg){
         super(msg);
     }
 
