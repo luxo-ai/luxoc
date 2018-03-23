@@ -44,11 +44,9 @@ public class PunctuationMap {
         puncToken.setLineNum(lineNum);
         return puncToken;
     }
-
-
+    
     /**
      * isPunctuation: determines if the character is a punctuation char.
-     *
      * @return True if the char is punctuation, False otherwise.
      */
     protected boolean isPunctuation(char chr) {
