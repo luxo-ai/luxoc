@@ -1,15 +1,18 @@
-/**
+/*
  * File: LexerError.java
  *
  * Desc: Reports lexical errors.
  *
- * @author Luis Serazo
  */
 package main.java.lexer.errors;
 
+/**
+ * LexerError
+ * @author Luis Serazo
+ */
 public class LexerError extends Error {
 
-    public LexerError(String msg){
+    private LexerError(String msg){
         super(msg);
     }
 

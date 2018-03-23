@@ -19,10 +19,10 @@ public class KeywordMap {
     private HashMap<String, Token> keywords;
 
     /**
-     * Keyword map constructor
-     *
+     * Keyword map constructor.
+     * Note: constructor is package-private.
      */
-    public KeywordMap(){
+    KeywordMap(){
         this.keywords = new HashMap<>();
 
         /* populate the hashmap */
@@ -52,11 +52,26 @@ public class KeywordMap {
     }
 
     /**
-     * getKeyword
+     * isKeyword: determines if the buffer is a keyword or not.
+     * @param buffer: a collection of characters in the file.
+     * @return True, if the buffer is a keyword, False otherwise.
      */
-    public Token getKeyword(String buffer){
-        buffer = buffer.toLowerCase();
-        return keywords.get(buffer);
+    public boolean isKeyword(String buffer){
+        String lowerCase = buffer.toLowerCase();
+        return keywords.containsKey(lowerCase);
     }
 
-}
+    /**
+     * getKeyword: returns the correct keyword from the hashmap.
+     * @param buffer: the accumulated keyword as a string.
+     * @param lineNum: the line number where the keyword began in the file.
+     * @return a keyword Token matching the buffer.
+     */
+    public Token getKeyword(String buffer, int lineNum){
+        buffer = buffer.toLowerCase();
+        Token keywordToken = keywords.get(buffer);
+        keywordToken.setLineNum(lineNum);
+        return keywordToken;
+    }
+
+} /* end of KeywordMap class */

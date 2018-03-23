@@ -21,7 +21,6 @@ public class Driver {
             "\n 1. Where file-path is the path to your source file." +
             "\n 2. Where the -d (also --debug) option indicates that you want to be in debug mode.";
 
-
     /**
      * Main: the point of execution
      *

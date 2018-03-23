@@ -2,6 +2,7 @@
  * File: GrammarSymbol.java
  *
  * Desc: contains the interface for a grammar symbol.
+ *       Used by Token, NonTerminal, and SemanticAction
  *
  */
 

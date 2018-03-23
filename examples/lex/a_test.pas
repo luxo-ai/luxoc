@@ -3,7 +3,7 @@
 0.45454544{I'm treating these kinds of comments as white space}identifier:
 
 FUNCTION:{case does not matter}
-function
+function 8.43.90 8>90
 
 foo
 
@@ -11,7 +11,7 @@ foo
 +-
 bar
 {These should be handled well}
-0.2e1 0.3ell 4.844e+ 6.6776222e: 6945.21893e. 0.2e+kggg
+0.2e1 {0.3ell} {4844eioio}+ 6.6776222{e: 6945.21893e. 0.2e+kggg}
 5. or 5.0 OR 5.000
 1.{comment}hello404World
 
@@ -24,7 +24,7 @@ lines
 program
 test: 1, 2.2e1111111, 2.123e-1000 2.234e-1000
 
-var i : integersss: or integer;[];.;(;);:;[9]
+var i : integersss: or integer;[];.;(;);:;[9] [..] <= 90
 
 begin begin function procedure result
   package Println();
@@ -44,7 +44,7 @@ test
 end.
 ends.
 {1.1 or end begin program}
-+jxjxjxxjxjx+yxyxyxyxx+z   what {about} 9t [] {} {]} {()[]} 9 .
++jxjxjxxjxjx+yxyxyxyxx+z   what {about} {9t} [] {} {]} {()[]} 9 .
 zyx
 
 1.{comment}fr

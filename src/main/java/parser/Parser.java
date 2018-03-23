@@ -43,7 +43,6 @@ public class Parser {
     /* debug boolean */
     private boolean debug = false;
 
-
     /**
      * Parser constructor
      * @param pascalFile: the path to the pascal file
@@ -64,7 +63,6 @@ public class Parser {
         parStack.push(TokenType.ENDOFFILE); /* push eof */
         parStack.push(NonTerminal.Goal); /* push start symbol */
     }
-
 
     /**
      * Parser constructor
@@ -200,7 +198,6 @@ public class Parser {
 
     /**
      * printErrors: prints error list
-     *
      */
     private void printErrors(){
         Iterator listIter = errorList.iterator();
@@ -209,10 +206,8 @@ public class Parser {
         }
     }
 
-
     /**
      * dumpStack: routine that prints the contents of the stack.
-     *
      */
     private void dumpStack(){
         if(!parStack.isEmpty()) {
@@ -231,8 +226,9 @@ public class Parser {
         }
     }
 
-    public void debugMode(){
-        this.debug = true;
-    }
+    /**
+     * debugMode: sets the debug mode to true
+     */
+    public void debugMode(){ this.debug = true; }
 
 } /* end of Parser class */
