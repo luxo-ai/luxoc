@@ -27,7 +27,7 @@ public class SymbolTableError extends Error{
      * @return a SymbolTableError
      */
     public static SymbolTableError EntryAlreadyExists(String name){
-        return new SymbolTableError("The Entry: "+name+" already exists in the symbol table.");
+        return new SymbolTableError("The Entry: "+name+" already exists in the Symbol Table.");
     }
 
 }
