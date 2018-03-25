@@ -5,9 +5,8 @@
  *
  */
 
-package main.java.routines;
+package main.java.table;
 
-import main.java.routines.table.SymbolTableEntry;
 import main.java.token.TokenType;
 
 import java.util.LinkedList;
@@ -27,7 +26,7 @@ public class ProcedureEntry extends SymbolTableEntry {
      * @param numOfParameters: the number of parameters to the procedure
      * @param parameterInfo: information about the parameters.
      */
-    public ProcedureEntry(String name, int numOfParameters, LinkedList parameterInfo){
+    public ProcedureEntry(String name, int numOfParameters, LinkedList<ParameterInfo> parameterInfo){
         super(name, TokenType.PROCEDURE);
         this.numOfParameters = numOfParameters;
         this.parameterInfo = parameterInfo;

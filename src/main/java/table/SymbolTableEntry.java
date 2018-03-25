@@ -9,7 +9,7 @@
  * of all the other subclasses.
  *
  */
-package main.java.routines.table;
+package main.java.table;
 
 import main.java.token.TokenType;
 
@@ -19,20 +19,23 @@ import main.java.token.TokenType;
  */
 public class SymbolTableEntry implements TableEntryInterface{
 
-    /* metadata */
+    /* metdata */
+    private boolean reserved;
+
+    /* string component */
     private String name;
-    /* structure of entry */
+    /* token component */
     private TokenType tokenType;
 
-    //public SymbolTableEntry(){}
     /**
      * SymbolTableEntry constructor
      * @param name: the String name of the entry.
-     * @param tokenType: the TokenType of the entry
+     * @param tokenType: the TokenType of the entry.
      */
     public SymbolTableEntry(String name, TokenType tokenType){
         this.name = name;
         this.tokenType = tokenType;
+        this.reserved = false;
     }
 
     /**
@@ -41,7 +44,9 @@ public class SymbolTableEntry implements TableEntryInterface{
      */
     public SymbolTableEntry(String name){
         this.name = name;
+        this.reserved = false;
     }
+
 
     /**
      * getName: getter method for the name of the entry
@@ -108,5 +113,11 @@ public class SymbolTableEntry implements TableEntryInterface{
      * isReserved: determines if the entry is reserved.
      * @return True if the entry is reserved, False otherwise.
      */
-    public boolean isReserved(){ return false; }
+    public boolean isReserved(){ return this.reserved; }
+
+    /**
+     * setReserved: sets the reserved flag
+     * @param newFlag: the new boolean indicating reservation.
+     */
+    public void setReserved(boolean newFlag){ this.reserved = newFlag; }
 }

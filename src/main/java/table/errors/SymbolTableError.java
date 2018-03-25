@@ -4,7 +4,7 @@
  * Desc: contains the errors associated with symbol
  *       table routines.
  */
-package main.java.routines.table.errors;
+package main.java.table.errors;
 
 /**
  * SymbolTableError

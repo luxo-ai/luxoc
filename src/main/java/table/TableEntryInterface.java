@@ -5,7 +5,7 @@
  *
  */
 
-package main.java.routines.table;
+package main.java.table;
 
 /**
  * TableEntryInterface

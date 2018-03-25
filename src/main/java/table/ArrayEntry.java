@@ -5,9 +5,8 @@
  *
  */
 
-package main.java.routines;
+package main.java.table;
 
-import main.java.routines.table.SymbolTableEntry;
 import main.java.token.TokenType;
 
 /**
@@ -20,6 +19,7 @@ public class ArrayEntry extends SymbolTableEntry{
     private int address;
     private int upperBound;
     private int lowerBound;
+    private boolean isParam;
 
     /**
      * ArrayEntry constructor
@@ -34,6 +34,28 @@ public class ArrayEntry extends SymbolTableEntry{
         this.address = address;
         this.upperBound = upperBound;
         this.lowerBound = lowerBound;
+        this.isParam = false;
+    }
+
+    /**
+     * ArrayEntry constructor
+     * @param name: the String name of the entry
+     * @param address: the address in memory of the array
+     * @param tokenType: the Token Type of the entry.
+     * @param upperBound: the upper bound of the array.
+     * @param lowerBound: the lower bound of the array.
+     * @param isParam: boolean indicating is parameter.
+     *
+     * Note: favoring constructor overloading to setter method. This is a
+     *       personal preference. I think that, e.g, a parameter should always be
+     *       a parameter and not have the ability to mutate into a non-parameter.
+     */
+    public ArrayEntry(String name, int address, TokenType tokenType, int upperBound, int lowerBound, boolean isParam){
+        super(name, tokenType);
+        this.address = address;
+        this.upperBound = upperBound;
+        this.lowerBound = lowerBound;
+        this.isParam = isParam;
     }
 
     /**
@@ -67,4 +89,11 @@ public class ArrayEntry extends SymbolTableEntry{
      */
     @Override
     public boolean isArray(){ return true; }
+
+    /**
+     * isParameter: override the parent method to indicate whether this is a parameter.
+     * @return True, if parameter, False otherwise.
+     */
+    @Override
+    public boolean isParameter(){ return this.isParam; }
 }

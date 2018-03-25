@@ -5,13 +5,11 @@
  *
  */
 
-package main.java.routines;
+package main.java.table;
 
-import main.java.routines.table.SymbolTableEntry;
 import main.java.token.TokenType;
 
 import java.util.LinkedList;
-import java.util.List;
 
 /**
  * FunctionEntry
@@ -26,11 +24,11 @@ public class FunctionEntry extends SymbolTableEntry{
     /**
      * FunctionEntry constructor
      * @param name: the String name of the function
-     * @param numOfParameters: the number of paramaters of the function
+     * @param numOfParameters: the number of parameters of the function
      * @param parameterInfo: information about the parameters
      * @param result: a variable entry
      */
-    public FunctionEntry(String name, int numOfParameters, LinkedList parameterInfo, VariableEntry result){
+    public FunctionEntry(String name, int numOfParameters, LinkedList<ParameterInfo> parameterInfo, VariableEntry result){
         super(name, TokenType.FUNCTION);
         this.numOfParameters = numOfParameters;
         this.parameterInfo = parameterInfo;

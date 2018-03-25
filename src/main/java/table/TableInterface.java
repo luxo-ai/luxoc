@@ -4,7 +4,7 @@
  * Desc: describes how a SymbolTable should behave.
  *
  */
-package main.java.routines.table;
+package main.java.table;
 
 
 /**
@@ -19,6 +19,4 @@ public interface TableInterface{
     public void insert(String key, SymbolTableEntry value);
     public int size();
     public void dumpTable();
-    public void installBuiltins();
-
 }
