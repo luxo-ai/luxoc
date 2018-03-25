@@ -198,6 +198,7 @@ public class Parser {
 
     /**
      * printErrors: prints error list
+     * Fix: iterator cannot be throwable ?
      */
     private void printErrors(){
         Iterator listIter = errorList.iterator();
