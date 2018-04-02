@@ -13,42 +13,42 @@ import main.java.grammar.GrammarSymbol;
  * @author Luis Serazo
  */
 public enum TokenType implements GrammarSymbol {
-    PROGRAM(0, "program"),
-    BEGIN(1, "begin"),
-    END(2, "end"),
-    VAR(3, "var"),
-    FUNCTION(4, "function"),
-    PROCEDURE(5, "procedure"),
-    RESULT(6, "result"),
-    INTEGER(7, "integer"),
-    REAL(8, "real"),
-    ARRAY(9, "array"),
-    OF(10, "of"),
-    IF(11, "if"),
-    THEN(12, "then"),
-    ELSE(13, "else"),
-    WHILE(14, "while"),
-    DO(15, "do"),
-    NOT(16, "not"),
-    IDENTIFIER(17, "identifier"),
-    INTCONSTANT(18, "intconstant"),
-    REALCONSTANT(19, "realconstant"),
-    RELOP(20, "relop"),
-    MULOP(21, "mulop"),
-    ADDOP(22, "addop"),
-    ASSIGNOP(23, "assignop"),
-    COMMA(24, "comma"),
-    SEMICOLON(25, "semicolon"),
-    COLON(26, "colon"),
-    RIGHTPAREN(27, "rightparen"),
-    LEFTPAREN(28, "leftparen"),
-    RIGHTBRACKET(29, "rightbracket"),
-    LEFTBRACKET(30, "leftbracket"),
-    UNARYMINUS(31, "unaryminus"),
-    UNARYPLUS(32, "unaryplus"),
-    DOUBLEDOT(33, "doubledot"),
-    ENDMARKER(34, "endmarker"),
-    ENDOFFILE(35, "endoffile");
+    PROGRAM(0, "PROGRAM"),
+    BEGIN(1, "BEGIN"),
+    END(2, "END"),
+    VAR(3, "VAR"),
+    FUNCTION(4, "FUNCTION"),
+    PROCEDURE(5, "PROCEDURE"),
+    RESULT(6, "RESULT"),
+    INTEGER(7, "INTEGER"),
+    REAL(8, "REAL"),
+    ARRAY(9, "ARRAY"),
+    OF(10, "OF"),
+    IF(11, "IF"),
+    THEN(12, "THEN"),
+    ELSE(13, "ELSE"),
+    WHILE(14, "WHILE"),
+    DO(15, "DO"),
+    NOT(16, "NOT"),
+    IDENTIFIER(17, "IDENTIFIER"),
+    INTCONSTANT(18, "INTCONSTANT"),
+    REALCONSTANT(19, "REALCONSTANT"),
+    RELOP(20, "RELOP"),
+    MULOP(21, "MULOP"),
+    ADDOP(22, "ADDOP"),
+    ASSIGNOP(23, "ASSIGNOP"),
+    COMMA(24, "COMMA"),
+    SEMICOLON(25, "SEMICOLON"),
+    COLON(26, "COLON"),
+    RIGHTPAREN(27, "RIGHTPAREN"),
+    LEFTPAREN(28, "LEFTPAREN"),
+    RIGHTBRACKET(29, "RIGHTBRACKET"),
+    LEFTBRACKET(30, "LEFTBRACKET"),
+    UNARYMINUS(31, "UNARYMINUS"),
+    UNARYPLUS(32, "UNARYPLUS"),
+    DOUBLEDOT(33, "DOUBLEDOT"),
+    ENDMARKER(34, "ENDMARKER"),
+    ENDOFFILE(35, "ENDOFFILE");
 
     /* name is the name of each type */
     private String name;
@@ -74,9 +74,7 @@ public enum TokenType implements GrammarSymbol {
      * getName: getter method for the name of the TokenType.
      * @return the name of the TokenType
      */
-    public String getName(){
-        return this.name;
-    }
+    public String getName(){ return this.name; }
 
     /**
      * isToken: determines if this GrammarSymbol is a Token

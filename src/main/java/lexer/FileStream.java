@@ -244,12 +244,10 @@ public class FileStream {
          * otherwise:
          */
         char old = this.fileChar;
-        int preLine = this.lineNum;
+        int prevLine = this.lineNum;
         this.fileChar = mvFilePointer();
 
-        if (old != EOF && !VALID_CHAR.contains("" + old)) {
-            throw LexerError.InvalidCharacter(preLine, old);
-        }
+        if (old != EOF && !VALID_CHAR.contains("" + old)) { throw LexerError.InvalidCharacter(prevLine, old); }
         return old;
     }
 
@@ -288,7 +286,7 @@ public class FileStream {
                 if (runner == COMNT_END){
                     runner = mvFilePointer();
                     /* look ahead */
-                    if(runner == COMNT_END){ throw LexerError.IllegalComment(commentStart, "{ ... }}"); }
+                    if(runner == COMNT_END){ throw LexerError.IllegalComment(commentStart, "{ ... } ... }"); }
                     break;
                 }
                 if (runner == COMNT_START){ throw LexerError.IllegalComment(commentStart, "{ ... { ... }"); }

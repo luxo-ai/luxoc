@@ -67,7 +67,14 @@ public class SymbolTable implements TableInterface{
     /**
      * dumpTable: routine prints the symbol table contents
      */
-    public void dumpTable(){}
+    public void dumpTable(){
+        System.out.println("Dumping Table ...");
+        System.out.println("KEY --> ENTRY");
+        for(String key : table.keySet()){
+            System.out.println(key + " --> " + lookup(key));
+        }
+
+    }
 
     /**
      * installBuiltins: install the following reserved names in the symbol table.
@@ -76,18 +83,18 @@ public class SymbolTable implements TableInterface{
      */
     public static void installBuiltins(SymbolTable symbolTable) throws SymbolTableError{
         /* ::: reserved procedure names ::: */
-        SymbolTableEntry main  = new ProcedureEntry("MAIN", 0, new LinkedList());
-        SymbolTableEntry read = new ProcedureEntry("READ", 0, new LinkedList());
-        SymbolTableEntry write = new ProcedureEntry("WRITE", 0, new LinkedList());
+        SymbolTableEntry main  = new ProcedureEntry("MAIN", 0, new LinkedList<ParameterInfo>());
+        SymbolTableEntry read = new ProcedureEntry("READ", 0, new LinkedList<ParameterInfo>());
+        SymbolTableEntry write = new ProcedureEntry("WRITE", 0, new LinkedList<ParameterInfo>());
         /* ::: reserved IO names ::: */
         SymbolTableEntry in = new IODeviceEntry("INPUT");
         SymbolTableEntry out = new IODeviceEntry("OUTPUT");
         /* Set reservation flag */
-        main.setReserved(true);
-        read.setReserved(true);
-        write.setReserved(true);
-        in.setReserved(true);
-        out.setReserved(true);
+        main.setToReserved();
+        read.setToReserved();
+        write.setToReserved();
+        in.setToReserved();
+        out.setToReserved();
         /* add to the table */
         symbolTable.insert(main);
         symbolTable.insert(read);
@@ -106,11 +113,9 @@ public class SymbolTable implements TableInterface{
     public static void installBuiltins(SymbolTable symbolTable, LinkedList<SymbolTableEntry> entryList) throws SymbolTableError{
         /* ::: reserved names ::: */
         Iterator<SymbolTableEntry> listiter = entryList.iterator();
-        SymbolTableEntry entry;
 
-        while(listiter.hasNext()){
-            entry = listiter.next();
-            entry.setReserved(true);
+        for(SymbolTableEntry entry : entryList){
+            entry.setToReserved();
             symbolTable.insert(entry);
         }
     }

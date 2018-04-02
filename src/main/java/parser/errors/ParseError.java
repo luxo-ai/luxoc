@@ -30,6 +30,7 @@ public class ParseError extends Error{
         return new ParseError(gm+" Does not match: "+tok.getTokenType()+". On line: "+tok.getLineNum());
     }
 
+
     /**
      * Unexpected: parse error when an unexpected Token appears.
      * @param tok: Token in question

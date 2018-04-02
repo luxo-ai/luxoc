@@ -50,10 +50,10 @@ public class Token{
     public TokenType getTokenType(){ return this.tType; }
 
     /**
-     * getvalue: getter method for the valueue of the Token
-     * @return the valueue of the Token
+     * getValue: getter method for the value of the Token
+     * @return the value of the Token
      */
-    public String getvalue(){ return this.value; }
+    public String getValue(){ return this.value; }
 
     /**
      * isEOF: checks if the current Token is EOF

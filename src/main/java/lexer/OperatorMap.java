@@ -40,8 +40,8 @@ public class OperatorMap {
         specialOP.put("<=", new Token(TokenType.RELOP, "5"));
         specialOP.put(">=", new Token(TokenType.RELOP, "6"));
         specialOP.put("<>", new Token(TokenType.RELOP, "2"));
-        specialOP.put("^+", new Token(TokenType.ADDOP, "1"));
-        specialOP.put("^-", new Token(TokenType.ADDOP, "2"));
+        specialOP.put("^+", new Token(TokenType.UNARYPLUS, null));
+        specialOP.put("^-", new Token(TokenType.UNARYMINUS, null));
     }
 
     /**
@@ -136,7 +136,7 @@ public class OperatorMap {
                 return getSpecialOP("^-", lineNum);
             
             case '<':
-                if(next == '>'){ return getSpecialOP("==", lineNum); }
+                if(next == '>'){ return getSpecialOP("<>", lineNum); }
                 if(next == '='){ return getSpecialOP("<=", lineNum); }
                 fStream.pushBack(next);
                 return getSimpleOP('<', lineNum);

@@ -66,6 +66,12 @@ public class Tokenizer {
     protected Token getPrevToken() { return this.prevToken; }
 
     /**
+     * prevTokenT: returns the previous Token Type created.
+     * @return the previous Token Type
+     */
+    public TokenType prevTokenT() { return this.prevToken.getTokenType(); }
+
+    /**
      * isNumber: checks if the character is a number.
      *
      * @param chr, the character being checked.
@@ -114,10 +120,10 @@ public class Tokenizer {
     private boolean isPlusOrMinus(char chr){ return (chr == '+' || chr == '-'); }
 
     /**
-     * prevTokenT: returns the previous Token Type created.
-     * @return the previous Token Type
+     * illegalAfterNum: checks if the current character is illegal after a number begining
+     * @return True, if illegal after number, False otherwise
      */
-    public TokenType prevTokenT() { return this.prevToken.getTokenType(); }
+    private boolean illegalAfterNum(char chr){ return (isLetter(chr) || chr == '.'); }
 
     /**
      * eofToken: routine if EOF has been reached. The routine closes the
@@ -169,31 +175,52 @@ public class Tokenizer {
     }
 
     /**
-     * getIdentifier: returns the identifier at this point in the file.
-     * @param buffer: the identifier as a string.
-     * @param lineNum: the line number where the identifier starts.
-     * @return an identifier Token.
+     * getNumber: returns the constant at this point in the file.
+     * Note: RECURSIVE
+     * @param buffer: the number as a string.
+     * @param lineNum: the line number where the number began in the file.
+     * @return a real or integer constant Token.
      */
-    private Token getIdentifier(String buffer, int lineNum) {
-        /* retrieve the next character after the start of the identifier */
+    private Token getNumber(String buffer, int lineNum){
         currentChar = fStream.nextChar();
 
-        while (validIdentBody(currentChar) && buffer.length() <= ID_MAX) {
+        /* If the current character is a number */
+        if(isNumber(currentChar)){
             buffer += currentChar;
+            return getNumber(buffer, lineNum);
+        }
+
+        /* if dot is encountered */
+        if(currentChar == '.'){
             currentChar = fStream.nextChar();
+            /* check if a number follows the dot */
+            if(isNumber(currentChar)) {
+                buffer += ".";
+                return getReal(buffer, lineNum);
+            }
+            /* else if the next char is a letter */
+            if(isLetter(currentChar)){
+                String illegalReal = illegalAccumulator(buffer+".");
+                throw LexerError.IllegalRealConstant(lineNum, illegalReal);
+            }
+            /* otherwise, return an int constant */
+            fStream.pushBack(currentChar);
+            fStream.pushBack('.');
+            return new Token(TokenType.INTCONSTANT, buffer, lineNum);
         }
-        /* check if the length exceeds the max */
-        if (buffer.length() > ID_MAX) {
-            throw LexerError.IllegalIdentifierLength(fStream.getLineNum(), buffer, ID_MAX);
+
+        /* If the current character is an: e or E ==> Exp notation */
+        if(Character.toUpperCase(currentChar) == EXP){ return getScientific(buffer, lineNum, true); }
+
+        /* identifiers cannot begin with numbers */
+        if(isLetter(currentChar)){
+            String identifier = illegalAccumulator(buffer);
+            throw LexerError.IllegalIdentifierName(lineNum, identifier);
         }
-        /* otherwise must have not entered the loop for the other condition. Add back the current character */
+
+        /* return the general integer token */
         fStream.pushBack(currentChar);
-
-        /* check if the identifier was actually a keyword */
-        if (keywords.isKeyword(buffer)) { return keywords.getKeyword(buffer, lineNum); }
-
-        /* otherwise was just a normal identifier */
-        return new Token(TokenType.IDENTIFIER, buffer, lineNum);
+        return new Token(TokenType.INTCONSTANT, buffer, lineNum);
     }
 
     /**
@@ -211,10 +238,10 @@ public class Tokenizer {
         /* if the current character is not a number */
         if (Character.toUpperCase(currentChar) == EXP) { return getScientific(buffer, lineNum, false); }
 
-        /* identifiers cannot start with letters */
+        /* real constants cannot cannot be followed by a letter immediately */
         if (isLetter(currentChar)) {
-            String identifier = illegalIdentAccumulator(buffer);
-            throw LexerError.IllegalIdentifierName(lineNum, identifier);
+            String identifier = illegalAccumulator(buffer);
+            throw LexerError.IllegalRealConstant(lineNum, identifier);
         }
 
         fStream.pushBack(currentChar);
@@ -225,7 +252,7 @@ public class Tokenizer {
      * getScientific: returns the scientific notation number at this point in the file.
      * @param buffer: the SN number as a string.
      * @param lineNum: the line number where the SN number starts.
-     * @param fromInt: boolean indicating that whether the proc. began the SN from an integer context.
+     * @param fromInt: if from integer context.
      * @return a real or integer constant Token.
      */
     private Token getScientific(String buffer, int lineNum, boolean fromInt) {
@@ -234,93 +261,93 @@ public class Tokenizer {
         if(isNumber(lookAhead)){
             buffer += "" + EXP + lookAhead; // e + the number currentChar is E
             currentChar = fStream.nextChar();
-            return accumulateExp(buffer, lineNum, fromInt, true);
+            return accumulateExp(buffer, lineNum, fromInt, false);
         }
         if(isPlusOrMinus(lookAhead)){
             char pastSign = fStream.nextChar();
             if(isNumber(pastSign)){
-                buffer += ""+ EXP + lookAhead + pastSign ; // e ; +/- ; (the number current is E)
+                buffer += "" + EXP + lookAhead + pastSign ; // e ; +/- ; (the number current is E)
                 currentChar = fStream.nextChar();
-                return accumulateExp(buffer, lineNum, fromInt, lookAhead == '+');
+                return accumulateExp(buffer, lineNum, fromInt, true);
             }
-            else{ throw LexerError.IllegalIdentifierName(lineNum, buffer+currentChar); } // current char still e
+            else if(fromInt){ throw LexerError.IllegalIdentifierName(lineNum, buffer+currentChar); } // current char still e
+            else{ throw LexerError.IllegalRealConstant(lineNum, buffer+currentChar); } // current char still e
         }
         fStream.pushBack(lookAhead);
-        String identifier = illegalIdentAccumulator(buffer+currentChar);
-        throw LexerError.IllegalIdentifierName(lineNum, identifier);
+        String illegalVal = illegalAccumulator(buffer); // will always be: E
+        if(fromInt){ throw LexerError.IllegalIdentifierName(lineNum, illegalVal); }
+        throw LexerError.IllegalRealConstant(lineNum, illegalVal);
     }
 
     /**
      * accumulateExp: an accumulator function for getScientific (helps out with the process).
      * @param buffer: the SN number as a string.
      * @param lineNum: the line number where the SN number starts.
-     * @param fromInt: boolean indicating that whether the proc. began the SN from an integer context.
-     * @param plusSign: boolean indicating if a plusSign was used in the context.
+     * @param fromInt: if from integer context.
+     * @param withSign: if exp includes sign
      * @return a real or integer constant Token.
      */
-    private Token accumulateExp(String buffer, int lineNum, boolean fromInt, boolean plusSign){ // after exp sign
-        while(isNumber(currentChar)){
+    private Token accumulateExp(String buffer, int lineNum, boolean fromInt, boolean withSign){ // after exp sign
+        String beforeSign = buffer.substring(0, buffer.length()-2); // remove the sign
+        while(isNumber(currentChar)) {
             buffer += currentChar;
             currentChar = fStream.nextChar();
         }
-        if(isLetter(currentChar)){ throw LexerError.IllegalIdentifierName(lineNum, buffer); }
+        if(isLetter(currentChar) && withSign){
+            if(fromInt){ throw  LexerError.IllegalIdentifierName(lineNum, beforeSign); }
+            throw LexerError.IllegalRealConstant(lineNum, beforeSign);
+        }
+
+        if(isLetter(currentChar)){ /* used isLetter before */
+            String ident = illegalAccumulator(buffer);
+            if(fromInt){ throw LexerError.IllegalIdentifierName(lineNum, ident); }
+            throw LexerError.IllegalRealConstant(lineNum, ident);
+        }
         /* break loop when encounters a non number */
         fStream.pushBack(currentChar);
-        if(fromInt && plusSign){
-            return new Token(TokenType.INTCONSTANT, buffer, lineNum);
-        }
         return new Token(TokenType.REALCONSTANT, buffer, lineNum);
     }
 
     /**
-     * getNumber: returns the constant at this point in the file.
-     * Note: RECURSIVE
-     * @param buffer: the number as a string.
-     * @param lineNum: the line number where the number began in the file.
-     * @return a real or integer constant Token.
+     * getIdentifier: returns the identifier at this point in the file.
+     * @param buffer: the identifier as a string.
+     * @param lineNum: the line number where the identifier starts.
+     * @return an identifier Token.
      */
-    private Token getNumber(String buffer, int lineNum){
+    private Token getIdentifier(String buffer, int lineNum) {
+        /* retrieve the next character after the start of the identifier */
         currentChar = fStream.nextChar();
-        if(currentChar == '.'){
-            currentChar = fStream.nextChar();
-            if(isNumber(currentChar)) {
-                buffer += ".";
-                return getReal(buffer, lineNum);
-            }
-            else{
-                fStream.pushBack(currentChar);
-                fStream.pushBack('.');
-                return new Token(TokenType.INTCONSTANT, buffer, lineNum);
-            }
-        }
-        if(Character.toUpperCase(currentChar) == EXP){ return getScientific(buffer, lineNum, true); }
 
-        if(isNumber(currentChar)){
+        while (validIdentBody(currentChar) && buffer.length() <= ID_MAX) {
             buffer += currentChar;
-            return getNumber(buffer, lineNum);
+            currentChar = fStream.nextChar();
         }
-        /* identifiers cannot begin with numbers */
-        if(isLetter(currentChar)){
-            String identifier = illegalIdentAccumulator(buffer);
-            throw LexerError.IllegalIdentifierName(lineNum, identifier);
-        }
+        /* check if the length exceeds the max */
+        if (buffer.length() > ID_MAX) { throw LexerError.IllegalIdentifierLength(fStream.getLineNum(), buffer, ID_MAX); }
+
+        /* otherwise must have not entered the loop for the other condition. Add back the current character */
         fStream.pushBack(currentChar);
-        return new Token(TokenType.INTCONSTANT, buffer, lineNum);
+
+        /* check if the identifier was actually a keyword */
+        if (keywords.isKeyword(buffer)) { return keywords.getKeyword(buffer, lineNum); }
+
+        /* otherwise was just a normal identifier */
+        return new Token(TokenType.IDENTIFIER, buffer.toUpperCase(), lineNum);
     }
 
     /**
-     * illegalIdentAccumulator: accumulates the rest of an illegal identifier
+     * illegalAccumulator: accumulates the rest of an illegal identifier
      *                          after it's already been detected. Passed to the
      *                          LexicalError.
      * Note: RECURSIVE
      * @param buffer: the already accumulated illegal identifier up until the detection point.
      * @return the full illegal identifier.
      */
-    private String illegalIdentAccumulator(String buffer){
-        currentChar = fStream.nextChar();
+    private String illegalAccumulator(String buffer){
         if(isNumber(currentChar) || isLetter(currentChar)){
             buffer += currentChar;
-            return illegalIdentAccumulator(buffer);
+            currentChar = fStream.nextChar();
+            return illegalAccumulator(buffer);
         }
         return buffer;
     }

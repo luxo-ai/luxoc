@@ -60,6 +60,10 @@ public class SymbolTableEntry implements TableEntryInterface{
      */
     public TokenType getType(){ return this.tokenType; }
 
+    /**
+     * nameToUpperCase: sets the name to upper case
+     */
+    public void nameToUpperCase(){ this.name = this.name.toUpperCase(); }
 
     /**
      * isVariable: determines if the entry is a variable
@@ -116,8 +120,7 @@ public class SymbolTableEntry implements TableEntryInterface{
     public boolean isReserved(){ return this.reserved; }
 
     /**
-     * setReserved: sets the reserved flag
-     * @param newFlag: the new boolean indicating reservation.
+     * setReserved: sets the reserved flag to True
      */
-    public void setReserved(boolean newFlag){ this.reserved = newFlag; }
+    public void setToReserved(){ this.reserved = true; }
 }
