@@ -2,7 +2,7 @@
 program showRelations;
 var
   a, b: integer;
-1.0eeeeeeee
+1.0 eeeeeeee
 begin
   a = 21;
   b = 10;

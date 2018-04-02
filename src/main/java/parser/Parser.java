@@ -13,7 +13,6 @@ import main.java.parser.errors.ParseError;
 import main.java.token.Token;
 import main.java.token.TokenType;
 import java.io.FileNotFoundException;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Stack;
 
@@ -24,28 +23,30 @@ import java.util.Stack;
  */
 public class Parser {
 
-    /* constants */
+    /* Constants:
+     * ERROR: the form of errors in the parse table
+     * RHS_TABLE: a RHS table (No need to mutate, so keep final)
+     * PARSE_TABLE: a ParseTable (No need to mutate, so keep final)
+     */
     private final static int ERROR = 999; /* errors look like this */
+    private final RHS RHS_TABLE;
+    private final ParseTable PARSE_TABLE;
 
     /* objects to work with */
     private Tokenizer tokenizer;
-    private ParseTable parseTable;
     private Stack<GrammarSymbol> parStack;
-    private RHS rhsTable;
 
     /* current Token */
     private Token currentToken;
-    /* predicted grammar symbol */
-    private GrammarSymbol predicted;
     /* linked list of errors for recovery */
-    private LinkedList<Error> errorList;
+    private LinkedList<ParseError> errorList;
 
-    /* debug boolean */
+    /* flag indicating if we're in debug mode or not (default is false) */
     private boolean debug = false;
 
     /**
      * Parser constructor
-     * @param pascalFile: the path to the pascal file
+     * @param pascalFile: the path to the pascal source file
      *
      * Desc: Initializes the tokenizer and stack.
      *       Returns a Parser object.
@@ -55,13 +56,13 @@ public class Parser {
         /* set the current token */
         this.currentToken = tokenizer.getNextToken();
         /* initialize the other assets */
-        this.parseTable = new ParseTable();
-        this.rhsTable = new RHS();
+        this.PARSE_TABLE = new ParseTable();
+        this.RHS_TABLE = new RHS();
         this.parStack = new Stack<>();
         this.errorList = new LinkedList<>();
         /* push the initial elements */
         parStack.push(TokenType.ENDOFFILE); /* push eof */
-        parStack.push(NonTerminal.Goal); /* push start symbol */
+        parStack.push(NonTerminal.Goal);    /* push start symbol */
     }
 
     /**
@@ -77,14 +78,19 @@ public class Parser {
         /* set the current token */
         this.currentToken = tokenizer.getNextToken();
         /* initialize the other assets */
-        this.parseTable = new ParseTable(parseTablePath);
-        this.rhsTable = new RHS();
+        this.PARSE_TABLE = new ParseTable(parseTablePath);
+        this.RHS_TABLE = new RHS();
         this.parStack = new Stack<>();
         this.errorList = new LinkedList<>();
         /* push the initial elements */
         parStack.push(TokenType.ENDOFFILE); /* push eof */
-        parStack.push(NonTerminal.Goal); /* push start symbol */
+        parStack.push(NonTerminal.Goal);    /* push start symbol */
     }
+
+    /**
+     * debugMode: sets the debug mode to true
+     */
+    public void debugMode(){ this.debug = true; }
 
     /**
      * run: routine that runs the parser. Implementation
@@ -92,118 +98,108 @@ public class Parser {
      *      can be found in the same directory as this file.
      */
     public void run(){
+        /* predicted grammar symbol */
+        GrammarSymbol predicted;
+
         /* while the current token type is not an EOF */
-        // before, had: currentToken.getTokenType() != TokenType.ENDOFFILE
-        // but this missed a bunch of important cases.
         while(!parStack.isEmpty()){
+            /* for each iteration, print the contents of the stack */
             if(debug){ dumpStack(); }
 
             /* set the predicted symbol to the top of the stack */
             predicted = parStack.pop();
-            if(debug){
-                System.out.print("Predicted: "+predicted+ " with Token: "+currentToken.toString()+" ==> ");
-            }
+            if(debug){ System.out.print("Predicted: "+predicted+ " with Token: "+currentToken.toString()+" ==> "); }
 
-            /* check if the predicted symbol is a token type */
+            /* ::: PREDICTED: TOKEN (TERMINAL) ::: */
             if(predicted.isToken()){
+
                 /* if it is, we try to match the move */
                 if(predicted == currentToken.getTokenType()){
-                    if(debug){
-                        System.out.println("MATCH FOUND");
-                        System.out.println("\n");
-                    }
+                    /* print that the mach was found */
+                    if(debug){ System.out.println("MATCH FOUND\n"); }
                     currentToken = tokenizer.getNextToken(); /* match found */
                 }
                 /* otherwise, the match was bad and we record the error */
                 else {
-                    panic(ParseError.NoMatch(predicted, currentToken));
+                    panicMode(ParseError.NoMatch(predicted, currentToken));
                 }
             }
-            /* if the predicted symbol is a non-terminal type */
+            /* ::: PREDICTED: NON-TERMINAL ::: */
             else if(predicted.isNonTerminal()){
+
                 /* get the table rule for this non-terminal */
                 NonTerminal trm = (NonTerminal) predicted;
-                int tableRule = parseTable.getRule(currentToken.getTypeIndex(), trm.getIndex());
+
+                /* Obtain the production rule given the current token and non-terminal */
+                int tableRule = PARSE_TABLE.getRule(currentToken.getTypeIndex(), trm.getIndex());
 
                 /* check if the table rule is an error */
-                if(tableRule == ERROR){
-                    panic(ParseError.Unexpected(currentToken));
-                }
+                if(tableRule == ERROR){ panicMode(ParseError.Unexpected(currentToken)); }
+
+                /* otherwise, we're okay and we proceed */
                 else{
-                    /* we only care about productions whose RHS is not the empty string */
+                    /* we only care about productions whose RHS is not the empty string (epsilon) */
                     if(tableRule > 0){
-                        /* get the RHS symbols */
-                        GrammarSymbol[] gRules = rhsTable.getRules(tableRule);
-                        if(debug){
-                            System.out.println("PUSHING: "+rhsTable.rulesToString(tableRule));
-                            System.out.println("\n");
-                        }
-                        /* push the symbols on the stack */
-                        for(int k = gRules.length-1; k > -1; k--){
-                            parStack.push(gRules[k]);
-                        }
-                    }else{
-                        if(debug){
-                            System.out.println("EPSILON");
-                            System.out.println("\n");
-                        }
+                        /* get the RHS symbols of the production (different directions we can take) */
+                        GrammarSymbol[] gRules = RHS_TABLE.getRules(tableRule);
+
+                        if(debug){ System.out.println("PUSHING: "+RHS_TABLE.rulesToString(tableRule)+"\n"); }
+                        /* push the symbols on the stack: make sure to do this with respect to FIFO */
+                        for(int k = gRules.length-1; k > -1; k--){ parStack.push(gRules[k]); }
                     }
+                    /* otherwise was an empty string and we're done with the current production. Pop next predicted */
+                    else{ if(debug){ System.out.println("EPSILON\n"); } }
                 }
             }
-            /* if the predicted symbol is a semantic action, continue */
+            /* ::: PREDICTED: SEMANTIC-ACTION ::: */
+            // for now: if the predicted symbol is a semantic action, we pop by just continuing.
             else if(predicted.isSemAction()){
-                if(debug){
-                    System.out.println("POP UNUSED ACTION");
-                    System.out.println("\n");
-                }
-                /* skip semantic actions */
+                if(debug){ System.out.println("POP UNUSED ACTION\n"); }
                 continue;
             }
         }
-        System.out.println("Parsed Successfully!");
-        dumpStack();
+        /* if there were errors, print them */
+        printErrors();
     }
 
     /**
      * panic: the panic mode routine discussed in the assignment instructions.
      * @param error: a ParseError
      */
-    private void panic(ParseError error) throws LexerError, ParseError{
+    private void panicMode(ParseError error) throws LexerError, ParseError {
         /* add this error to the list */
         this.errorList.add(error);
 
         /* skip until you find the next semicolon */
-        while(currentToken.getTokenType() != TokenType.SEMICOLON && !currentToken.isEOF()){
+        while (currentToken.getTokenType() != TokenType.SEMICOLON && !currentToken.isEOF()) {
             currentToken = tokenizer.getNextToken();
         }
-        /* if the current Token is not EOF, must be a semicolon */
-        if(!currentToken.isEOF()){
-            /* pop stack until the NonTerminal <statement_list_tail> is found */
-            if(!parStack.isEmpty()){
-                while(parStack.pop() != NonTerminal.statement_list_tail){
-                    if(parStack.isEmpty()){
-                        printErrors();
-                        dumpStack();
-                        throw error; }
-                }
-            }
-            else {
-                printErrors();
-                throw error; } /* throw error indicating that production wasn't pushed */
+
+        /* if EOF, error cannot be recovered from */
+        if (currentToken.isEOF()) {
+            throw error;
         }
-        else {
-            printErrors();
-            throw error; } /* throw error if token is EOF (unrecoverable error) */
+
+        /* if semicolon, pop the stack until you find the non-terminal <statement_list_tail> */
+        while (!parStack.isEmpty() && parStack.pop() != NonTerminal.statement_list_tail) {
+            if (parStack.isEmpty()) {
+                throw error;
+            }
+        }
     }
 
     /**
-     * printErrors: prints error list
-     * Fix: iterator cannot be throwable ?
+     * printErrors: routine prints error list.
+     * Note: if there are not errors, then we simply report the parse success.
      */
     private void printErrors(){
-        Iterator listIter = errorList.iterator();
-        while(listIter.hasNext()){
-            System.out.println(listIter.next());
+        if(!errorList.isEmpty()){
+            /* print all the errors in the error list */
+            for(ParseError error : errorList){ System.out.println(error.toString()); }
+        }
+        else{
+            System.out.println("Parsed Successfully!");
+            dumpStack();
         }
     }
 
@@ -213,23 +209,21 @@ public class Parser {
     private void dumpStack(){
         if(!parStack.isEmpty()) {
             System.out.println("Parse Stack: ");
+            /* make a copy of the stack */
             Stack<GrammarSymbol> stackCopy = new Stack<>();
             stackCopy.addAll(parStack);
-            System.out.print("[ ");
-            System.out.print(stackCopy.pop());
+
+            /* print the first element on the stack */
+            System.out.print("[ " + stackCopy.pop());
             while (!stackCopy.isEmpty()) {
+                /* print the remaining elements */
                 System.out.print(", "+stackCopy.pop());
             }
+            /* finish off by closing out the stack brackets */
             System.out.println(" ]");
         }
-        else{
-            System.out.println("Empty Stack");
-        }
+        /* otherwise, report an empty stack */
+        else{ System.out.println("Empty Stack"); }
     }
-
-    /**
-     * debugMode: sets the debug mode to true
-     */
-    public void debugMode(){ this.debug = true; }
 
 } /* end of Parser class */
