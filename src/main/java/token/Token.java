@@ -18,15 +18,31 @@ public class Token{
     /* value of a token */
     private final String value;
 
+    /* metadata */
+    private int lineNum;
+
+
 
     /**
      * Token constructor
      * @param tType a TokenType
      * @param value a String with the TokenType valueue
      */
+    public Token(TokenType tType, String value, int lineNum){
+        this.tType = tType;
+        this.value = value;
+        this.lineNum = lineNum;
+    }
+
+    /**
+     * second Token constructor
+     * @param tType a TokenType
+     * @param value a String with the TokenType valueue
+     */
     public Token(TokenType tType, String value){
         this.tType = tType;
         this.value = value;
+        this.lineNum = 0; // this must be modified later.
     }
 
     /**
@@ -60,5 +76,15 @@ public class Token{
      */
     @Override
     public String toString(){ return "< "+this.tType.getName()+" , "+this.value+" >"; }
+
+    /**
+     * getLineNum:
+     */
+    public int getLineNum(){ return this.lineNum; }
+
+    /**
+     * setLineNum:
+     */
+    public void setLineNum(int lineNum){ this.lineNum = lineNum; }
 
 } /* end of Token class */

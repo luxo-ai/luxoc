@@ -22,12 +22,12 @@ public class ParseError extends Error{
 
     /**
      * NoMatch: parse error when there is no match between two GrammarSymbols.
-     * @param g1: the first GrammarSymbol
-     * @param g2: the second GrammarSymbol
+     * @param gm: the first GrammarSymbol
+     * @param tok: the second Token (GrammarSymbol)
      * @return a ParseError
      */
-    public static ParseError NoMatch(GrammarSymbol g1, GrammarSymbol g2){
-        return new ParseError(g1+" Does not match: "+g2);
+    public static ParseError NoMatch(GrammarSymbol gm, Token tok){
+        return new ParseError(gm+" Does not match: "+tok.getTokenType()+". On line: "+tok.getLineNum());
     }
 
     /**
@@ -36,7 +36,7 @@ public class ParseError extends Error{
      * @return a ParseError
      */
     public static ParseError Unexpected(Token tok){
-        return new ParseError("Unexpected Token: "+tok.toString());
+        return new ParseError("Unexpected Token: "+tok.toString()+". On line: "+tok.getLineNum());
     }
 
 }

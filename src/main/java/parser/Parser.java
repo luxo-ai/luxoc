@@ -118,7 +118,7 @@ public class Parser {
                 }
                 /* otherwise, the match was bad and we record the error */
                 else {
-                    panic(ParseError.NoMatch(predicted, currentToken.getTokenType()));
+                    panic(ParseError.NoMatch(predicted, currentToken));
                 }
             }
             /* if the predicted symbol is a non-terminal type */

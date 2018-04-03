@@ -2,7 +2,7 @@
 {header 2}
 {header 3}
 PROGRAM
-2.0e47
+20E+47
 xyz{comment}yu
 
 {# ! % ^ & ?}
