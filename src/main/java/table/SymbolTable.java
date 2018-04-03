@@ -25,7 +25,7 @@ public class SymbolTable implements TableInterface{
      * SymbolTable constructor
      * @param size: the size of the SymbolTable
      */
-    protected SymbolTable(int size){ this.table = new Hashtable<>(size); }
+    public SymbolTable(int size){ this.table = new Hashtable<>(size); }
 
     /**
      * lookup: look up an entry in the symbol table

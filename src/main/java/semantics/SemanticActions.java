@@ -7,21 +7,18 @@
  * - Semantic Actions 2 [ ]
  * - Semantic Actions 3 [ ]
  *
- * actions 1, 2, 3, 4, 6, 7, 9, 13.
- * actions 55, 56, 30, 31, 40, 41, 42, 43, 44, 45, 46, and 48.
+ * Sem 1: actions 1, 2, 3, 4, 6, 7, 9, 13.
  *
  */
 package main.java.semantics;
 
 import main.java.lexer.Tokenizer;
-import main.java.parser.SemanticAction;
 import main.java.semantics.errors.SemanticError;
 import main.java.table.*;
 import main.java.table.errors.SymbolTableError;
 import main.java.token.Token;
 import main.java.token.TokenType;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Stack;
 
@@ -32,162 +29,129 @@ import java.util.Stack;
 public class SemanticActions {
 
     /* flags (SEM 1) */
-    private boolean insert = true; /* INSERT / SEARCH */
-    private boolean global = true; /* GLOBAL / LOCAL */
-    private int globalVars = 0;    /* GLOBAL_VARS */
-    private int localVars = 0;     /* LOCAL_VARS */
+    private boolean insert; /* INSERT / SEARCH */
+    private boolean global; /* GLOBAL / LOCAL */
+    private boolean array;  /* ARRAY / SIMPLE */
 
-    /* flags internal to run (SEM 1) */
-    private boolean array = true;    /* ARRAY / SIMPLE */
+    /* global memory and local memory sizes */
     private int globalMem;
     private int localMem;
 
-    /* semantic action stack */
-    private Stack<Object> semanticsStack;
-
-    /* symbolTables */
+    /* local and global Symbol Tables */
+    private final int TABLE_SIZE = 1000;
     private SymbolTable localTable;
     private SymbolTable globalTable;
 
+    // TODO: Find a better way of doing this.?
+    // TODO: Fix this, not good practice to use object (determine correct parents).
+    /* Stack used for controlling semantic action routines */
+    private Stack<Object> semanticsStack;
+    private Tokenizer tokenizer;
+
     /**
      * SemanticAction constructor
-     *
+     * @param tokenizer: the lexer.
      */
     public SemanticActions(Tokenizer tokenizer){
-        // NOTE: Find a better way of doing this !
         semanticsStack = new Stack<>();
+        localTable = new SymbolTable(TABLE_SIZE);
+        globalTable = new SymbolTable(TABLE_SIZE);
+        /* set the flags */
         this.insert = true; // = INSERT
         this.global = true; // = GLOBAL
-        this.globalVars = 0;
-        this.localVars = 0;
         this.array = false; // = SIMPLE
-        this.globalMem = 0; // ????
-        this.localMem = 0;  // ?????
+        /* initialize memory sizes */
+        this.globalMem = 0;
+        this.localMem = 0;
+        /* tokenizer for Semantic Actions */
+        this.tokenizer = tokenizer;
     }
 
     /**
-     * run: runs the semantic analyzer routine.
+     * execute: runs the semantic analyzer routine.
+     * @param actionID: the action number passed by the parser.
+     * @param token: the current Token being considered.
+     * @throws SemanticError when a semantic error occurs in one of the IDs.
+     * @throws SymbolTableError when the Symbol Table encounters a problem.
+     *
+     * Note: pseudo code is delineated by ':::'
      */
-    public void run(int actionID, Token token) throws SemanticError, SymbolTableError{
-
+    public void execute(int actionID, Token token) throws SemanticError, SymbolTableError{
         switch (actionID){
             case 1:
-                /* INSERT (don't search) */
+                /* INSERT/SEARCH = INSERT */
                 insert = true;
                 break;
 
             case 2:
-                /* SEARCH (don't insert) */
+                /* INSERT/SEARCH = SEARCH */
                 insert = false;
                 break;
 
             case 3:
-                /* TYP = pop TYPE */
-                // TODO: FIX THIS, NOT GOOD PRACTICE TO USE OBJECT (determine correct parents).
-                // SHOULD BE A TOKEN (in this case) ?
-                Object unkown = semanticsStack.pop();
-                // Cast to a TOKEN
-                Token tok = (Token) unkown;
-
-                // Per the pseudo code
+                /* ::: TYP = pop TYPE ::: */
+                Token tok = (Token) semanticsStack.pop();
+                /* obtain the type of the Token */
                 TokenType TYP = tok.getTokenType();
-
+                /* ::: if ARRAY/SIMPLE = ARRAY ::: */
                 if(array){
-                    /* get the upper and lower bounds of the array */
+                    /* ::: UB (LB) = pop CONSTANT ::: (upper bound, lower bound) */
                     ConstantEntry UB = (ConstantEntry) semanticsStack.pop();
                     ConstantEntry LB = (ConstantEntry) semanticsStack.pop();
-                    /* calculate the size */
-                    int MSIZE = intDistance(UB, LB); /* memory size */
-
-                    // perhaps put this in another function eventually.
-                    while (!semanticsStack.isEmpty()) {
-                        Token id = (Token) semanticsStack.pop();
-                        ArrayEntry arryEntry;
-                        if(global){
-                            /* insert the ID into the global table */
-                            // INSERT
-                            arryEntry = new ArrayEntry(id.getValue(), globalMem, TYP, intValue(UB), intValue(LB));
-
-                            insertGlobal(arryEntry);
-                            globalMem += MSIZE;
-                        }
-                        else {
-                            /* insert the ID into the local table */
-                            // INSERT
-                            arryEntry = new ArrayEntry(id.getValue(), localMem, TYP, intValue(UB), intValue(LB));
-
-                            insertLocal(arryEntry);
-                            localMem += MSIZE;
-                        }
-
-                    }
+                    /* ::: MSIZE = (UB - LB) + 1 ::: */
+                    int MEM_SIZE = intDistance(UB, LB);
+                    storeArray(UB, LB, MEM_SIZE, TYP);
                 }
-                else{
-                    // save VariableIDs
-                    while(!semanticsStack.isEmpty()){
-                        Token id = (Token) semanticsStack.pop();
-                        // insert top TYP
-                        VariableEntry var;
-                        if(global){
-                            var = new VariableEntry(id.getValue(), globalMem, TYP);
-                            // insert global entry
-                            insertGlobal(var);
-                            globalMem += 1;
-                        }
-                        else{
-                            var = new VariableEntry(id.getValue(), localMem, TYP);
-                            // insert local entry
-                            insertLocal(var);
-                            localMem += 1;
-                        }
-                    }
-                }
+                else{ storeVariable(TYP); }
+                /* ::: ARRAY/SIMPLE = SIMPLE ::: */
                 array = false;
                 break;
 
             case 4:
+                /* ::: push TYPE ::: */
                 semanticsStack.push(token);
                 break;
 
             case 5:
-                // TODO
                 break;
 
             case 6:
+                /* ::: ARRAY/SIMPLE = ARRAY ::: */
                 this.array = true;
                 break;
 
             case 7:
+                /* ::: push constant (real or int constant) ::: */
                 ConstantEntry constant = new ConstantEntry(token.getValue(), token.getTokenType());
                 semanticsStack.push(constant);
                 break;
 
             case 8:
-                // TODO
                 break;
 
             case 9:
-                // TODO
+                /* insert top two ids (identifiers) on semantic stack in the sym table mark as reserved */
                 insertIO((Token) semanticsStack.pop());
                 insertIO((Token) semanticsStack.pop());
-                // insert the related procedure
+                /* insert bottom most id in the sym table (Procedure entry, with num param = 0), mark as reserved */
                 insertProcedure((Token) semanticsStack.pop());
+                /* INSERT/SEARCH = SEARCH */
+                // TODO: pop ids?
+                // TODO: take procedure from bottom-most???
                 this.insert = false;
                 break;
 
             case 10:
-                // TODO
                 break;
 
             case 11:
-                // TODO
                 break;
 
             case 12:
-                // TODO
                 break;
 
             case 13:
+                /* ::: push id (identifier) ::: */
                 semanticsStack.push(token);
                 break;
 
@@ -256,7 +220,6 @@ public class SemanticActions {
 
             case 35:
                 break;
-
 
             case 36:
                 break;
@@ -331,7 +294,7 @@ public class SemanticActions {
                 break;
 
         }
-    }
+    } /* end of execute method */
 
     /**
      * intDistance: the intefer distance of two int constants
@@ -351,19 +314,74 @@ public class SemanticActions {
     }
 
     /**
+     * storeArray: store the array in memory.
+     * @param UB: upper bound, a ConstantEntry.
+     * @param LB: lower bound, a ConstantEntry.
+     * @param MEM_SIZE: the memory size.
+     * @param TYP: the token type
+     */
+    private void storeArray(ConstantEntry UB, ConstantEntry LB, int MEM_SIZE, TokenType TYP){
+        /* ::: For each id on the semantic stack ::: */
+        while(!semanticsStack.isEmpty()){
+            /* ::: ID = pop id ::: */
+            Token ID = (Token) semanticsStack.pop();
+
+            /* ::: if GLOBAL/LOCAL = GLOBAL ::: (store in global memory) */
+            ArrayEntry arryEntry;
+            if(global){
+                /* ::: insert id in global symbol table (Array_entry) ::: */
+                arryEntry = new ArrayEntry(ID.getValue(), globalMem, TYP, intValue(UB), intValue(LB));
+                insertToGlobal(arryEntry, ID.getLineNum());
+                globalMem += MEM_SIZE;
+            }
+            /* ::: else insert id in local symbol table (Array_entry) ::: */
+            else{
+                arryEntry = new ArrayEntry(ID.getValue(), localMem, TYP, intValue(UB), intValue(LB));
+                insertToLocal(arryEntry, ID.getLineNum());
+                localMem += MEM_SIZE;
+            }
+        }
+    }
+
+    /**
+     * storeVariable: store the simple variable in memory.
+     * @param TYP: the TokenType that we're going to store as a var.
+     */
+    private void storeVariable(TokenType TYP){
+        /* ::: For each id on the semantic stack ::: */
+        while(!semanticsStack.isEmpty()){
+            /* ::: ID = pop id ::: */
+            Token ID = (Token) semanticsStack.pop();
+
+            /* ::: if GLOBAL/LOCAL = GLOBAL ::: (store in global memory) */
+            VariableEntry var;
+            if(global){
+                /* ::: insert id in global symbol table (Variable_entry) */
+                var = new VariableEntry(ID.getValue(), globalMem, TYP);
+                insertToGlobal(var, ID.getLineNum());
+                globalMem += 1;
+            }
+            /* ::: else insert id in local symbol table (Variable_entry) */
+            else{
+                var = new VariableEntry(ID.getValue(), localMem, TYP);
+                insertToLocal(var, ID.getLineNum());
+                localMem += 1;
+            }
+        }
+    }
+
+    /**
      * insertGlobal: insert into a the global symbol table
      * @param entry: the entry we're inserting.
      * Wrapper for SymbolTable insert (specified).
      */
-    private void insertGlobal(SymbolTableEntry entry) throws SemanticError, SymbolTableError{
+    private void insertToGlobal(SymbolTableEntry entry, int lineNum) throws SemanticError, SymbolTableError{
         entry.nameToUpperCase();
         if(globalTable.lookup(entry.getName()) != null){
             if(lookupEntry(true, entry.getName()).isReserved()){
-                throw SemanticError.ReservedName(entry.getName(), 0);
+                throw SemanticError.ReservedName(entry.getName(), lineNum);
             }
-            else{
-                throw SemanticError.NameAlreadyDeclared(entry.getName(), 0);
-            }
+            else{ throw SemanticError.NameAlreadyDeclared(entry.getName(), lineNum); }
         }
         globalTable.insert(entry);
     }
@@ -373,15 +391,13 @@ public class SemanticActions {
      * @param entry: the entry we're inserting.
      * Wrapper for SymbolTable insert (specified).
      */
-    private void insertLocal(SymbolTableEntry entry) throws SemanticError, SymbolTableError{
+    private void insertToLocal(SymbolTableEntry entry, int lineNum) throws SemanticError, SymbolTableError{
         entry.nameToUpperCase();
         if(localTable.lookup(entry.getName()) != null){
             if(lookupEntry(false, entry.getName()).isReserved()){
-                throw SemanticError.ReservedName(entry.getName(), 0);
+                throw SemanticError.ReservedName(entry.getName(), lineNum);
             }
-            else{
-                throw SemanticError.NameAlreadyDeclared(entry.getName(), 0);
-            }
+            else{ throw SemanticError.NameAlreadyDeclared(entry.getName(), lineNum); }
         }
         localTable.insert(entry);
     }
@@ -398,12 +414,8 @@ public class SemanticActions {
         }
         else{
             SymbolTableEntry value = (SymbolTableEntry) localTable.lookup(name.toUpperCase());
-
-            if(value != null){
-                return value;
-            }
+            if(value != null){ return value; }
             return (SymbolTableEntry) globalTable.lookup(name.toUpperCase());
-
         }
     }
 
@@ -414,8 +426,7 @@ public class SemanticActions {
     private void insertIO(Token token) throws SymbolTableError, SemanticError{
         IODeviceEntry entry = new IODeviceEntry(token.getValue());
         entry.setToReserved();
-        // mark as var?
-        insertGlobal(entry);
+        insertToGlobal(entry, token.getLineNum());
     }
 
     /**
@@ -425,15 +436,17 @@ public class SemanticActions {
     private void insertProcedure(Token token) throws SymbolTableError, SemanticError{
         ProcedureEntry entry = new ProcedureEntry(token.getValue(), 0, new LinkedList<ParameterInfo>());
         entry.setToReserved();
-        insertGlobal(entry);
+        insertToGlobal(entry, token.getLineNum());
     }
 
     /**
-     * GEN: generates a new quadruple containing the instruction given in TVICODE
-     * @param tviCODE: tvi instructions.
+     * semanticStackDump: routine to dump the semantic stack
      */
-    private void GEN(String tviCode){
-        
+    private void semanticStackDump(){
+        System.out.println("Dumping the semantic stack ...");
+        for(int i = 0; i < semanticsStack.size(); i++){
+            System.out.println("- "+semanticsStack.get(i));
+        }
     }
 
-}
+} /* end of SemanticActions class */
