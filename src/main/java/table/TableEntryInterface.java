@@ -14,16 +14,16 @@ package main.java.table;
 public interface TableEntryInterface {
 
     /* method stubs */
-    public boolean isVariable();
+    boolean isVariable();
     @Deprecated
-    public boolean isKeyword();
-    public boolean isProcedure();
-    public boolean isFunction();
-    public boolean isFunctionResult();
-    public boolean isParameter();
-    public boolean isArray();
+    boolean isKeyword();
+    boolean isProcedure();
+    boolean isFunction();
+    boolean isFunctionResult();
+    boolean isParameter();
+    boolean isArray();
     @Deprecated
-    public boolean isConstant();
-    public boolean isReserved();
+    boolean isConstant();
+    boolean isReserved();
 
 }

@@ -160,6 +160,7 @@ public class Parser {
         }
         /* if there were errors, print them */
         printErrors();
+        /* errors are not thrown ^ need to make things thrown at the end */
     }
 
     /**

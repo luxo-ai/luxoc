@@ -8,7 +8,6 @@
 package main.java.table;
 
 import main.java.token.TokenType;
-
 import java.util.LinkedList;
 
 /**

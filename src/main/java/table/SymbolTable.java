@@ -18,7 +18,7 @@ import java.util.LinkedList;
  */
 public class SymbolTable implements TableInterface{
 
-    /* hashtable */
+    /* hash table */
     private Hashtable<String, TableEntryInterface> table;
 
     /**
