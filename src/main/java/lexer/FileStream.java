@@ -25,13 +25,13 @@ public class FileStream {
      * - COMNT_END: the character that ends a comment.
      * - EOF: the character found at the end of a file.
      * - SPACE: whitespace.
-     * - PASCAL: the characters accepted by the language.
+     * - VALID_CHAR: the characters accepted by the language.
      */
     private static final char COMNT_START = '{';
     private static final char COMNT_END = '}';
     private static final char EOF = (char)-1;
     private static final char SPACE = ' ';
-    private static final String PASCAL =
+    private static final String VALID_CHAR =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" +
             "0123456789" +
             "[]{()<>" +
@@ -100,6 +100,7 @@ public class FileStream {
         return this.fileChar;
     }
 
+
     /**
      * getLine: getter method for the current line of the file
      * @return the current line being analyzed
@@ -125,14 +126,10 @@ public class FileStream {
     }
 
     /**
-     * popStack: pops  the stack n times
-     * @param n: the number of times the stack will be popped.
+     * popStack: pops the stack n times
      */
-    public void popStack(int n){
-        while(n>0 && !pbStack.isEmpty()){
-            pbStack.pop();
-            n--;
-        }
+    public void popPushBack(){
+        if(!pbStack.empty()){ pbStack.pop(); }
     }
 
     /**
@@ -184,7 +181,6 @@ public class FileStream {
         }
     }
 
-
     /**
      * isEOL: end of line?
      * @return True if we've reached the end of the current line, False otherwise.
@@ -196,7 +192,6 @@ public class FileStream {
      * @return True if the file char is EOF, False otherwise.
      */
     private boolean isEOF(){ return this.fileChar == EOF; }
-
 
     /**
      * mvFilePointer: method for obtaining the next character in the file.
@@ -228,17 +223,13 @@ public class FileStream {
         return nxtChar;
     }
 
-
     /**
      * nextChar: grab the next character.
      * @return the next character (from the file or the push back stack)
      */
     public char nextChar() {
         /* check the push back stack first and return the character at the top of the stack */
-        if (!pbStack.empty()) {
-            return this.pbStack.pop();
-        }
-
+        if (!pbStack.empty()) { return this.pbStack.pop(); }
         /* skip over whitespace */
         if (Character.isWhitespace(this.fileChar) || this.fileChar == '\t') {
             skip();
@@ -250,21 +241,15 @@ public class FileStream {
             return SPACE;
         }
         /*
-         * otherwise
+         * otherwise:
          */
         char old = this.fileChar;
-        int preLine = this.lineNum;
+        int prevLine = this.lineNum;
         this.fileChar = mvFilePointer();
 
-
-        if (old != EOF && !PASCAL.contains("" + old)) {
-            throw LexerError.InvalidCharacter(preLine, old);
-        }
-
+        if (old != EOF && !VALID_CHAR.contains("" + old)) { throw LexerError.InvalidCharacter(prevLine, old); }
         return old;
     }
-
-
 
     /**
      * skip: sub-routine for skipping white space.
@@ -276,13 +261,9 @@ public class FileStream {
         /* skip if the current character is the beginning of a comment or whitespace */
         while(runner == COMNT_START || Character.isWhitespace(runner)){
             /* if the character is the start of a comment, skip it */
-            if (runner == COMNT_START){
-                runner = jumpComment();
-            }
+            if (runner == COMNT_START){ runner = jumpComment(); }
             /* otherwise mv the file pointer */
-            else {
-                runner =  mvFilePointer();
-            }
+            else { runner =  mvFilePointer(); }
         }
         /* set the file character */
         this.fileChar = runner;
@@ -304,14 +285,11 @@ public class FileStream {
                 /* keep skipping until we get to a closed bracket */
                 if (runner == COMNT_END){
                     runner = mvFilePointer();
-                    if(runner == COMNT_END){
-                        throw LexerError.IllegalComment(commentStart, "{ ... }}");
-                    }
+                    /* look ahead */
+                    if(runner == COMNT_END){ throw LexerError.IllegalComment(commentStart, "{ ... } ... }"); }
                     break;
                 }
-                if (runner == COMNT_START){
-                    throw LexerError.IllegalComment(commentStart, "{ ... { ... }");
-                }
+                if (runner == COMNT_START){ throw LexerError.IllegalComment(commentStart, "{ ... { ... }"); }
                 /* continue to iterate through the file */
                 runner = mvFilePointer();
             }
@@ -324,4 +302,5 @@ public class FileStream {
         }
         return runner;
     }
+
 } /* end of FileStream class */

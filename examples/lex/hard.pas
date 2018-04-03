@@ -2,7 +2,7 @@
 
 program Printing;
 
-{test}}
+{test}
 
 var i : integer;
 

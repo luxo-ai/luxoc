@@ -4,12 +4,12 @@ mmkmkmkmk               mkmkmk
 0.2E1
 
 0.2e1
-0.3ell
-4.844e+
-6.6776222e:
-6945.21893e.
+0.3 ell
+4.844e+0
+6.6776222 e:
+6945.21893 e.
 
-0.2e+kggg
+0.2 e+kggg
 
 1.{comment}frfrfrfr
 {comment}fff
@@ -37,12 +37,12 @@ f{p}123.4
 9.8.90
 {comment} i
 
-9k
+{9k}
 
 8.9
 9 .
 
-9je {this???? ok}
+9 je {this???? ok}
 
 9.8888.90.8e+10
 tester

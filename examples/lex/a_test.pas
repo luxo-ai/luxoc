@@ -2,8 +2,30 @@
 
 0.45454544{I'm treating these kinds of comments as white space}identifier:
 
+program PROGRAM 9320
+begin BEGIN 3232
+END end 32 jjj999
+VAR var ew
+FUNCTION function 444
+PROCEDURE procedure ko90
+result RESULT 0000
+INTEGER integer 000
+REAL real oooo
+array ARRAY 90 oo
+OF of of feew
+IF if if
+THEN then
+else ELSE
+WHILE while
+DO do
+NOT not
+OR or 0
+DIV div divvs
+MOD mod moddy
+AND and and the and man
+
 FUNCTION:{case does not matter}
-function
+function 8.43.90 8>90
 
 foo
 
@@ -11,7 +33,7 @@ foo
 +-
 bar
 {These should be handled well}
-0.2e1 0.3ell 4.844e+ 6.6776222e: 6945.21893e. 0.2e+kggg
+0.2e1 {0.3ell} {4844eioio}+ 6.6776222{e: 6945.21893e. 0.2e+kggg}
 5. or 5.0 OR 5.000
 1.{comment}hello404World
 
@@ -24,13 +46,13 @@ lines
 program
 test: 1, 2.2e1111111, 2.123e-1000 2.234e-1000
 
-var i : integersss: or integer;[];.;(;);:;[9]
+var i : integersss: or integer;[];.;(;);:;[9] [..] <= 90 >= [3..4]
 
 begin begin function procedure result
   package Println();
 
   FUNCTION(integer something)[
-  foo + bar = 4
+  foo + bar = 4 <> 8 > 9.0e-45 8e-90 <
   {assignment}
   foo := 400000
   ]
@@ -43,8 +65,8 @@ begin begin function procedure result
 test
 end.
 ends.
-{1.1 or end begin program}
-+jxjxjxxjxjx+yxyxyxyxx+z   what {about} 9t [] {} {]} {()[]} 9 .
+1.1 or end begin program
++jxjxjxxjxjx+yxyxyxyxx+z   what {about} {9t} [] {} {]} {()[]} 9 .
 zyx
 
 1.{comment}fr
@@ -65,7 +87,7 @@ zyx
 {how long is too long?}
 {xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
 {these should not be allowed}
-{# ! % ^ & ?
+{#} {!} {%} {^} {&} {?} {
 program}
 
 {bad comment}
