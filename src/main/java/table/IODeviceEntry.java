@@ -17,7 +17,5 @@ public class IODeviceEntry extends SymbolTableEntry{
      * IODeviceEntry constructor
      * @param name: the String name of the entry
      */
-    public IODeviceEntry(String name){
-        super(name);
-    }
+    public IODeviceEntry(String name){ super(name); }
 }

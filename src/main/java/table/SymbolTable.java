@@ -112,12 +112,9 @@ public class SymbolTable implements TableInterface{
      */
     public static void installBuiltins(SymbolTable symbolTable, LinkedList<SymbolTableEntry> entryList) throws SymbolTableError{
         /* ::: reserved names ::: */
-        Iterator<SymbolTableEntry> listiter = entryList.iterator();
-
         for(SymbolTableEntry entry : entryList){
             entry.setToReserved();
             symbolTable.insert(entry);
         }
     }
-
 }
