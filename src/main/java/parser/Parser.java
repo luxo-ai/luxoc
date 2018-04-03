@@ -121,7 +121,7 @@ public class Parser {
                 }
                 /* otherwise, the match was bad and we record the error */
                 else {
-                    panicMode(ParseError.NoMatch(predicted, currentToken));
+                    panicMode(ParseError.NoMatch(predicted, currentToken)); // TODO: should continue here?
                 }
             }
             /* ::: PREDICTED: NON-TERMINAL ::: */
