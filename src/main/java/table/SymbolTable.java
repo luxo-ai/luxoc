@@ -18,14 +18,14 @@ import java.util.LinkedList;
  */
 public class SymbolTable implements TableInterface{
 
-    /* hashtable */
+    /* hash table */
     private Hashtable<String, TableEntryInterface> table;
 
     /**
      * SymbolTable constructor
      * @param size: the size of the SymbolTable
      */
-    protected SymbolTable(int size){ this.table = new Hashtable<>(size); }
+    public SymbolTable(int size){ this.table = new Hashtable<>(size); }
 
     /**
      * lookup: look up an entry in the symbol table

@@ -15,8 +15,8 @@ public interface TableInterface{
 
     /* define method stubs */
 
-    public TableEntryInterface lookup(String key);
-    public void insert(String key, SymbolTableEntry value);
-    public int size();
-    public void dumpTable();
+    TableEntryInterface lookup(String key);
+    void insert(String key, SymbolTableEntry value);
+    int size();
+    void dumpTable();
 }

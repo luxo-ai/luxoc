@@ -29,7 +29,6 @@ out
 fsm
 Tester.java
 OldDriver.java
-IODeviceEntry.java
 
 # git script
 push

@@ -12,9 +12,9 @@ import main.java.token.TokenType;
 public class VariableEntry extends SymbolTableEntry{
 
     /* the address of the variable */
-    int address;
-    boolean isParam;
-    boolean isFuncResult;
+    private int address;
+    private boolean isParam;
+    private boolean isFuncResult;
 
     /**
      * VariableEntry constructor
