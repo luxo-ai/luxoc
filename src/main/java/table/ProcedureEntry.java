@@ -12,7 +12,7 @@ import main.java.token.TokenType;
 import java.util.LinkedList;
 
 /**
- * ProcedureEntry
+ * ProcedureEntry class
  * @author Luis Serazo
  */
 public class ProcedureEntry extends SymbolTableEntry {

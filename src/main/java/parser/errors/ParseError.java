@@ -1,7 +1,7 @@
 /*
  * File: ParseError.java
  *
- * Desc: parsing errors
+ * Desc: parsing errors.
  *
  */
 package main.java.parser.errors;

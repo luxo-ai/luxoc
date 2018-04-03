@@ -1,7 +1,7 @@
 /*
  * File: Parser.java
  *
- * Desc: Contains the main parsing algorithm
+ * Desc: Contains the main parsing algorithm.
  *
  */
 package main.java.parser;

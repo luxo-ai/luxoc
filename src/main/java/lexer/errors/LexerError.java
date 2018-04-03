@@ -12,9 +12,7 @@ package main.java.lexer.errors;
  */
 public class LexerError extends Error {
 
-    private LexerError(String msg){
-        super(msg);
-    }
+    private LexerError(String msg){ super(msg); }
 
     public static LexerError InvalidCharacter(int lineNum, char character){
         return new LexerError("Invalid character: "+character+" found on line number: "+lineNum+".");

@@ -11,7 +11,7 @@ import main.java.token.TokenType;
 import java.util.HashMap;
 
 /**
- * KeywordMap class
+ * KeywordMap class.
  * @author Luis Serazo
  */
 public class KeywordMap {

@@ -1,7 +1,7 @@
 /*
  * File: NonTerminal.java
  *
- * Desc: contains the NonTerminal enumerable
+ * Desc: contains the NonTerminal enumerable.
  *
  */
 package main.java.parser;

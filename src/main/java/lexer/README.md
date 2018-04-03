@@ -20,7 +20,7 @@ Consider: foo := 42. You'd get 3 tokens: <identifier, "foo">,  <assignOP, ":=">,
 The FileStream class acts as a wrapper for the BufferedReader class in Java. It
 handles the work of passing characters in the source file to the Tokenizer. It
 also handles the work of ignoring comments and throwing illegal character errors when
-a unrecognized character appears.  
+a unrecognized character appears in the file.
 
 ### Testing
 

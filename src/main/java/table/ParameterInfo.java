@@ -7,7 +7,7 @@
 package main.java.table;
 
 /**
- * ParameterInfo
+ * ParameterInfo class
  * @author Luis Serazo
  */
 public class ParameterInfo {

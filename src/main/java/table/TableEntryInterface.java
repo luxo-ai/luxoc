@@ -13,7 +13,7 @@ package main.java.table;
  */
 public interface TableEntryInterface {
 
-    /* method stubs */
+    /* method stubs. */
     boolean isVariable();
     @Deprecated
     boolean isKeyword();

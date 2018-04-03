@@ -11,7 +11,7 @@ import main.java.token.TokenType;
 import java.util.LinkedList;
 
 /**
- * FunctionEntry
+ * FunctionEntry class
  * @author Luis Serazo
  */
 public class FunctionEntry extends SymbolTableEntry{

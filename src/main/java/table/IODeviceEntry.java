@@ -8,7 +8,7 @@
 package main.java.table;
 
 /**
- * IODeviceEntry
+ * IODeviceEntry class
  * @author Luis Serazo
  */
 public class IODeviceEntry extends SymbolTableEntry{

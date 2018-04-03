@@ -9,6 +9,10 @@ package main.java.table;
 
 import main.java.token.TokenType;
 
+/**
+ * VariableEntry class
+ * @author Luis Serazo
+ */
 public class VariableEntry extends SymbolTableEntry{
 
     /* the address of the variable */

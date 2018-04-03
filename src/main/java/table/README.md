@@ -2,6 +2,6 @@
 
 Author: Luis Serazo
 
-# Tables
+# Scratch Tables
 
 This packacge contains the source for the symbol table routines. 

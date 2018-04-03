@@ -14,7 +14,7 @@ import main.java.token.TokenType;
  */
 public class RHS {
 
-    /* grammar symbol rules */
+    /* Grammar Symbol rules */
     private GrammarSymbol[][] gRules;
 
     /**

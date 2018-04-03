@@ -10,7 +10,7 @@ package main.java.table;
 import main.java.token.TokenType;
 
 /**
- * ConstantEntry
+ * ConstantEntry class
  * @author Luis Serazo
  */
 public class ConstantEntry extends SymbolTableEntry{

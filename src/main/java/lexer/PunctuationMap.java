@@ -11,7 +11,7 @@ import main.java.token.TokenType;
 import java.util.HashMap;
 
 /**
- * PunctuationMap class
+ * PunctuationMap class.
  * @author Luis Serazo
  */
 public class PunctuationMap {

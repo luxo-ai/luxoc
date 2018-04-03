@@ -14,7 +14,7 @@ package main.java.table;
 import main.java.token.TokenType;
 
 /**
- * SymbolTableEntry
+ * SymbolTableEntry class
  * @author Luis Serazo
  */
 public class SymbolTableEntry implements TableEntryInterface{

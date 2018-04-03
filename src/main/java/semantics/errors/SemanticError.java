@@ -1,7 +1,7 @@
 /*
  * File: SemanticError.java
  *
- * Desc: describes a semantic action error
+ * Desc: describes a semantic action error.
  *
  */
 package main.java.semantics.errors;

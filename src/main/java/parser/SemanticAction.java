@@ -1,7 +1,7 @@
 /*
  * File: SemanticAction
  *
- * Desc: Semantic action types
+ * Desc: Semantic action types.
  *
  */
 package main.java.parser;

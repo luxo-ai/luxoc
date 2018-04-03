@@ -10,7 +10,7 @@ package main.java.table;
 import main.java.token.TokenType;
 
 /**
- * ArrayEntry
+ * ArrayEntry class
  * @author Luis Serazo
  */
 public class ArrayEntry extends SymbolTableEntry{

@@ -1,8 +1,8 @@
 /*
  * File: SymbolTableError.java
  *
- * Desc: contains the errors associated with symbol
- *       table routines.
+ * Desc: contains the errors associated with
+ *       symbol table routines.
  */
 package main.java.table.errors;
 

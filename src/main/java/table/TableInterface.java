@@ -13,7 +13,7 @@ package main.java.table;
  */
 public interface TableInterface{
 
-    /* define method stubs */
+    /* define method stubs. */
 
     TableEntryInterface lookup(String key);
     void insert(String key, SymbolTableEntry value);

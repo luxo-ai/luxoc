@@ -13,7 +13,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 /**
- * SymbolTable
+ * SymbolTable class
  * @author Luis Serazo
  */
 public class SymbolTable implements TableInterface{

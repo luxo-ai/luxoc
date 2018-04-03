@@ -337,8 +337,8 @@ public class Tokenizer {
 
     /**
      * illegalAccumulator: accumulates the rest of an illegal identifier
-     *                          after it's already been detected. Passed to the
-     *                          LexicalError.
+     *                          after it's already been detected. Passed to
+     *                          the LexicalError.
      * Note: RECURSIVE
      * @param buffer: the already accumulated illegal identifier up until the detection point.
      * @return the full illegal identifier.

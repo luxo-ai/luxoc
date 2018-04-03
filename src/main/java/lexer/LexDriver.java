@@ -9,7 +9,7 @@ package main.java.lexer;
 import main.java.token.TokenType;
 
 /**
- * LexDriver class used for testing the lexer
+ * LexDriver class used for testing the lexer.
  * @author Luis Serazo
  */
 public class LexDriver {

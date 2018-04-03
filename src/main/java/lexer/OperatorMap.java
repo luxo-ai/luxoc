@@ -11,7 +11,7 @@ import main.java.token.TokenType;
 import java.util.HashMap;
 
 /**
- * OperatorMap class
+ * OperatorMap class.
  * @author Luis Serazo
  */
 public class OperatorMap {

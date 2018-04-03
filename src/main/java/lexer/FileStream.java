@@ -1,7 +1,8 @@
 /*
  * File: FileStream.java
  *
- * Desc: contains the FileStream class.
+ * Desc: contains the FileStream class for
+ *       for reading in the source file.
  *
  */
 package main.java.lexer;

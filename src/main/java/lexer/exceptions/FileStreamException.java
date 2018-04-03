@@ -1,7 +1,7 @@
 /*
  * File: FileStreamException.java
  *
- * Desc: For file exceptions
+ * Desc: Used when trying to close an uninitialized reader.
  *
  */
 

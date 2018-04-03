@@ -20,8 +20,7 @@ The ParseDriver will be used to load and test a file. You can use the debug opti
 
 ### Pseudo Code
 
-```Parser Pseudo Code:
-
+```
 
 Current token = GET Next Token
 

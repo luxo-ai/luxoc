@@ -10,7 +10,7 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 /**
- * ParseTable: wrapper class for parsetable.dat data.
+ * ParseTable: wrapper class for parsetable.dat data
  * @author Luis Serazo
  */
 public class ParseTable {
