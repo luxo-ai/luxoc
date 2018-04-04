@@ -20,5 +20,5 @@ tested numerous times and have proven themselves to be stable.
 Despite implementing the lexer, parser, symbol table, and semantic action 1, there's still a lot of work to be done.
 In the coming weeks I hope to begin working on the:
 
-- Semantic Actions 2, 3
+- Semantic Actions 2 and 3.
 
