@@ -17,9 +17,7 @@ public class SymbolTableError extends Error{
      * SymbolTableError constructor
      * @param msg: the error message.
      */
-    private SymbolTableError(String msg){
-        super(msg);
-    }
+    private SymbolTableError(String msg){ super(msg); }
 
     /**
      * EntryAlreadyExists: throw error when an entry already exists in the table
@@ -29,5 +27,4 @@ public class SymbolTableError extends Error{
     public static SymbolTableError EntryAlreadyExists(String name){
         return new SymbolTableError("The Entry: "+name+" already exists in the Symbol Table.");
     }
-
 }

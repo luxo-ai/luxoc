@@ -25,7 +25,11 @@ public class SemanticError extends Error {
     }
 
     public static SemanticError NameAlreadyDeclared(String name, int lineNumber){
-        return new SemanticError("The name: "+name+" has already been declared on line: "+lineNumber);
+        return new SemanticError("The name: "+name+" on line: "+lineNumber+" has already been declared.");
+    }
+
+    public static SemanticError ActionDoesNotExist(int num){
+        return new SemanticError("The semantic action: "+num+" does not exist");
     }
 
 }

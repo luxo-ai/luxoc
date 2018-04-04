@@ -63,7 +63,7 @@ public class Tokenizer {
      * getPrevToken: getter method for the previous Token.
      * @return the previous Token
      */
-    protected Token getPrevToken() { return this.prevToken; }
+    public Token getPrevToken() { return this.prevToken; }
 
     /**
      * prevTokenT: returns the previous Token Type created.

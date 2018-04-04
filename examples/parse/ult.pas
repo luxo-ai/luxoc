@@ -9,7 +9,7 @@ Var
    rl : real;
 
 function gcd (a, b : integer) : result integer;
-   var x : integer;
+   var xk : integer;
 begin
 write(a,b);
    if (b <= 0) then gcd := a

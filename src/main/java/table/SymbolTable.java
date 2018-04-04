@@ -9,21 +9,20 @@ package main.java.table;
 import main.java.table.errors.SymbolTableError;
 
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 /**
  * SymbolTable class
  * @author Luis Serazo
  */
-public class SymbolTable implements TableInterface{
+public class SymbolTable{
 
     /* hash table */
-    private Hashtable<String, TableEntryInterface> table;
+    private Hashtable<String, SymbolTableEntry> table;
 
     /**
      * SymbolTable constructor
-     * @param size: the size of the SymbolTable
+     * @param size: the initial size of the Table
      */
     public SymbolTable(int size){ this.table = new Hashtable<>(size); }
 
@@ -32,7 +31,7 @@ public class SymbolTable implements TableInterface{
      * @param key: a string key.
      * @return an entry in the SymbolTable.
      */
-    public TableEntryInterface lookup(String key){ return this.table.get(key.toUpperCase()); }
+    public SymbolTableEntry lookup(String key){ return this.table.get(key.toUpperCase()); } // get rid of to upper case?
 
     /**
      * insert: insert a value into the symbol table.

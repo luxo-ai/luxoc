@@ -6,7 +6,7 @@
 package main.java.semantics;
 
 /**
- * SemanticsStack
+ * SemanticsStack wrapper
  * @author Luis Serazo
  */
 public class SemanticsStack {

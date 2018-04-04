@@ -28,6 +28,9 @@ import java.util.Stack;
  */
 public class SemanticActions {
 
+    /* represents a specific semantic action */
+    class Action{ public void run(Token token){ }}
+
     /* flags (SEM 1) */
     private boolean insert; /* INSERT / SEARCH */
     private boolean global; /* GLOBAL / LOCAL */
@@ -46,7 +49,7 @@ public class SemanticActions {
     // TODO: Fix this, not good practice to use object (determine correct parents).
     /* Stack used for controlling semantic action routines */
     private Stack<Object> semanticsStack;
-    private Tokenizer tokenizer;
+    private Action[] actions;
 
     /**
      * SemanticAction constructor
@@ -63,9 +66,134 @@ public class SemanticActions {
         /* initialize memory sizes */
         this.globalMem = 0;
         this.localMem = 0;
-        /* tokenizer for Semantic Actions */
-        this.tokenizer = tokenizer;
+
+        /* the actions */
+        actions = new Action[58]; // THERE ARE 58 actions.
+        init();
     }
+
+    /**
+     * init: initializes the list of actions
+     *
+     */
+    private void init(){
+        // 1
+        this.actions[0] = new Action(){ @Override public void run(Token token) { action_1(token); } };
+        // 2
+        this.actions[1] = new Action(){ @Override public void run(Token token) { action_2(token); } };
+        // 3
+        this.actions[2] = new Action(){ @Override public void run(Token token) { action_3(token); } };
+        // 4
+        this.actions[3] = new Action(){ @Override public void run(Token token) { action_4(token); } };
+        // 5
+        this.actions[4] = new Action();
+        // 6
+        this.actions[5] = new Action(){ @Override public void run(Token token) { action_6(token); } };
+        // 7
+        this.actions[6] = new Action(){ @Override public void run(Token token) { action_7(token); } };
+        // 8
+        this.actions[7] = new Action();
+        // 9
+        this.actions[8] = new Action(){ @Override public void run(Token token) { action_9(token); } };
+        // 10
+        this.actions[9] = new Action();
+        // 11
+        this.actions[10] = new Action();
+        // 12
+        this.actions[11] = new Action();
+        // 13
+        this.actions[12] = new Action(){ @Override public void run(Token token) { action_13(token); } };
+        // 14
+        this.actions[13] = new Action();
+        // 15
+        this.actions[14] = new Action();
+        // 16
+        this.actions[15] = new Action();
+        // 17
+        this.actions[16] = new Action();
+        // 18
+        this.actions[17] = new Action();
+        // 19
+        this.actions[18] = new Action();
+        // 20
+        this.actions[19] = new Action();
+        // 21
+        this.actions[20] = new Action();
+        // 22
+        this.actions[21] = new Action();
+        // 23
+        this.actions[22] = new Action();
+        // 24
+        this.actions[23] = new Action();
+        // 25
+        this.actions[24] = new Action();
+        // 26
+        this.actions[25] = new Action();
+        // 27
+        this.actions[26] = new Action();
+        // 28
+        this.actions[27] = new Action();
+        // 29
+        this.actions[28] = new Action();
+        // 30
+        this.actions[29] = new Action();
+        // 31
+        this.actions[30] = new Action();
+        // 32
+        this.actions[31] = new Action();
+        // 33
+        this.actions[32] = new Action();
+        // 34
+        this.actions[33] = new Action();
+        // 35
+        this.actions[34] = new Action();
+        // 36
+        this.actions[35] = new Action();
+        // 37
+        this.actions[36] = new Action();
+        // 38
+        this.actions[37] = new Action();
+        // 39
+        this.actions[38] = new Action();
+        // 40
+        this.actions[39] = new Action();
+        // 41
+        this.actions[40] = new Action();
+        // 42
+        this.actions[41] = new Action();
+        // 43
+        this.actions[42] = new Action();
+        // 44
+        this.actions[43] = new Action();
+        // 45
+        this.actions[44] = new Action();
+        // 46
+        this.actions[45] = new Action();
+        // 47
+        this.actions[46] = new Action();
+        // 48
+        this.actions[47] = new Action();
+        // 49
+        this.actions[48] = new Action();
+        // 50
+        this.actions[49] = new Action();
+        // 51
+        this.actions[50] = new Action();
+        // 52
+        this.actions[51] = new Action();
+        // 53
+        this.actions[52] = new Action();
+        // 54
+        this.actions[53] = new Action();
+        // 55
+        this.actions[54] = new Action();
+        // 56
+        this.actions[55] = new Action();
+        // 57
+        this.actions[56] = new Action();
+        // 58
+        this.actions[57] = new Action();
+    } // end of INIT
 
     /**
      * execute: runs the semantic analyzer routine.
@@ -77,224 +205,118 @@ public class SemanticActions {
      * Note: pseudo code is delineated by ':::'
      */
     public void execute(int actionID, Token token) throws SemanticError, SymbolTableError{
-        switch (actionID){
-            case 1:
-                /* INSERT/SEARCH = INSERT */
-                insert = true;
-                break;
-
-            case 2:
-                /* INSERT/SEARCH = SEARCH */
-                insert = false;
-                break;
-
-            case 3:
-                /* ::: TYP = pop TYPE ::: */
-                Token tok = (Token) semanticsStack.pop();
-                /* obtain the type of the Token */
-                TokenType TYP = tok.getTokenType();
-                /* ::: if ARRAY/SIMPLE = ARRAY ::: */
-                if(array){
-                    /* ::: UB (LB) = pop CONSTANT ::: (upper bound, lower bound) */
-                    ConstantEntry UB = (ConstantEntry) semanticsStack.pop();
-                    ConstantEntry LB = (ConstantEntry) semanticsStack.pop();
-                    /* ::: MSIZE = (UB - LB) + 1 ::: */
-                    int MEM_SIZE = intDistance(UB, LB);
-                    storeArray(UB, LB, MEM_SIZE, TYP);
-                }
-                else{ storeVariable(TYP); }
-                /* ::: ARRAY/SIMPLE = SIMPLE ::: */
-                array = false;
-                break;
-
-            case 4:
-                /* ::: push TYPE ::: */
-                semanticsStack.push(token);
-                break;
-
-            case 5:
-                break;
-
-            case 6:
-                /* ::: ARRAY/SIMPLE = ARRAY ::: */
-                this.array = true;
-                break;
-
-            case 7:
-                /* ::: push constant (real or int constant) ::: */
-                ConstantEntry constant = new ConstantEntry(token.getValue(), token.getTokenType());
-                semanticsStack.push(constant);
-                break;
-
-            case 8:
-                break;
-
-            case 9:
-                /* insert top two ids (identifiers) on semantic stack in the sym table mark as reserved */
-                insertIO((Token) semanticsStack.pop());
-                insertIO((Token) semanticsStack.pop());
-                /* insert bottom most id in the sym table (Procedure entry, with num param = 0), mark as reserved */
-                insertProcedure((Token) semanticsStack.pop());
-                /* INSERT/SEARCH = SEARCH */
-                // TODO: pop ids?
-                // TODO: take procedure from bottom-most???
-                this.insert = false;
-                break;
-
-            case 10:
-                break;
-
-            case 11:
-                break;
-
-            case 12:
-                break;
-
-            case 13:
-                /* ::: push id (identifier) ::: */
-                semanticsStack.push(token);
-                break;
-
-            case 14:
-                break;
-
-            case 15:
-                break;
-
-            case 16:
-                break;
-
-            case 17:
-                break;
-
-            case 18:
-                break;
-
-            case 19:
-                break;
-
-            case 20:
-                break;
-
-            case 21:
-                break;
-
-            case 22:
-                break;
-
-            case 23:
-                break;
-
-            case 24:
-                break;
-
-            case 25:
-                break;
-
-            case 26:
-                break;
-
-            case 27:
-                break;
-
-            case 28:
-                break;
-
-            case 29:
-                break;
-
-            case 30:
-                break;
-
-            case 31:
-                break;
-
-            case 32:
-                break;
-
-            case 33:
-                break;
-
-            case 34:
-                break;
-
-            case 35:
-                break;
-
-            case 36:
-                break;
-
-            case 37:
-                break;
-
-            case 38:
-                break;
-
-            case 39:
-                break;
-
-            case 40:
-                break;
-
-            case 41:
-                break;
-
-            case 42:
-                break;
-
-            case 43:
-                break;
-
-            case 44:
-                break;
-
-            case 45:
-                break;
-
-            case 46:
-                break;
-
-            case 47:
-                break;
-
-            case 48:
-                break;
-
-            case 49:
-                break;
-
-            case 50:
-                break;
-
-            case 51:
-                break;
-
-            case 52:
-                break;
-
-            case 53:
-                break;
-
-            case 54:
-                break;
-
-            case 55:
-                break;
-
-            case 56:
-                break;
-
-            case 57:
-                break;
-
-            case 58:
-                break;
-
-            default:
-                break;
-
+        try{
+            Action act = this.actions[actionID - 1];
+            act.run(token);
+        }
+        catch (ArrayIndexOutOfBoundsException ex){
+            throw SemanticError.ActionDoesNotExist(actionID); // catch fail for semantic action not implemented yet.
         }
     } /* end of execute method */
+
+    /**
+     * action_1: semantic action 1
+     * @param token: the Token in question.
+     */
+    private void action_1(Token token){
+        /* INSERT/SEARCH = INSERT */
+        this.insert = true;
+    }
+
+    /**
+     * action_2: semantic action 2
+     * @param token: the Token in question.
+     */
+    private void action_2(Token token){
+        /* INSERT/SEARCH = SEARCH */
+        this.insert = false;
+    }
+
+    /**
+     * action_3: semantic action 3
+     * @param token: the Token in question.
+     */
+    private void action_3(Token token){
+        System.out.println(token.getTokenType());
+        semanticStackDump();
+        /* ::: TYP = pop TYPE ::: */
+        Token tok = (Token) semanticsStack.pop();
+        System.out.println("TOK "+tok);
+        /* obtain the type of the Token */
+        TokenType TYP = tok.getTokenType();
+        /* ::: if ARRAY/SIMPLE = ARRAY ::: */
+        if(this.array){
+            /* ::: UB (LB) = pop CONSTANT ::: (upper bound, lower bound) */
+            ConstantEntry UB = (ConstantEntry) semanticsStack.pop();
+            ConstantEntry LB = (ConstantEntry) semanticsStack.pop();
+            /* ::: MSIZE = (UB - LB) + 1 ::: */
+            int MEM_SIZE = intDistance(UB, LB);
+            storeArray(UB, LB, MEM_SIZE, TYP);
+        }
+        else{
+            System.out.println("IN VAR CASE");
+            storeVariable(TYP);
+        }
+        /* ::: ARRAY/SIMPLE = SIMPLE ::: */
+        this.array = false;
+    }
+
+    /**
+     * action_4: semantic action 4
+     * @param token: the Token in question.
+     */
+    private void action_4(Token token){
+        /* ::: push TYPE ::: */
+        semanticsStack.push(token);
+    }
+
+    /**
+     * action_6: semantic action 6
+     * @param token: the Token in question.
+     */
+    private void action_6(Token token){
+        /* ::: ARRAY/SIMPLE = ARRAY ::: */
+        this.array = true;
+    }
+
+    /**
+     * action_7: semantic action 7
+     * @param token: the Token in question.
+     */
+    private void action_7(Token token){
+        /* ::: push constant (real or int constant) ::: */
+        ConstantEntry constant = new ConstantEntry(token.getValue(), token.getTokenType());
+        semanticsStack.push(constant);
+    }
+
+    /**
+     * action_9: semantic action 9
+     * @param token: the Token in question.
+     */
+    private void action_9(Token token){
+        /* insert top two ids (identifiers) on semantic stack in the sym table mark as reserved */
+        insertIO((Token) semanticsStack.pop()); // must pop but insert io can be handled in install builtins.
+        insertIO((Token) semanticsStack.pop());
+        /* insert bottom most id in the sym table (Procedure entry, with num param = 0), mark as reserved */
+        insertProcedure((Token) semanticsStack.pop()); // third one, so this is fine.
+        /* INSERT/SEARCH = SEARCH */
+        // TODO: pop ids?
+        // TODO: take procedure from bottom-most???
+        this.insert = false;
+    }
+
+    /**
+     * action_13: semantic action 13
+     * @param token: the Token in question.
+     */
+    private void action_13(Token token){
+        /* ::: push id (identifier) ::: */
+        semanticsStack.push(token);
+    }
+
+
+
+    /* -------------------  HELPERS  ---------------------- */
 
     /**
      * intDistance: the intefer distance of two int constants
@@ -309,9 +331,7 @@ public class SemanticActions {
      * intValue: get the integer value of a constants
      * @param x: a ConstantEntry
      */
-    private int intValue(ConstantEntry x){
-        return Integer.parseInt(x.getName());
-    }
+    private int intValue(ConstantEntry x){ return Integer.parseInt(x.getName()); }
 
     /**
      * storeArray: store the array in memory.
@@ -349,7 +369,7 @@ public class SemanticActions {
      */
     private void storeVariable(TokenType TYP){
         /* ::: For each id on the semantic stack ::: */
-        while(!semanticsStack.isEmpty()){
+        while(!semanticsStack.isEmpty()){ // maybe use the new pseudo code?
             /* ::: ID = pop id ::: */
             Token ID = (Token) semanticsStack.pop();
 
@@ -358,6 +378,7 @@ public class SemanticActions {
             if(global){
                 /* ::: insert id in global symbol table (Variable_entry) */
                 var = new VariableEntry(ID.getValue(), globalMem, TYP);
+                System.out.println(var.getName());
                 insertToGlobal(var, ID.getLineNum());
                 globalMem += 1;
             }

@@ -10,6 +10,7 @@ import main.java.lexer.Tokenizer;
 import main.java.grammar.GrammarSymbol;
 import main.java.lexer.errors.LexerError;
 import main.java.parser.errors.ParseError;
+import main.java.semantics.SemanticActions;
 import main.java.token.Token;
 import main.java.token.TokenType;
 import java.io.FileNotFoundException;
@@ -35,9 +36,12 @@ public class Parser {
     /* objects to work with */
     private Tokenizer tokenizer;
     private Stack<GrammarSymbol> parStack;
+    private SemanticActions semActions;
 
     /* current Token */
     private Token currentToken;
+    private Token prevToken; // ADDED !
+
     /* linked list of errors for recovery */
     private LinkedList<ParseError> errorList;
 
@@ -53,8 +57,10 @@ public class Parser {
      */
     public Parser(String pascalFile) throws FileNotFoundException{
         this.tokenizer = new Tokenizer(pascalFile);
+        this.semActions = new SemanticActions(this.tokenizer);
+
         /* set the current token */
-        this.currentToken = tokenizer.getNextToken();
+        this.currentToken = this.prevToken = tokenizer.getNextToken();
         /* initialize the other assets */
         this.PARSE_TABLE = new ParseTable();
         this.RHS_TABLE = new RHS();
@@ -75,6 +81,8 @@ public class Parser {
      */
     public Parser(String pascalFile, String parseTablePath) throws FileNotFoundException{
         this.tokenizer = new Tokenizer(pascalFile);
+        this.semActions = new SemanticActions(this.tokenizer);
+
         /* set the current token */
         this.currentToken = tokenizer.getNextToken();
         /* initialize the other assets */
@@ -117,6 +125,7 @@ public class Parser {
                 if(predicted == currentToken.getTokenType()){
                     /* print that the mach was found */
                     if(debug){ System.out.println("MATCH FOUND\n"); }
+                    prevToken = currentToken;
                     currentToken = tokenizer.getNextToken(); /* match found */
                 }
                 /* otherwise, the match was bad and we record the error */
@@ -154,8 +163,10 @@ public class Parser {
             /* ::: PREDICTED: SEMANTIC-ACTION ::: */
             // for now: if the predicted symbol is a semantic action, we pop by just continuing.
             else if(predicted.isSemAction()){
-                if(debug){ System.out.println("POP UNUSED ACTION\n"); }
-                continue;
+                SemanticAction act = (SemanticAction) predicted;
+                if(debug){ System.out.println("SEMANTIC ACTION: "+act.getIndex()+"\n"); }
+                System.out.println(prevToken.getLineNum());
+                semActions.execute(act.getIndex(), prevToken);
             }
         }
         /* if there were errors, print them */
