@@ -4,8 +4,9 @@
  * Desc: used to test the symbol tables
  *
  */
-package main.java.table;
+package main.java;
 
+import main.java.table.*;
 import main.java.token.Token;
 import main.java.token.TokenType;
 

@@ -28,47 +28,74 @@ import java.util.Stack;
  */
 public class SemanticActions {
 
-    /* represents a specific semantic action */
+    /**
+     * Actions class to represent a specific action.
+     * Run method: overridden when needed.
+     */
     class Action{ public void run(Token token){ }}
 
-    /* flags (SEM 1) */
-    private boolean insert; /* INSERT / SEARCH */
-    private boolean global; /* GLOBAL / LOCAL */
-    private boolean array;  /* ARRAY / SIMPLE */
+    /*
+     * Constants:
+     * - INITIAL_SIZE: the initial size of each symbol table.
+     * - NUM_ACTIONS: the number of actions in the grammar.
+     */
+    private final int INITIAL_SIZE = 250;
+    private final int NUM_ACTIONS = 58;
 
-    /* global memory and local memory sizes */
+    /*
+     * Flags:
+     * insert: INSERT/SEARCH
+     * global: GLOBAL/LOCAL
+     * array:  ARRAY/SIMPLE
+     */
+    private boolean insert;
+    private boolean global;
+    private boolean array;
+
+    /*
+     * Current Memory Sizes:
+     * - globalMem: global memory
+     * - localMem:  local memory (functions)
+     */
     private int globalMem;
     private int localMem;
 
-    /* local and global Symbol Tables */
-    private final int TABLE_SIZE = 1000;
+    /*
+     * Symbol Tables:
+     * - localTable: stores local variables
+     * - globalTable: stores global variables
+     */
     private SymbolTable localTable;
     private SymbolTable globalTable;
 
-    // TODO: Find a better way of doing this.?
-    // TODO: Fix this, not good practice to use object (determine correct parents).
-    /* Stack used for controlling semantic action routines */
-    private Stack<Object> semanticsStack;
+    /*
+     * Semantic Data Structures:
+     * - semanticsStack: stack for controlling semantic action routines.
+     * - actions: the list of all actions.
+     */
+    private Stack<Object> semanticsStack; // TODO: better practice, than using Object?
     private Action[] actions;
 
     /**
      * SemanticAction constructor
-     * @param tokenizer: the lexer.
+     * @param tokenizer: control of the lexer is passed to the semantic actions.
      */
     public SemanticActions(Tokenizer tokenizer){
         semanticsStack = new Stack<>();
-        localTable = new SymbolTable(TABLE_SIZE);
-        globalTable = new SymbolTable(TABLE_SIZE);
+        localTable = new SymbolTable(INITIAL_SIZE);
+        globalTable = new SymbolTable(INITIAL_SIZE);
+
         /* set the flags */
         this.insert = true; // = INSERT
         this.global = true; // = GLOBAL
         this.array = false; // = SIMPLE
-        /* initialize memory sizes */
+
+        /* initialize memory sizes to zero */
         this.globalMem = 0;
         this.localMem = 0;
 
-        /* the actions */
-        actions = new Action[58]; // THERE ARE 58 actions.
+        /* populate the actions */
+        actions = new Action[NUM_ACTIONS]; // Note: there are 58 actions.
         init();
     }
 
@@ -205,14 +232,9 @@ public class SemanticActions {
      * Note: pseudo code is delineated by ':::'
      */
     public void execute(int actionID, Token token) throws SemanticError, SymbolTableError{
-        try{
-            Action act = this.actions[actionID - 1];
-            act.run(token);
-        }
-        catch (ArrayIndexOutOfBoundsException ex){
-            throw SemanticError.ActionDoesNotExist(actionID); // catch fail for semantic action not implemented yet.
-        }
-    } /* end of execute method */
+        try{ this.actions[actionID - 1].run(token); }
+        catch (ArrayIndexOutOfBoundsException ex){ throw SemanticError.ActionDoesNotExist(actionID); }
+    }
 
     /**
      * action_1: semantic action 1
@@ -237,11 +259,8 @@ public class SemanticActions {
      * @param token: the Token in question.
      */
     private void action_3(Token token){
-        System.out.println(token.getTokenType());
-        semanticStackDump();
         /* ::: TYP = pop TYPE ::: */
         Token tok = (Token) semanticsStack.pop();
-        System.out.println("TOK "+tok);
         /* obtain the type of the Token */
         TokenType TYP = tok.getTokenType();
         /* ::: if ARRAY/SIMPLE = ARRAY ::: */
@@ -250,13 +269,10 @@ public class SemanticActions {
             ConstantEntry UB = (ConstantEntry) semanticsStack.pop();
             ConstantEntry LB = (ConstantEntry) semanticsStack.pop();
             /* ::: MSIZE = (UB - LB) + 1 ::: */
-            int MEM_SIZE = intDistance(UB, LB);
+            int MEM_SIZE = intDistance(UB, LB) + 1;
             storeArray(UB, LB, MEM_SIZE, TYP);
         }
-        else{
-            System.out.println("IN VAR CASE");
-            storeVariable(TYP);
-        }
+        else{ storeVariable(TYP); }
         /* ::: ARRAY/SIMPLE = SIMPLE ::: */
         this.array = false;
     }
@@ -296,12 +312,10 @@ public class SemanticActions {
     private void action_9(Token token){
         /* insert top two ids (identifiers) on semantic stack in the sym table mark as reserved */
         insertIO((Token) semanticsStack.pop()); // must pop but insert io can be handled in install builtins.
-        insertIO((Token) semanticsStack.pop());
+        insertIO((Token) semanticsStack.pop()); // or can be handled here, depends on what you think is best.
         /* insert bottom most id in the sym table (Procedure entry, with num param = 0), mark as reserved */
-        insertProcedure((Token) semanticsStack.pop()); // third one, so this is fine.
+        insertProcedure((Token) semanticsStack.pop()); // third one, so this is the the bottom most.
         /* INSERT/SEARCH = SEARCH */
-        // TODO: pop ids?
-        // TODO: take procedure from bottom-most???
         this.insert = false;
     }
 
@@ -324,7 +338,7 @@ public class SemanticActions {
      * @param y: a ConstantEntry
      */
     private int intDistance(ConstantEntry x, ConstantEntry y){
-        return (Integer.parseInt(x.getName()) - Integer.parseInt(y.getName()) + 1);
+        return (Integer.parseInt(x.getName()) - Integer.parseInt(y.getName()));
     }
 
     /**
@@ -342,7 +356,7 @@ public class SemanticActions {
      */
     private void storeArray(ConstantEntry UB, ConstantEntry LB, int MEM_SIZE, TokenType TYP){
         /* ::: For each id on the semantic stack ::: */
-        while(!semanticsStack.isEmpty()){
+        while(!semanticsStack.isEmpty()){ // TODO: maybe use the new pseudo code? is identifier?
             /* ::: ID = pop id ::: */
             Token ID = (Token) semanticsStack.pop();
 
@@ -369,7 +383,7 @@ public class SemanticActions {
      */
     private void storeVariable(TokenType TYP){
         /* ::: For each id on the semantic stack ::: */
-        while(!semanticsStack.isEmpty()){ // maybe use the new pseudo code?
+        while(!semanticsStack.isEmpty()){ // TODO: maybe use the new pseudo code? is identifier?
             /* ::: ID = pop id ::: */
             Token ID = (Token) semanticsStack.pop();
 
@@ -431,17 +445,17 @@ public class SemanticActions {
      */
     private SymbolTableEntry lookupEntry(boolean globalEntry, String name){
         if(globalEntry){
-            return (SymbolTableEntry) globalTable.lookup(name.toUpperCase()); // maybe just get rid of interface and cast.
+            return globalTable.lookup(name.toUpperCase());
         }
         else{
-            SymbolTableEntry value = (SymbolTableEntry) localTable.lookup(name.toUpperCase());
+            SymbolTableEntry value = localTable.lookup(name.toUpperCase());
             if(value != null){ return value; }
-            return (SymbolTableEntry) globalTable.lookup(name.toUpperCase());
+            return globalTable.lookup(name.toUpperCase());
         }
     }
 
     /**
-     * insertIO: insert the reserved file IO
+     * insertIO: insert the reserved file IO.
      * @param token: a Token
      */
     private void insertIO(Token token) throws SymbolTableError, SemanticError{
@@ -451,7 +465,7 @@ public class SemanticActions {
     }
 
     /**
-     * insertProcedure: insert any reserved procedures
+     * insertProcedure: insert any reserved procedures.
      * @param token: a Token
      */
     private void insertProcedure(Token token) throws SymbolTableError, SemanticError{
@@ -461,7 +475,7 @@ public class SemanticActions {
     }
 
     /**
-     * semanticStackDump: routine to dump the semantic stack
+     * semanticStackDump: routine to dump the semantic stack.
      */
     private void semanticStackDump(){
         System.out.println("Dumping the semantic stack ...");

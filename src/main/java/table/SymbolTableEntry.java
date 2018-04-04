@@ -67,55 +67,57 @@ public class SymbolTableEntry implements TableEntryInterface{
 
     /**
      * isVariable: determines if the entry is a variable
-     * @return True if the entry is a variable, False otherwise.
+     * @return True if the entry is a variable, False otherwise. Default is False.
      */
     public boolean isVariable(){ return false; }
 
     /**
      * isKeyword: determines if the entry is a keyword
-     * @return True if the entry is a keyword, False otherwise.
+     * @return True if the entry is a keyword, False otherwise. Default is False.
      */
+    @Deprecated
     public boolean isKeyword(){ return false; }
 
     /**
      * isProcedure: determines if the entry is a procedure
-     * @return True if the entry is a procedure, False otherwise.
+     * @return True if the entry is a procedure, False otherwise. Default is False.
      */
     public boolean isProcedure(){ return false; }
 
     /**
      * isFunction: determines if the entry is a function
-     * @return True if the entry is a function, False otherwise.
+     * @return True if the entry is a function, False otherwise. Default is False.
      */
     public boolean isFunction(){ return false; }
 
     /**
      * isFunctionResult: determines if the entry is a Result.
-     * @return True if the entry is a result, False otherwise.
+     * @return True if the entry is a result, False otherwise. Default is False.
      */
     public boolean isFunctionResult(){ return false; }
 
     /**
      * isParameter: determines if the entry is a parameter.
-     * @return True if the entry is a parameter, False otherwise.
+     * @return True if the entry is a parameter, False otherwise. Default is False.
      */
     public boolean isParameter(){ return false; }
 
     /**
      * isArray: determines if the entry is an array.
-     * @return True if the entry is an array, False otherwise.
+     * @return True if the entry is an array, False otherwise. Default is False.
      */
     public boolean isArray(){ return false; }
 
     /**
      * isConstant: determines if the entry is a constant.
-     * @return True if the entry is a constant, False otherwise.
+     * @return True if the entry is a constant, False otherwise. Default is False.
      */
+    @Deprecated
     public boolean isConstant(){ return false; }
 
     /**
      * isReserved: determines if the entry is reserved.
-     * @return True if the entry is reserved, False otherwise.
+     * @return True if the entry is reserved, False otherwise. Default is False.
      */
     public boolean isReserved(){ return this.reserved; }
 

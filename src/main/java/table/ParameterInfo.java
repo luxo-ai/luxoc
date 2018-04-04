@@ -45,9 +45,7 @@ public class ParameterInfo {
     @Override
     public String toString(){
         String str = "Type: "+this.type+" Scope: "+this.scope+" MetaData: ";
-        if(metaData != null){
-            for(String dat : metaData){ str += dat+" "; }
-        }
+        if(metaData != null){ for(String dat : metaData){ str += dat+" "; } }
         else{ str += "null"; }
         return str;
     }
