@@ -16,7 +16,7 @@ import java.io.FileNotFoundException;
  */
 public class Driver {
 
-    private static final String INVALID_INPUT = "Invalid Input! \nThis driver must be run at the command-line as: "+
+    private static final String INVALID_INPUT = "\nInvalid Input! \nThis driver must be run at the command-line as: "+
             "./Driver [file-path] [-d (optional)]" +
             "\n 1. Where file-path is the path to your source file." +
             "\n 2. Where the -d (also --debug) option indicates that you want to be in debug mode.";
