@@ -491,10 +491,10 @@ public class SemanticActions {
      * SEMANTIC ACTION #56
      * generate: generates TVI code by Quadruples.
      * @param tviCode: String representation of TVI
-     * @param operand: the operand in question.
+     * @param idName: the operand in question.
      */
-    private void generate(String tviCode, String operand){
-        String [] quadrpl = {tviCode, operand, null, null};
+    private void generate(String tviCode, String idName){
+        String [] quadrpl = {tviCode, idName, null, null};
         quads.addQuad(quadrpl);
     }
 
