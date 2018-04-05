@@ -72,9 +72,11 @@ public class SemanticActions {
      * Semantic Data Structures:
      * - semanticsStack: stack for controlling semantic action routines.
      * - actions: the list of all actions.
+     * - quads: Quadruples scratch pad for the TVI code
      */
     private Stack<Object> semanticsStack; // TODO: better practice, than using Object?
     private Action[] actions;
+    private Quadruples quads;
 
     /**
      * SemanticAction constructor
@@ -472,6 +474,28 @@ public class SemanticActions {
         ProcedureEntry entry = new ProcedureEntry(token.getValue(), 0, new LinkedList<ParameterInfo>());
         entry.setToReserved();
         insertToGlobal(entry, token.getLineNum());
+    }
+
+    /**
+     * SEMANTIC ACTION #55
+     * generate: generates TVI code by Quadruples.
+     * @param tviCode: String representation of TVI
+     * @param memLoc: the memory location of the operand
+     */
+    private void generate(String tviCode, int memLoc){
+        String[] quadrpl = {tviCode, String.valueOf(memLoc), null,  null};
+        quads.addQuad(quadrpl);
+    }
+
+    /**
+     * SEMANTIC ACTION #56
+     * generate: generates TVI code by Quadruples.
+     * @param tviCode: String representation of TVI
+     * @param operand: the operand in question.
+     */
+    private void generate(String tviCode, String operand){
+        String [] quadrpl = {tviCode, operand, null, null};
+        quads.addQuad(quadrpl);
     }
 
     /**
