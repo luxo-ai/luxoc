@@ -8,7 +8,7 @@
  * - Semantic Actions 3 [ ]
  *
  * Sem 1: actions 1, 2, 3, 4, 6, 7, 9, 13.
- *
+ * Sem 2: actions 55, 56, 30, 31, 40, 41, 42, 43, 44, 45, 46, and 48.
  */
 package main.java.semantics;
 
@@ -32,7 +32,7 @@ public class SemanticActions {
      * Actions class to represent a specific action.
      * Run method: overridden when needed.
      */
-    class Action{ public void run(Token token){ }}
+    class Action{ void run(Token token){ } }
 
     /*
      * Constants:
@@ -77,6 +77,7 @@ public class SemanticActions {
     private Stack<Object> semanticsStack; // TODO: better practice, than using Object?
     private Action[] actions;
     private Quadruples quads;
+    private int globalStore;
 
     /**
      * SemanticAction constructor
@@ -95,6 +96,10 @@ public class SemanticActions {
         /* initialize memory sizes to zero */
         this.globalMem = 0;
         this.localMem = 0;
+
+        /* initialize quadruples */
+        quads = new Quadruples();
+        globalStore = 0;
 
         /* populate the actions */
         actions = new Action[NUM_ACTIONS]; // Note: there are 58 actions.
@@ -215,9 +220,9 @@ public class SemanticActions {
         // 54
         this.actions[53] = new Action();
         // 55
-        this.actions[54] = new Action();
+        this.actions[54] = new Action(){ @Override void run(Token token) { action_55(token); } };
         // 56
-        this.actions[55] = new Action();
+        this.actions[55] = new Action(){ @Override void run(Token token) { action_56(token); } };
         // 57
         this.actions[56] = new Action();
         // 58
@@ -237,6 +242,9 @@ public class SemanticActions {
         try{ this.actions[actionID - 1].run(token); }
         catch (ArrayIndexOutOfBoundsException ex){ throw SemanticError.ActionDoesNotExist(actionID); }
     }
+
+
+    /* -------------------- SEMANTIC ACTIONS ------------------- */
 
     /**
      * action_1: semantic action 1
@@ -328,6 +336,32 @@ public class SemanticActions {
     private void action_13(Token token){
         /* ::: push id (identifier) ::: */
         semanticsStack.push(token);
+    }
+
+    /**
+     * action_55: semantic action 55
+     * @param token: the Token in question.
+     */
+    private void action_55(Token token){
+        /* ::: BACKPATCH(GLOBAL_STORE,GLOBAL_MEM) ::: */
+        backPatch();
+        /* ::: GEN(free GLOBAL_MEM) ::: */
+        generate("free", this.globalMem);
+        /* ::: GEN(PROCEND) ::: */
+        generate("PROCEND");
+    }
+
+    /**
+     * action_56: semantic action 56
+     * @param token: the Token in question.
+     */
+    private void action_56(Token token){
+        /* ::: GEN(PROCBEGIN main) ::: */
+        generate("PROCBEGIN", "main");
+        /* ::: GLOBAL_STORE = NEXTQUAD ::: */
+        globalStore = quads.nextQuadIndex();
+        /* ::: GEN(alloc,_) ::: */
+        generate("alloc", "_");
     }
 
 
@@ -478,7 +512,17 @@ public class SemanticActions {
 
     /**
      * SEMANTIC ACTION #55
-     * generate: generates TVI code by Quadruples.
+     * generate: generates TVI code using Quadruples.
+     * @param tviCode: String representation of TVI
+     */
+    private void generate(String tviCode){
+        String[] quadrpl = {tviCode, null, null, null};
+        quads.addQuad(quadrpl);
+    }
+
+    /**
+     * SEMANTIC ACTION #55
+     * generate: generates TVI code using Quadruples.
      * @param tviCode: String representation of TVI
      * @param memLoc: the memory location of the operand
      */
@@ -489,7 +533,7 @@ public class SemanticActions {
 
     /**
      * SEMANTIC ACTION #56
-     * generate: generates TVI code by Quadruples.
+     * generate: generates TVI code using Quadruples.
      * @param tviCode: String representation of TVI
      * @param idName: the operand in question.
      */
@@ -497,6 +541,11 @@ public class SemanticActions {
         String [] quadrpl = {tviCode, idName, null, null};
         quads.addQuad(quadrpl);
     }
+
+    /**
+     * backPatch:
+     */
+    private void backPatch(){}
 
     /**
      * semanticStackDump: routine to dump the semantic stack.

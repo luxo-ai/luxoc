@@ -160,7 +160,7 @@ public class Quadruples {
         Enumeration<String[]> en = this.quadruples.elements();
         en.nextElement();
         en.nextElement();
-        
+
         while(en.hasMoreElements()){
             String[] quad = en.nextElement();
             separator = " ";
