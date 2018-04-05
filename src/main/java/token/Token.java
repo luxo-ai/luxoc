@@ -40,7 +40,7 @@ public class Token{
     public Token(TokenType tType, String value){
         this.tType = tType;
         this.value = value;
-        this.lineNum = 0; // this must be modified later.
+        this.lineNum = 0; // TODO: this must be modified later.
     }
 
     /**

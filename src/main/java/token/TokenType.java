@@ -65,7 +65,7 @@ public enum TokenType implements GrammarSymbol {
     }
 
     /**
-     * getIndex: returns the index of this GrammarSymbol
+     * getIndex: returns the index of this GrammarSymbol.
      * @return the GS index
      */
     public int getIndex(){ return this.index; }
@@ -77,19 +77,19 @@ public enum TokenType implements GrammarSymbol {
     public String getName(){ return this.name; }
 
     /**
-     * isToken: determines if this GrammarSymbol is a Token
+     * isToken: determines if this GrammarSymbol is a Token.
      * @return True if the GS is a Token, False otherwise
      */
     public boolean isToken(){ return true; }
 
     /**
-     * isNonTerminal: determines if this GrammarSymbol is a NonTerminal
+     * isNonTerminal: determines if this GrammarSymbol is a NonTerminal.
      * @return True if the GS is a NonTerminal, False otherwise
      */
     public boolean isNonTerminal(){ return false; }
 
     /**
-     * isSemAction: determines if the GrammarSymbol is a SemanticAction
+     * isSemAction: determines if the GrammarSymbol is a SemanticAction.
      * @return True if the GS is a SemanticAction, False otherwise
      */
     public boolean isSemAction(){ return false; }
