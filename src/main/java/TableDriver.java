@@ -1,5 +1,5 @@
 /*
- * File: STDriver.java
+ * File: TableDriver.java
  *
  * Desc: used to test the symbol tables
  *
@@ -11,10 +11,10 @@ import main.java.token.TokenType;
 import java.util.LinkedList;
 
 /**
- * STDriver class
+ * TableDriver class
  * @author Luis Serazo
  */
-public class STDriver {
+public class TableDriver {
 
     /**
      * main: the point of execution.
@@ -138,7 +138,7 @@ public class STDriver {
 
 
     private static String DRIVER_MSG = "\nInvalid Input! \nThis driver must be run at the command-line as: " +
-            "./STDriver [initial-table-size] (optional)" +
+            "./TableDriver [initial-table-size] (optional)" +
             "\n** initial-table-size is the initial size of the Symbol Table. This parameter is optional and is " +
             "set to 250 by default. ";
 }
