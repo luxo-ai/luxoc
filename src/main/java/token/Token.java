@@ -20,7 +20,25 @@ public class Token{
     /* metadata */
     private int lineNum;
 
-
+    private OperatorType opT;
+    /// TODO ?????
+    public enum OperatorType{
+        EQ,
+        NEQ,
+        LESS_THAN,
+        LEQ,
+        GREATER_THAN,
+        GEQ,
+        ADD,
+        SUBTRACT,
+        MULTIPLY,
+        DIVIDE,
+        DIV,
+        MOD,
+        AND,
+        OR,
+        NOT
+    }
     /**
      * Token constructor
      * @param tType a TokenType
@@ -30,6 +48,7 @@ public class Token{
         this.tType = tType;
         this.value = value;
         this.lineNum = lineNum;
+        this.opT = null;
     }
 
     /**
@@ -41,7 +60,35 @@ public class Token{
         this.tType = tType;
         this.value = value;
         this.lineNum = 0; // TODO: this must be modified later.
+        this.opT = null;
     }
+
+    /**
+     * Token constructor
+     * @param tType a TokenType
+     * @param value a String with the TokenType valueue
+     */
+    public Token(TokenType tType, String value, int lineNum, OperatorType opT){
+        this.tType = tType;
+        this.value = value;
+        this.lineNum = lineNum;
+        this.opT = opT;
+    }
+
+    /**
+     * second Token constructor
+     * @param tType a TokenType
+     * @param value a String with the TokenType valueue
+     */
+    public Token(TokenType tType, String value, OperatorType opT){
+        this.tType = tType;
+        this.value = value;
+        this.lineNum = 0; // TODO: this must be modified later.
+        this.opT = opT;
+    }
+
+    public OperatorType getOpType(){ return this.opT; }
+
 
     /**
      * getTokenType: getter method for the token type

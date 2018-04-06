@@ -42,13 +42,13 @@ public class KeywordMap {
         keywords.put("ELSE", new Token(TokenType.ELSE, null));
         keywords.put("WHILE", new Token(TokenType.WHILE, null));
         keywords.put("DO", new Token(TokenType.DO, null));
-        keywords.put("NOT", new Token(TokenType.NOT, null));
+        keywords.put("NOT", new Token(TokenType.NOT, null, Token.OperatorType.NOT));
 
         /* special operators */
-        keywords.put("OR", new Token(TokenType.ADDOP, "3"));
-        keywords.put("DIV", new Token(TokenType.MULOP, "3"));
-        keywords.put("MOD", new Token(TokenType.MULOP, "4"));
-        keywords.put("AND", new Token(TokenType.MULOP, "5"));
+        keywords.put("OR", new Token(TokenType.ADDOP, "3", Token.OperatorType.OR));
+        keywords.put("DIV", new Token(TokenType.MULOP, "3", Token.OperatorType.DIV));
+        keywords.put("MOD", new Token(TokenType.MULOP, "4", Token.OperatorType.MOD));
+        keywords.put("AND", new Token(TokenType.MULOP, "5", Token.OperatorType.AND));
     }
 
     /**

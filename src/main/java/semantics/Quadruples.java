@@ -41,12 +41,20 @@ public class Quadruples {
     }
 
     /**
-     * getEntry:
+     * getEntry: getter method for quadruple entry
      * @param line: line of the quadruple
      * @param offset: offset into TVI line.
      * @return the entry in the quadruple
      */
     public String getEntry(int line, int offset){ return quadruples.elementAt(line)[offset]; }
+
+    /**
+     * setEntry: setter method for quadruple entry
+     * @param line: line of the quadruple
+     * @param offset: offset into quadruple line
+     * @param entry: the entry to replace the current entry.
+     */
+    public void setEntry(int line, int offset, String entry){ quadruples.elementAt(line)[offset] = entry; }
 
     /**
      * nextQuadIndex: gives the next quadruple index.

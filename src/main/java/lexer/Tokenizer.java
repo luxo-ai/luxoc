@@ -59,6 +59,12 @@ public class Tokenizer {
         this.fStream = new FileStream(filename);
     }
 
+    // todo: this this right?
+    public int getLineNum(){
+        if(this.prevToken != null){ return this.prevToken.getLineNum(); }
+        return 0;
+    }
+
     /**
      * getPrevToken: getter method for the previous Token.
      * @return the previous Token

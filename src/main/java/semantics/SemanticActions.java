@@ -4,7 +4,7 @@
  * Desc: contains the semantic actions of the compiler.
  *
  * - Semantic Actions 1 [x]
- * - Semantic Actions 2 [ ]
+ * - Semantic Actions 2 [x]
  * - Semantic Actions 3 [ ]
  *
  * Sem 1: actions 1, 2, 3, 4, 6, 7, 9, 13.
@@ -19,6 +19,7 @@ import main.java.table.errors.SymbolTableError;
 import main.java.token.Token;
 import main.java.token.TokenType;
 
+import java.util.EmptyStackException;
 import java.util.LinkedList;
 import java.util.Stack;
 
@@ -67,6 +68,7 @@ public class SemanticActions {
      */
     private SymbolTable localTable;
     private SymbolTable globalTable;
+    private SymbolTable constTable;
 
     /*
      * Semantic Data Structures:
@@ -78,12 +80,14 @@ public class SemanticActions {
     private Action[] actions;
     private Quadruples quads;
     private int globalStore;
+    private Tokenizer lexer;
+    private int tempCount = 0;
 
     /**
      * SemanticAction constructor
-     * @param tokenizer: control of the lexer is passed to the semantic actions.
+     * @param lexer: control of the lexer is passed to the semantic actions.
      */
-    public SemanticActions(Tokenizer tokenizer){
+    public SemanticActions(Tokenizer lexer){
         semanticsStack = new Stack<>();
         localTable = new SymbolTable(INITIAL_SIZE);
         globalTable = new SymbolTable(INITIAL_SIZE);
@@ -100,6 +104,9 @@ public class SemanticActions {
         /* initialize quadruples */
         quads = new Quadruples();
         globalStore = 0;
+
+        /* pass control of the lexer */
+        this.lexer = lexer;
 
         /* populate the actions */
         actions = new Action[NUM_ACTIONS]; // Note: there are 58 actions.
@@ -320,13 +327,17 @@ public class SemanticActions {
      * @param token: the Token in question.
      */
     private void action_9(Token token){
-        /* insert top two ids (identifiers) on semantic stack in the sym table mark as reserved */
-        insertIO((Token) semanticsStack.pop()); // must pop but insert io can be handled in install builtins.
-        insertIO((Token) semanticsStack.pop()); // or can be handled here, depends on what you think is best.
-        /* insert bottom most id in the sym table (Procedure entry, with num param = 0), mark as reserved */
-        insertProcedure((Token) semanticsStack.pop()); // third one, so this is the the bottom most.
-        /* INSERT/SEARCH = SEARCH */
-        this.insert = false;
+        // Todo: check if error handling is the right thing to do
+        try{
+            /* insert top two ids (identifiers) on semantic stack in the sym table mark as reserved */
+            insertIO((Token) semanticsStack.pop()); // must pop but insert io can be handled in install builtins.
+            insertIO((Token) semanticsStack.pop()); // or can be handled here, depends on what you think is best.
+            /* insert bottom most id in the sym table (Procedure entry, with num param = 0), mark as reserved */
+            insertProcedure((Token) semanticsStack.pop()); // third one, so this is the the bottom most.
+            /* INSERT/SEARCH = SEARCH */
+            this.insert = false;
+        }
+        catch (EmptyStackException ex){ throw SemanticError.InputOutputNotSpecified(); }
     }
 
     /**
@@ -339,12 +350,273 @@ public class SemanticActions {
     }
 
     /**
+     * action_30: semantic action 30
+     * @param token: the Token in question.
+     */
+    private void action_30(Token token){
+        /* ::: lookup id in symbol table ::: */
+        SymbolTableEntry id = lookupEntry(token.getValue());
+        /* ::: if not found, ERROR (undeclared variable) ::: */
+        if(id == null){ throw SemanticError.UndeclaredVariabe(token.getValue(), lexer.getLineNum()); }
+        semanticsStack.push(id);
+    }
+
+    /**
+     * action_31: semantic action 31
+     * @param token: the Token in question.
+     */
+    private void action_31(Token token){
+        /*
+         * :::
+         *  : if TYPECHECK(id1,id2) = 3, ERROR
+         *  : if TYPECHECK(id1,id2) = 2
+         *      CREATE(TEMP,REAL)
+         *      GEN(ltof,id2,$$TEMP)
+         *      if OFFSET = NULL,
+         *          GEN(move,$$TEMP,id1)
+         *      else GEN(stor $$TEMP,offset,id1)
+         *  : else if OFFSET = NULL,
+         *          GEN(move,id2,id1)
+         *      else GEN(stor id2,offset,id1)
+         *      : pop id1, offset, id2
+         *
+         *  :::
+         */
+        SymbolTableEntry id1 = (SymbolTableEntry) semanticsStack.pop();
+        SymbolTableEntry offset = (SymbolTableEntry) semanticsStack.pop();
+        SymbolTableEntry id2 = (SymbolTableEntry) semanticsStack.pop();
+
+        if(typeCheck(id1, id2) == 3){ throw SemanticError.UnmatchedTypes(id1.getName(), id2.getName(), token.getLineNum()); }
+        if(typeCheck(id1, id2) == 2){
+            SymbolTableEntry $$TEMP = create("TEMP", TokenType.REAL);
+            tempCount++;
+            generate("ltof", id2, $$TEMP);
+            if(offset == null){
+                generate("move", $$TEMP, id1);
+            }
+            else{
+                generate("stor", $$TEMP, offset, id1);
+            }
+        }
+        else{
+            if(offset == null){
+                generate("move", id2, id1);
+            }
+            else{
+                generate("stor", id2, offset, id1);
+            }
+        }
+    }
+
+    /**
+     * action_40:
+     */
+    private void action_40(Token token){
+        semanticsStack.push(token);
+    }
+
+    /**
+     * action_42:
+     */
+    private void action_42(Token token){
+        semanticsStack.push(token);
+    }
+
+    /**
+     * action_43:
+     */
+    private void action_43(Token token){
+        SymbolTableEntry id1 = (SymbolTableEntry) semanticsStack.pop();
+        Token operator = (Token) semanticsStack.pop();
+        SymbolTableEntry id2 = (SymbolTableEntry) semanticsStack.pop();
+
+        if(typeCheck(id1, id2) == 0){
+            SymbolTableEntry $$TEMP = create("TEMP", TokenType.INTEGER);
+            generate(operatorToString(operator), id1, id2, $$TEMP);
+            tempCount++;
+            semanticsStack.push($$TEMP);
+        }
+        else if(typeCheck(id1,id2) == 1){
+            SymbolTableEntry $$TEMP = create("TEMP", TokenType.REAL);
+            generate("f"+operatorToString(operator), id1, id2, $$TEMP);
+            tempCount++;
+            semanticsStack.push($$TEMP);
+        }
+        else if(typeCheck(id1, id2) == 2){
+            SymbolTableEntry $$TEMP1 = create("TEMP1", TokenType.REAL);
+            SymbolTableEntry $$TEMP2 = create("TEMP2", TokenType.REAL);
+            generate("ltof", id2, $$TEMP1);
+            generate("f"+operatorToString(operator), id1, $$TEMP1, $$TEMP2);
+            tempCount += 2;
+            semanticsStack.push($$TEMP2);
+        }
+        // == 3
+        else{
+            SymbolTableEntry $$TEMP1 = create("TEMP1", TokenType.REAL);
+            SymbolTableEntry $$TEMP2 = create("TEMP2", TokenType.REAL);
+            generate("ltof", id1, $$TEMP1);
+            generate("f"+operatorToString(operator), $$TEMP1, id2, $$TEMP2);
+            tempCount += 2;
+            semanticsStack.push($$TEMP2);
+        }
+    }
+
+    /**
+     * action_44
+     */
+    private void action_44(Token token){
+        semanticsStack.push(token);
+    }
+
+    /**
+     * action_45
+     */
+    private void action_45(Token token){
+        SymbolTableEntry id1 = (SymbolTableEntry) semanticsStack.pop();
+        Token operator = (Token) semanticsStack.pop();
+        SymbolTableEntry id2 = (SymbolTableEntry) semanticsStack.pop();
+
+        if(typeCheck(id1, id2) != 0 && (operator.getOpType() != null && operator.getOpType() == Token.OperatorType.MOD)){
+            throw SemanticError.BadMod();
+        }
+        if(typeCheck(id1, id2) == 0){
+            if(operator.getOpType() != null && operator.getOpType() == Token.OperatorType.MOD){
+                SymbolTableEntry $$TEMP1 = create("TEMP1", TokenType.INTEGER);
+                generate("move", id1, $$TEMP1);
+                SymbolTableEntry $$TEMP2 = create("TEMP2", TokenType.INTEGER);
+                generate("move", $$TEMP1, $$TEMP2);
+                generate("sub", $$TEMP2, id2, $$TEMP1);
+                generate("bge", $$TEMP1, id2, quads.nextQuad()-2);
+                tempCount +=2;
+                semanticsStack.push($$TEMP1);
+            }
+            else if(operator.getOpType() != null && operator.getOpType() == Token.OperatorType.DIVIDE){
+                SymbolTableEntry $$TEMP1 = create("TEMP1", TokenType.REAL);
+                generate("ltof", id1, $$TEMP1);
+                SymbolTableEntry $$TEMP2 = create("TEMP2", TokenType.REAL);
+                generate("ltof", id2, $$TEMP2);
+                SymbolTableEntry $$TEMP3 = create("TEMP3", TokenType.REAL);
+                generate("fdiv", $$TEMP1, $$TEMP2, $$TEMP3);
+                tempCount += 3;
+                semanticsStack.push($$TEMP3);
+            }
+            else{
+                SymbolTableEntry $$TEMP = create("TEMP", TokenType.INTEGER);
+                generate(operatorToString(operator), id1, id2, $$TEMP);
+                tempCount++;
+                semanticsStack.push($$TEMP);
+
+            }
+        }
+        else if(typeCheck(id1, id2) == 1){
+            if(operator.getOpType() != null && operator.getOpType() == Token.OperatorType.DIV){
+                SymbolTableEntry $$TEMP1 = create("TEMP1", TokenType.INTEGER);
+                generate("ftol", id1, $$TEMP1);
+                SymbolTableEntry $$TEMP2 = create("TEMP2", TokenType.INTEGER);
+                generate("ftol", id2, $$TEMP2);
+                SymbolTableEntry $$TEMP3 = create("TEMP3", TokenType.INTEGER);
+                generate("div", $$TEMP1, $$TEMP2, $$TEMP3);
+                tempCount += 3;
+                semanticsStack.push($$TEMP3);
+
+            }
+            else{
+                SymbolTableEntry $$TEMP = create("TEMP", TokenType.REAL);
+                generate("f"+operatorToString(operator), id1, id2, $$TEMP);
+                tempCount++;
+                semanticsStack.push($$TEMP);
+            }
+        }
+        else if(typeCheck(id1, id2) == 2){
+            if(operator.getOpType() != null && operator.getOpType() == Token.OperatorType.DIV){
+                SymbolTableEntry $$TEMP1 = create("TEMP1", TokenType.INTEGER);
+                generate("ftol", id1, $$TEMP1);
+                SymbolTableEntry $$TEMP2 = create("TEMP2", TokenType.INTEGER);
+                generate("div", $$TEMP1, id2, $$TEMP2);
+                tempCount++;
+                semanticsStack.push($$TEMP2);
+            }
+            else{
+                SymbolTableEntry $$TEMP1 = create("TEMP1", TokenType.REAL);
+                generate("ltof", id2, $$TEMP1);
+                SymbolTableEntry $$TEMP2 = create("TEMP2", TokenType.REAL);
+                generate("f"+operatorToString(operator), id1, $$TEMP1, $$TEMP2);
+                tempCount++;
+                semanticsStack.push($$TEMP2);
+            }
+        }
+        else if(typeCheck(id1, id2) == 3){
+            if(operator.getOpType() != null && operator.getOpType() == Token.OperatorType.DIV){
+                SymbolTableEntry $$TEMP1 = create("TEMP1", TokenType.INTEGER);
+                generate("ftol", id2, $$TEMP1);
+                SymbolTableEntry $$TEMP2 = create("TEMP2", TokenType.INTEGER);
+                generate("div", id1, $$TEMP1, $$TEMP2);
+                tempCount++;
+                semanticsStack.push($$TEMP2);
+            }
+            else{
+                SymbolTableEntry $$TEMP1 = create("TEMP1", TokenType.REAL);
+                generate("ltof", id1, $$TEMP1);
+                SymbolTableEntry $$TEMP2 = create("TEMP2", TokenType.REAL);
+                generate("f"+operatorToString(operator), $$TEMP1, id2, $$TEMP2);
+                tempCount++;
+                semanticsStack.push($$TEMP2);
+            }
+        }
+    }
+
+    /**
+     * action_46:
+     */
+    private void action_46(Token token){
+        if(token.getTokenType() == TokenType.IDENTIFIER){
+            //lookupIdentifier(token);
+            SymbolTableEntry id = lookupEntry(token.getValue());
+            if(id == null){
+                throw SemanticError.UndeclaredVariabe(token.getValue(), token.getLineNum());
+            }
+            semanticsStack.push(id);
+        }
+        else if(token.getTokenType() == TokenType.INTCONSTANT ||
+                token.getTokenType() == TokenType.REALCONSTANT){
+           // lookupConstant(token);
+            ConstantEntry constnt = (ConstantEntry) constTable.lookup(token.getValue().toUpperCase());
+
+            if(constnt == null){
+                if(token.getTokenType() == TokenType.INTCONSTANT){
+                    constnt = new ConstantEntry(token.getValue(), TokenType.INTEGER);
+                }
+                else{
+                    constnt = new ConstantEntry(token.getValue(), TokenType.REAL);
+                }
+                insertToConst(constnt);
+            }
+            semanticsStack.push(constnt);
+        }
+    }
+
+    /**
+     * action_48
+     */
+    private void action_48(Token token){
+        SymbolTableEntry offset = (SymbolTableEntry) semanticsStack.pop();
+        if(offset != null){
+            SymbolTableEntry id = (SymbolTableEntry) semanticsStack.pop();
+            SymbolTableEntry $$TEMP = create("TEMP", token.getTokenType());
+            tempCount++;
+            generate("load", id, offset, $$TEMP);
+            semanticsStack.push($$TEMP);
+        }
+    }
+
+
+    /**
      * action_55: semantic action 55
      * @param token: the Token in question.
      */
     private void action_55(Token token){
         /* ::: BACKPATCH(GLOBAL_STORE,GLOBAL_MEM) ::: */
-        backPatch();
+        backPatch(globalStore, globalMem);
         /* ::: GEN(free GLOBAL_MEM) ::: */
         generate("free", this.globalMem);
         /* ::: GEN(PROCEND) ::: */
@@ -359,7 +631,7 @@ public class SemanticActions {
         /* ::: GEN(PROCBEGIN main) ::: */
         generate("PROCBEGIN", "main");
         /* ::: GLOBAL_STORE = NEXTQUAD ::: */
-        globalStore = quads.nextQuadIndex();
+        this.globalStore = quads.nextQuadIndex();
         /* ::: GEN(alloc,_) ::: */
         generate("alloc", "_");
     }
@@ -444,6 +716,7 @@ public class SemanticActions {
     /**
      * insertGlobal: insert into a the global symbol table
      * @param entry: the entry we're inserting.
+     * @param lineNum: the line number of the error.
      * Wrapper for SymbolTable insert (specified).
      */
     private void insertToGlobal(SymbolTableEntry entry, int lineNum) throws SemanticError, SymbolTableError{
@@ -458,8 +731,25 @@ public class SemanticActions {
     }
 
     /**
+     * insertGlobal: insert into a the global symbol table
+     * @param entry: the entry we're inserting.
+     * Wrapper for SymbolTable insert (specified).
+     */
+    private void insertToGlobal(SymbolTableEntry entry) throws SemanticError, SymbolTableError{
+        entry.nameToUpperCase();
+        if(globalTable.lookup(entry.getName()) != null){
+            if(lookupEntry(true, entry.getName()).isReserved()){
+                throw SemanticError.ReservedName(entry.getName());
+            }
+            else{ throw SemanticError.NameAlreadyDeclared(entry.getName()); }
+        }
+        globalTable.insert(entry);
+    }
+
+    /**
      * insertLocal: insert into a the local symbol table
      * @param entry: the entry we're inserting.
+     * @param lineNum: the line number of the error.
      * Wrapper for SymbolTable insert (specified).
      */
     private void insertToLocal(SymbolTableEntry entry, int lineNum) throws SemanticError, SymbolTableError{
@@ -471,6 +761,27 @@ public class SemanticActions {
             else{ throw SemanticError.NameAlreadyDeclared(entry.getName(), lineNum); }
         }
         localTable.insert(entry);
+    }
+
+    /**
+     * insertLocal: insert into a the local symbol table
+     * @param entry: the entry we're inserting.
+     * Wrapper for SymbolTable insert (specified).
+     */
+    private void insertToLocal(SymbolTableEntry entry) throws SemanticError, SymbolTableError{
+        entry.nameToUpperCase();
+        if(localTable.lookup(entry.getName()) != null){
+            if(lookupEntry(false, entry.getName()).isReserved()){
+                throw SemanticError.ReservedName(entry.getName());
+            }
+            else{ throw SemanticError.NameAlreadyDeclared(entry.getName()); }
+        }
+        localTable.insert(entry);
+    }
+
+    private void insertToConst(SymbolTableEntry entry) throws SemanticError, SymbolTableError{
+        entry.nameToUpperCase();
+        constTable.insert(entry);
     }
 
     /**
@@ -489,6 +800,23 @@ public class SemanticActions {
             return globalTable.lookup(name.toUpperCase());
         }
     }
+
+    /**
+     * lookupEntry: lookup wrapper for specified symbol tables.
+     * @param name: the String name of the entry.
+     * @return a corresponding SymbolTableEntry or null (if doesn't exist).
+     */
+    private SymbolTableEntry lookupEntry(String name){
+        if(global){
+            return globalTable.lookup(name.toUpperCase());
+        }
+        else{
+            SymbolTableEntry value = localTable.lookup(name.toUpperCase());
+            if(value != null){ return value; }
+            return globalTable.lookup(name.toUpperCase());
+        }
+    }
+
 
     /**
      * insertIO: insert the reserved file IO.
@@ -543,9 +871,92 @@ public class SemanticActions {
     }
 
     /**
-     * backPatch:
+     * SEMANTIC ACTION #31
+     * generate: generates TVI code using Quadruples.
+     * @param tviCode: String representation of TVI
+     * @param op1: operand in question
+     * @param op2: operand in question
+     * @throws SemanticError
+     * @throws SymbolTableError
      */
-    private void backPatch(){}
+    private void generate(String tviCode, SymbolTableEntry op1, SymbolTableEntry op2) throws SemanticError, SymbolTableError{
+        String
+    }
+
+    /**
+     *
+     */
+    private void generate(String tviCode1, String tviCode2, SymbolTableEntry op){
+
+    }
+
+    /**
+     * getOpAddress:
+     */
+    private int getOpAddress(String tviCode, SymbolTableEntry op) throws SymbolTableError, SemanticError{
+        String address = "";
+        if(op.isFunction() || op.isProcedure()){
+            address = address + op.getName().toLowerCase();
+        }
+        else{
+            if(op.isConstant()){
+                SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, op.getType());
+                tempCount++;
+                generate("move", op.getName(), $$TEMP);
+            }
+        }
+    }
+
+    /**
+     * create: creates a new memory location.
+     * @param name:
+     * @param type:
+     */
+    private VariableEntry create(String name, TokenType type) throws SymbolTableError, SemanticError{
+        /*
+         * :::
+         * Creates a new memory location by doing the following:
+         * - insert $$NAME in symbol table (Variable_entry)
+         * - $$NAME.type = type
+         * - $$NAME.address = NEGATIVE value of GLOBAL_MEM
+         * - increment GLOBAL_MEM
+         * - return $$NAME
+         * :::
+         */
+        VariableEntry $$NAME = new VariableEntry(name, -globalMem, type);
+        insertToGlobal($$NAME);
+        globalMem++;
+        return $$NAME;
+    }
+
+    private int typeCheck(SymbolTableEntry id1, SymbolTableEntry id2){
+        /*
+         * Checks the types of id1 and id2, and returns the following :
+         * 0   if id1 and id2 are both integers
+         * 1   if id1 and id2 are both reals
+         * 2   if id1 is real and id2 is integer
+         * 3   if id1 is integer and id2 is real
+         *
+         */
+        if(id1.getType() == TokenType.INTEGER && id2.getType() == TokenType.INTEGER){ return 0; }
+        if(id1.getType() == TokenType.REAL && id2.getType() == TokenType.REAL){ return 1; }
+        if(id1.getType() == TokenType.REAL && id2.getType() == TokenType.INTEGER){ return 2; }
+        if(id1.getType() == TokenType.INTEGER && id2.getType() == TokenType.REAL){ return 3; }
+        else{ throw SemanticError.UnrecognizedTypes(id1.getType(), id2.getType()); }
+    }
+
+    /**
+     * backPatch: inserts i in the second field of the statement at position p
+     * @param p: the position
+     * @param i: the element being inserted
+     */
+    private void backPatch(int p, int i) {
+        /* ::: Inserts i in the second field of the statement at position p. ::: */
+        String[] quadrpl = quads.getQuad(p);
+        for (int k = 0; k < quadrpl.length; k++) {
+            if (quadrpl[k].equals("_")) { quads.setEntry(p, k, Integer.toString(i)); }
+        }
+    }
 
     /**
      * semanticStackDump: routine to dump the semantic stack.
