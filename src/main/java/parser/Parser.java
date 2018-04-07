@@ -106,6 +106,9 @@ public class Parser {
      *      can be found in the same directory as this file.
      */
     public void run(){
+        /* set the debug mode of the semantic actions to true if parser in debug mode */
+        if(debug){ semActions.debugMode(); }
+
         /* predicted grammar symbol */
         GrammarSymbol predicted;
 
@@ -161,17 +164,15 @@ public class Parser {
                 }
             }
             /* ::: PREDICTED: SEMANTIC-ACTION ::: */
-            // for now: if the predicted symbol is a semantic action, we pop by just continuing.
             else if(predicted.isSemAction()){
                 SemanticAction act = (SemanticAction) predicted;
-                if(debug){ System.out.println("SEMANTIC ACTION: "+act.getIndex()+"\n"); }
-                System.out.println(prevToken.getLineNum());
+                if(debug){ System.out.println(); }
                 semActions.execute(act.getIndex(), prevToken);
             }
         }
         /* if there were errors, print them */
         printErrors();
-        /* TODO: errors are not thrown ^ need to make things thrown at the end */
+        /* TODO: errors are not thrown (printed) ^ . Perhaps need to throw at end */
     }
 
     /**
@@ -220,7 +221,7 @@ public class Parser {
      */
     private void dumpStack(){
         if(!parStack.isEmpty()) {
-            System.out.println("Parse Stack: ");
+            System.out.print("Parse Stack: ");
             /* make a copy of the stack */
             Stack<GrammarSymbol> stackCopy = new Stack<>();
             stackCopy.addAll(parStack);

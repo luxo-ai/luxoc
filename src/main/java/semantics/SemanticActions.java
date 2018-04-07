@@ -19,6 +19,7 @@ import main.java.table.errors.SymbolTableError;
 import main.java.token.Token;
 import main.java.token.TokenType;
 
+import java.util.EmptyStackException;
 import java.util.LinkedList;
 import java.util.Stack;
 
@@ -51,6 +52,7 @@ public class SemanticActions {
     private boolean insert;
     private boolean global;
     private boolean array;
+    private boolean debug;
 
     /*
      * Current Memory Sizes:
@@ -89,6 +91,9 @@ public class SemanticActions {
         this.insert = true; // = INSERT
         this.global = true; // = GLOBAL
         this.array = false; // = SIMPLE
+
+        /* debug mode */
+        this.debug = false;
 
         /* initialize memory sizes to zero */
         this.globalMem = 0;
@@ -232,6 +237,11 @@ public class SemanticActions {
      * Note: pseudo code is delineated by ':::'
      */
     public void execute(int actionID, Token token) throws SemanticError, SymbolTableError{
+        if(debug){
+            System.out.println("\t ++ SEMANTIC ACTION: " + actionID);
+            semanticStackDump();
+            System.out.println();
+        }
         try{ this.actions[actionID - 1].run(token); }
         catch (ArrayIndexOutOfBoundsException ex){ throw SemanticError.ActionDoesNotExist(actionID); }
     }
@@ -310,13 +320,16 @@ public class SemanticActions {
      * @param token: the Token in question.
      */
     private void action_9(Token token){
-        /* insert top two ids (identifiers) on semantic stack in the sym table mark as reserved */
-        insertIO((Token) semanticsStack.pop()); // must pop but insert io can be handled in install builtins.
-        insertIO((Token) semanticsStack.pop()); // or can be handled here, depends on what you think is best.
-        /* insert bottom most id in the sym table (Procedure entry, with num param = 0), mark as reserved */
-        insertProcedure((Token) semanticsStack.pop()); // third one, so this is the the bottom most.
-        /* INSERT/SEARCH = SEARCH */
-        this.insert = false;
+        try{
+            /* insert top two ids (identifiers) on semantic stack in the sym table mark as reserved */
+            insertIO((Token) semanticsStack.pop()); // must pop, but insert io can be handled in install builtins.
+            insertIO((Token) semanticsStack.pop()); // or can simply be handled here.
+            /* insert bottom most id in the sym table (Procedure entry, with num param = 0), mark as reserved */
+            insertProcedure((Token) semanticsStack.pop()); // only three on stack, so this is the the bottom most.
+            /* INSERT/SEARCH = SEARCH */
+            this.insert = false;
+        }
+        catch (EmptyStackException ex){ throw SemanticError.InputOutputNotSpecified(); }
     }
 
     /**
@@ -333,7 +346,7 @@ public class SemanticActions {
     /* -------------------  HELPERS  ---------------------- */
 
     /**
-     * intDistance: the intefer distance of two int constants
+     * intDistance: the integer distance of two int constants
      * @param x: a ConstantEntry
      * @param y: a ConstantEntry
      */
@@ -392,7 +405,6 @@ public class SemanticActions {
             if(global){
                 /* ::: insert id in global symbol table (Variable_entry) */
                 var = new VariableEntry(ID.getValue(), globalMem, TYP);
-                System.out.println(var.getName());
                 insertToGlobal(var, ID.getLineNum());
                 globalMem += 1;
             }
@@ -444,14 +456,8 @@ public class SemanticActions {
      * @return a corresponding SymbolTableEntry or null (if doesn't exist).
      */
     private SymbolTableEntry lookupEntry(boolean globalEntry, String name){
-        if(globalEntry){
-            return globalTable.lookup(name.toUpperCase());
-        }
-        else{
-            SymbolTableEntry value = localTable.lookup(name.toUpperCase());
-            if(value != null){ return value; }
-            return globalTable.lookup(name.toUpperCase());
-        }
+        if(globalEntry){ return globalTable.lookup(name.toUpperCase()); }
+        else{ return localTable.lookup(name.toUpperCase()); }
     }
 
     /**
@@ -477,11 +483,28 @@ public class SemanticActions {
     /**
      * semanticStackDump: routine to dump the semantic stack.
      */
-    private void semanticStackDump(){
-        System.out.println("Dumping the semantic stack ...");
-        for(int i = 0; i < semanticsStack.size(); i++){
-            System.out.println("- "+semanticsStack.get(i));
+    private void semanticStackDump() {
+        if (!semanticsStack.isEmpty()) {
+            System.out.print("\t ++ Semantic Stack Before Call: ");
+            /* make a copy of the stack */
+            Stack<Object> stackCopy = new Stack<>();
+            stackCopy.addAll(semanticsStack);
+
+            /* print the first element of the stack */
+            System.out.print("[ " + stackCopy.pop());
+            while (!stackCopy.isEmpty()) {
+                /* print the remaining elements */
+                System.out.print(", " + stackCopy.pop());
+            }
+            System.out.println(" ]");
         }
+        /* otherwise, report an empty stack */
+        else { System.out.println("\t ++ Semantic Stack Before Call: [ ]"); }
     }
+
+    /**
+     * debugMode: sets the debug mode to true.
+     */
+    public void debugMode(){ this.debug = true; }
 
 } /* end of SemanticActions class */

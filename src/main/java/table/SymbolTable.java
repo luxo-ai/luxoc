@@ -67,12 +67,8 @@ public class SymbolTable{
      * dumpTable: routine prints the symbol table contents
      */
     public void dumpTable(){
-        System.out.println("Dumping Table ...");
-        System.out.println("KEY --> ENTRY");
-        for(String key : table.keySet()){
-            System.out.println(key + " --> " + lookup(key));
-        }
-
+        System.out.println("Dumping Table (KEY -> ENTRY) ...");
+        for(String key : table.keySet()){ System.out.println(key + " --> " + lookup(key)); }
     }
 
     /**

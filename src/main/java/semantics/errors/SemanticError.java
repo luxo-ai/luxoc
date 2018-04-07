@@ -32,4 +32,8 @@ public class SemanticError extends Error {
         return new SemanticError("The semantic action: "+num+" does not exist");
     }
 
+    public static SemanticError InputOutputNotSpecified(){
+        return new SemanticError("Input and Output not specified in Program identifier list.");
+    }
+
 }
