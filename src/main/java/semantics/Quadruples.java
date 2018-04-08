@@ -81,7 +81,11 @@ public class Quadruples {
      * @param quad: the quadruple being added.
      * Package-private
      */
-    void addQuad(String[] quad){ quadruples.add(nextQuad, quad); }
+    void addQuad(String[] quad){
+        quadruples.add(nextQuad, quad);
+        /* increment to the next quadruple */
+        this.nextQuad++;
+    }
 
     /**
      * print: routine for printing the quadruple.

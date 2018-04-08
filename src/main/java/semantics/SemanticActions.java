@@ -328,7 +328,6 @@ public class SemanticActions {
      * @param token: the Token in question.
      */
     private void action_9(Token token){
-        // Todo: check if error handling is the right thing to do
         try{
             insertIO((Token) semanticsStack.pop()); // must pop but insert io can be handled in install builtins.
             insertIO((Token) semanticsStack.pop()); // or can be handled here, depends on what you think is best.
@@ -481,7 +480,6 @@ public class SemanticActions {
                 break;
         }
     } /* end of action 43 */
-
 
     /**
      * action_44
@@ -858,7 +856,6 @@ public class SemanticActions {
         return localTable.lookup(name.toUpperCase());
     }
 
-
     /**
      * lookupEntry: lookup wrapper for specified symbol tables.
      * @param name: the String name of the entry.
@@ -868,7 +865,6 @@ public class SemanticActions {
         if(global){ return globalTable.lookup(name.toUpperCase()); }
         return localTable.lookup(name.toUpperCase());
     }
-
 
     /**
      * insertIO: insert the reserved file IO.
@@ -889,6 +885,8 @@ public class SemanticActions {
         entry.setToReserved();
         insertToGlobal(entry, token.getLineNum());
     }
+
+
 
     /*  -----------  GEN  ------------ */
 
@@ -970,6 +968,8 @@ public class SemanticActions {
 
     /*  -----------  End of GEN  ------------ */
 
+
+
     /**
      * create: creates a new memory location.
      * @param name:
@@ -996,70 +996,60 @@ public class SemanticActions {
      * @param op: operand in question
      * @return mem address as String.
      */
-    private String toAddress(String tviCode, SymbolTableEntry op){
-        String address = "";
-        if(op.isProcedure() || op.isFunction()){
-            address += op.getName().toLowerCase();
+    private String toAddress(String tviCode, SymbolTableEntry op) {
+        if (op.isProcedure() || op.isFunction()) {
+            /* functions and procedures begin like: PROCBEGIN function name */
+            return (op.getName().toLowerCase());
         }
-        else{
-            if(op.isConstant()){
-                VariableEntry $$TEMP = create("$$TEMP" + tempCount, op.getType());
-                tempCount++;
-
-                /* move value (e.g: 1.9092) into $$TEMP */
-                generate("move", op.getName(), $$TEMP);
-
-                int addr = Math.abs($$TEMP.getAddress());
-                address += getPrefix($$TEMP, tviCode) + addr;
-            }
-            else{
-                int addr = Math.abs(((VariableEntry) op).getAddress());
-                address += getPrefix((VariableEntry) op, tviCode) + addr;
-            }
+        if (op.isVariable()) {
+            int addr = Math.abs(((VariableEntry) op).getAddress());
+            return (getPrefix(tviCode, op) + addr);
         }
-        return address;
+        if (op.isArray()) {
+            int addr = Math.abs(((ArrayEntry) op).getAddress());
+            return (getPrefix(tviCode, op) + addr);
+        }
+        if (op.isConstant()) {
+            /* if hasn't already been saved? */
+            SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, op.getType());
+            tempCount++;
+
+            /* move value (e.g: 1.902) into $$TEMP */
+            generate("move", op.getName(), $$TEMP);
+            int addr = Math.abs(((VariableEntry) op).getAddress());
+            return (getPrefix(tviCode, $$TEMP) + addr);
+        }
+        // throw semantic error?
+        return "ERROR";
     }
 
     /**
      * getPrefix: gets the address prefix, if any.
-     * @param id:
+     * @param op:
      * @param tviCode:
-     * @return :
+     * @return a String representation of the address in memory.
      */
-    private String getPrefix(VariableEntry id, String tviCode){
-        String a,b,c = "ERROR_";
-
+    private String getPrefix(String tviCode, SymbolTableEntry op){
+        String pointerOps = "", memloc = "";
         if(tviCode.equals("param")){
-            if(id.isParameter()){
-                b = "";
-            }
-            else{
-                b = "@";
-            }
+            /* get the absolute memory address */
+            if(!op.isParameter()){ pointerOps = "@"; }
         }
         else{
-            if(id.isParameter()){
-                b = "^";
-            }
-            else{
-                b = "";
-            }
+            /* dereference the address */
+            if(op.isParameter()){ pointerOps = "^"; }
         }
+        /* get absolute mem-location or from stack frame */
         if(global){
-            if(this.globalTable.lookup(id.getName()) != null){
-                c = "_";
-            }
+            if(this.globalTable.lookup(op.getName()) != null){ memloc = "_"; }
         }
+        /* otherwise, is on the stack frame */
         else{
-            if(this.localTable.lookup(id.getName()) != null){
-                c = "%";
-            }
-            else if(this.globalTable.lookup(id.getName()) != null){
-                c = "_";
-            }
+            if(this.localTable.lookup(op.getName()) != null){ memloc = "%"; }
+            /* safety check */
+            else if(this.globalTable.lookup(op.getName()) != null){ memloc = "_"; }
         }
-        a = b + c;
-        return a;
+        return pointerOps + memloc;
     }
 
     /**
