@@ -91,6 +91,7 @@ public class SemanticActions {
         semanticsStack = new Stack<>();
         localTable = new SymbolTable(INITIAL_SIZE);
         globalTable = new SymbolTable(INITIAL_SIZE);
+        constTable = new SymbolTable(INITIAL_SIZE);
 
         /* set the flags */
         this.insert = true; // = INSERT
@@ -177,9 +178,9 @@ public class SemanticActions {
         // 29
         this.actions[28] = new Action();
         // 30
-        this.actions[29] = new Action();
+        this.actions[29] = new Action(){ @Override void run(Token token) { action_30(token); } };
         // 31
-        this.actions[30] = new Action();
+        this.actions[30] = new Action(){ @Override void run(Token token) { action_31(token); } };
         // 32
         this.actions[31] = new Action();
         // 33
@@ -197,23 +198,23 @@ public class SemanticActions {
         // 39
         this.actions[38] = new Action();
         // 40
-        this.actions[39] = new Action();
+        this.actions[39] = new Action(){ @Override void run(Token token) { action_40(token); } };
         // 41
         this.actions[40] = new Action();
         // 42
-        this.actions[41] = new Action();
+        this.actions[41] = new Action(){ @Override void run(Token token) { action_42(token); } };
         // 43
-        this.actions[42] = new Action();
+        this.actions[42] = new Action(){ @Override void run(Token token) { action_43(token); } };
         // 44
-        this.actions[43] = new Action();
+        this.actions[43] = new Action(){ @Override void run(Token token) { action_44(token); } };
         // 45
-        this.actions[44] = new Action();
+        this.actions[44] = new Action(){ @Override void run(Token token) { action_45(token); } };
         // 46
-        this.actions[45] = new Action();
+        this.actions[45] = new Action(){ @Override void run(Token token) { action_46(token); } };
         // 47
         this.actions[46] = new Action();
         // 48
-        this.actions[47] = new Action();
+        this.actions[47] = new Action(){ @Override void run(Token token) { action_48(token); } };
         // 49
         this.actions[48] = new Action();
         // 50
@@ -522,7 +523,8 @@ public class SemanticActions {
                     generate("move", id1, $$TEMP1);
                     generate("move", $$TEMP1, $$TEMP2);
                     generate("sub", $$TEMP2, id2, $$TEMP1);
-                    generate("bge", $$TEMP1, id2, quads.nextQuad() - 2);
+                    /* bge: jump to label index - 2 if $$TEMP1 >= id2 */
+                    generate("bge", $$TEMP1, id2, quads.nextQuadIndex() - 2);
                     /* push result */
                     semanticsStack.push($$TEMP1);
                 } else if (operator.getOpType() == Token.OperatorType.DIVIDE) {
@@ -914,6 +916,17 @@ public class SemanticActions {
     }
 
     /**
+     * SEMANTIC ACTION #45
+     * bge
+     */
+    private void generate(String tviCode, SymbolTableEntry operand1, SymbolTableEntry operand2, int label){
+        String op1 = toAddress(tviCode, operand1);
+        String op2 = toAddress(tviCode, operand2);
+        String[] quadrpl = {tviCode, op1, op2, String.valueOf(label)};
+        quads.addQuad(quadrpl);
+    }
+
+    /**
      * SEMANTIC ACTION #55
      * generate: generates TVI code using Quadruples.
      * @param tviCode: String representation of TVI
@@ -945,6 +958,16 @@ public class SemanticActions {
         quads.addQuad(quadrpl);
     }
 
+    /**
+     * used in ToAddress
+     * generate: generates TVI code using Quadruples.
+     */
+    private void generate(String tviCode, String value, SymbolTableEntry operand){
+        String op = toAddress(tviCode, operand);
+        String[] quadrpl = {tviCode, value, op, null};
+        quads.addQuad(quadrpl);
+    }
+
     /*  -----------  End of GEN  ------------ */
 
     /**
@@ -973,7 +996,7 @@ public class SemanticActions {
      * @param op: operand in question
      * @return mem address as String.
      */
-    private String toAddress(String tviCode, VariableEntry op){
+    private String toAddress(String tviCode, SymbolTableEntry op){
         String address = "";
         if(op.isProcedure() || op.isFunction()){
             address += op.getName().toLowerCase();
@@ -983,15 +1006,15 @@ public class SemanticActions {
                 VariableEntry $$TEMP = create("$$TEMP" + tempCount, op.getType());
                 tempCount++;
 
-                /* move value into $$TEMP */
+                /* move value (e.g: 1.9092) into $$TEMP */
                 generate("move", op.getName(), $$TEMP);
 
                 int addr = Math.abs($$TEMP.getAddress());
                 address += getPrefix($$TEMP, tviCode) + addr;
             }
             else{
-                int addr = Math.abs(op.getAddress());
-                address += getPrefix(id, tviCode) + addr;
+                int addr = Math.abs(((VariableEntry) op).getAddress());
+                address += getPrefix((VariableEntry) op, tviCode) + addr;
             }
         }
         return address;
@@ -1035,8 +1058,50 @@ public class SemanticActions {
                 c = "_";
             }
         }
+        a = b + c;
+        return a;
+    }
 
-        return b + c;
+    /**
+     * opToString: operator to String
+     * @param op: operator
+     * @return operator as a String
+     */
+    private String opToString(Token op){
+        switch (op.getOpType().toString()){
+            case "ADD":
+                return "add";
+
+            case "DIVIDE":
+                return "div";
+
+            case "MULTIPLY":
+                return "mul";
+
+            case "SUBTRACT":
+                return "sub";
+
+            case "LESS_THAN":
+                return "blt";
+
+            case "LEQ":
+                return "ble";
+
+            case "GREATER_THAN":
+                return "bgt";
+
+            case "GEQ":
+                return "bge";
+
+            case "EQ":
+                return "beq";
+
+            case "NEQ":
+                return "bne";
+
+            default:
+                return null;
+        }
     }
 
     /**

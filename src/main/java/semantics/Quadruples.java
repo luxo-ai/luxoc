@@ -162,8 +162,8 @@ public class Quadruples {
         /* separator for TVI code */
         String separator;
 
-        /* save the header */
-        writer.println("::: TVI Code :::");
+        /* save the header (comment with ; ) */
+        writer.println("; ::: TVI Code :::");
 
         Enumeration<String[]> en = this.quadruples.elements();
         en.nextElement();
