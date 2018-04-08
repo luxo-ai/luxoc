@@ -40,7 +40,6 @@ public class Driver {
             System.out.println("Beginning to parse code in: " + args[0]);
             System.out.println("Debug Mode Enabled\n");
             prs.run();
-
         }
         else {
             System.out.println(INVALID_INPUT);

@@ -27,19 +27,19 @@ public class OperatorMap {
         this.specialOP = new HashMap<>();
 
         /* populate the map */
-        simpleOp.put('*', new Token(TokenType.MULOP, "1"));
-        simpleOp.put('/', new Token(TokenType.MULOP, "2"));
-        simpleOp.put('=', new Token(TokenType.RELOP, "1"));
-        simpleOp.put('+', new Token(TokenType.ADDOP, "1"));
-        simpleOp.put('-', new Token(TokenType.ADDOP, "2"));
-        simpleOp.put('<', new Token(TokenType.RELOP, "3"));
-        simpleOp.put('>', new Token(TokenType.RELOP, "4"));
+        simpleOp.put('*', new Token(TokenType.MULOP, "1", Token.OperatorType.MULTIPLY));
+        simpleOp.put('/', new Token(TokenType.MULOP, "2", Token.OperatorType.DIVIDE));
+        simpleOp.put('=', new Token(TokenType.RELOP, "1", Token.OperatorType.EQ));
+        simpleOp.put('+', new Token(TokenType.ADDOP, "1", Token.OperatorType.ADD));
+        simpleOp.put('-', new Token(TokenType.ADDOP, "2", Token.OperatorType.SUBTRACT));
+        simpleOp.put('<', new Token(TokenType.RELOP, "3", Token.OperatorType.LESS_THAN));
+        simpleOp.put('>', new Token(TokenType.RELOP, "4", Token.OperatorType.GREATER_THAN));
         /* populate the map with double take operators */
         specialOP.put(":=", new Token(TokenType.ASSIGNOP, null));
         specialOP.put("..", new Token(TokenType.DOUBLEDOT, null));
-        specialOP.put("<=", new Token(TokenType.RELOP, "5"));
-        specialOP.put(">=", new Token(TokenType.RELOP, "6"));
-        specialOP.put("<>", new Token(TokenType.RELOP, "2"));
+        specialOP.put("<=", new Token(TokenType.RELOP, "5", Token.OperatorType.LEQ));
+        specialOP.put(">=", new Token(TokenType.RELOP, "6", Token.OperatorType.GEQ));
+        specialOP.put("<>", new Token(TokenType.RELOP, "2", Token.OperatorType.NEQ));
         specialOP.put("^+", new Token(TokenType.UNARYPLUS, null));
         specialOP.put("^-", new Token(TokenType.UNARYMINUS, null));
     }
@@ -49,9 +49,7 @@ public class OperatorMap {
      * @param chr: the character being investigated.
      * @return True, if the character can be determined right away, False otherwise.
      */
-    public boolean isSimpleOp(char chr){
-        return (chr == '*' || chr == '/' || chr == '=');
-    }
+    public boolean isSimpleOp(char chr){ return (chr == '*' || chr == '/' || chr == '='); }
 
     /**
      * isSpecialOP: indicates if a character is an operator that needs some investigation

@@ -47,6 +47,7 @@ public class SymbolTableEntry implements TableEntryInterface{
         this.reserved = false;
     }
 
+
     /**
      * getName: getter method for the name of the entry
      * @return the name of the entry
@@ -124,10 +125,4 @@ public class SymbolTableEntry implements TableEntryInterface{
      * setReserved: sets the reserved flag to True
      */
     public void setToReserved(){ this.reserved = true; }
-
-    /**
-     * toString: override the toString method
-     */
-    @Override
-    public String toString(){ return "{ " + this.name + ", " + this.tokenType + " }"; }
 }
