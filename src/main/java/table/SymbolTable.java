@@ -56,7 +56,6 @@ public class SymbolTable{
         else{ throw SymbolTableError.EntryAlreadyExists(value.getName()); }
     }
 
-
     /**
      * size: return the size of the symbol table.
      * @return the size of the symbol table.
@@ -67,12 +66,8 @@ public class SymbolTable{
      * dumpTable: routine prints the symbol table contents
      */
     public void dumpTable(){
-        System.out.println("Dumping Table ...");
-        System.out.println("KEY --> ENTRY");
-        for(String key : table.keySet()){
-            System.out.println(key + " --> " + lookup(key));
-        }
-
+        System.out.println("Dumping Table (KEY -> ENTRY) ...");
+        for(String key : table.keySet()){ System.out.println(key + " --> " + lookup(key)); }
     }
 
     /**

@@ -161,11 +161,9 @@ public class Parser {
                 }
             }
             /* ::: PREDICTED: SEMANTIC-ACTION ::: */
-            // for now: if the predicted symbol is a semantic action, we pop by just continuing.
             else if(predicted.isSemAction()){
                 SemanticAction act = (SemanticAction) predicted;
-                if(debug){ System.out.println("SEMANTIC ACTION: "+act.getIndex()+"\n"); }
-                System.out.println(prevToken.getLineNum());
+                if(debug){ System.out.println(); }
                 semActions.execute(act.getIndex(), prevToken);
             }
         }
