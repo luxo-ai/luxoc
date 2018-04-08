@@ -76,7 +76,7 @@ public class SemanticActions {
      * - actions: the list of all actions.
      * - quads: Quadruples scratch pad for the TVI code
      */
-    private Stack<Object> semanticsStack; // TODO: better practice, than using Object?
+    private Stack<Object> semanticsStack;
     private Action[] actions;
     private Quadruples quads;
     private int globalStore;
@@ -368,33 +368,7 @@ public class SemanticActions {
         SymbolTableEntry id1 = (SymbolTableEntry) semanticsStack.pop();
         SymbolTableEntry offset = (SymbolTableEntry) semanticsStack.pop();
         SymbolTableEntry id2 = (SymbolTableEntry) semanticsStack.pop();
-
-        switch (typeCheck(id1, id2)) {
-            /* id1 = INTEGER , id2 = REAL */
-            case 3:
-                throw SemanticError.UnmatchedTypes(id1.getName(), id2.getName(), token.getLineNum());
-
-            /* id1 = REAL , id2 = INTEGER */
-            case 2:
-                SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, TokenType.REAL);
-                tempCount++;
-                /* convert id2 to a REAL and store in $$TEMP */
-                generate("ltof", id2, $$TEMP);
-
-                /*
-                 * Check if the offset into the current stack frame is null.
-                 * Store --> move from src into dest + offset.
-                 * Move  --> moves from src to dest.
-                 */
-                if (offset != null) { generate("stor", $$TEMP, offset, id1); }
-                else { generate("move", $$TEMP, id1); }
-
-            /* id1.TYPE == id2.TYPE */
-            default:
-                /* there is no need for conversion */
-                if (offset != null) { generate("stor", id2, offset, id1); }
-                else { generate("move", id2, id1); }
-        }
+        generationRoutineSA31(id1, offset, id2, token.getLineNum());
     }
 
     /**
@@ -422,7 +396,128 @@ public class SemanticActions {
         SymbolTableEntry id1 = (SymbolTableEntry) semanticsStack.pop();
         Token operator = (Token) semanticsStack.pop();
         SymbolTableEntry id2 = (SymbolTableEntry) semanticsStack.pop();
+        generationRoutineSA43(id1, operator, id2);
+    }
 
+    /**
+     * action_44
+     */
+    private void action_44(Token token){
+        /* push operator --> a token */
+        semanticsStack.push(token);
+    }
+
+    /**
+     * action_45
+     */
+    private void action_45(Token token) {
+        /* obtain ids and the operator between them */
+        SymbolTableEntry id1 = (SymbolTableEntry) semanticsStack.pop();
+        Token operator = (Token) semanticsStack.pop();
+        SymbolTableEntry id2 = (SymbolTableEntry) semanticsStack.pop();
+
+        /* check if a bad mod (id1 and id2) are not ints */
+        if (typeCheck(id1, id2) != 0 && operator.getOpType() == Token.OperatorType.MOD) {
+            throw SemanticError.BadMod(operator.getLineNum());
+        }
+        generationRoutineSA45(id1, operator, id2);
+    }
+
+
+    /**
+     * action_46:
+     */
+    private void action_46(Token token){
+        if(token.getTokenType() == TokenType.IDENTIFIER){ findAndPushID(token); }
+        else if(isConstant(token)){ findAndPushConst(token); }
+    }
+
+
+    /**
+     * action_48
+     */
+    private void action_48(Token token){
+        /* obtain the offset */
+        SymbolTableEntry offset = (SymbolTableEntry) semanticsStack.pop();
+        /* if the offset is not null, move from src + offset into dest -> push dest. */
+        if(offset != null){
+            SymbolTableEntry id = (SymbolTableEntry) semanticsStack.pop();
+            SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, token.getTokenType());
+            tempCount++;
+            generate("load", id, offset, $$TEMP);
+            semanticsStack.push($$TEMP);
+        }
+    }
+
+    /**
+     * action_55: semantic action 55
+     * @param token: the Token in question.
+     */
+    private void action_55(Token token){
+        /* BACKPATCH(GLOBAL_STORE,GLOBAL_MEM) */
+        backPatch(globalStore, globalMem);
+        /* GEN(free GLOBAL_MEM) */
+        generate("free", this.globalMem);
+        /* GEN(PROCEND) */
+        generate("PROCEND");
+    }
+
+    /**
+     * action_56: semantic action 56
+     * @param token: the Token in question.
+     */
+    private void action_56(Token token){
+        /* GEN(PROCBEGIN main) */
+        generate("PROCBEGIN", "main");
+        /* GLOBAL_STORE = NEXTQUAD */
+        globalStore = quads.nextQuadIndex();
+        /* GEN(alloc,_) */
+        generate("alloc", "_");
+    }
+
+
+    /* ------------------ GENERATION ROUTINES ------------------ */
+
+    /**
+     *
+     */
+    private void generationRoutineSA31(SymbolTableEntry id1, SymbolTableEntry offset, SymbolTableEntry id2, int lineNum){
+        switch (typeCheck(id1, id2)) {
+            /* id1.TYPE == id2.TYPE */
+            case 0:
+            case 1:
+                /* there is no need for conversion */
+                if (offset != null) { generate("stor", id2, offset, id1); }
+                else { generate("move", id2, id1); }
+                break;
+
+            /* id1 = REAL , id2 = INTEGER */
+            case 2:
+                SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, TokenType.REAL);
+                tempCount++;
+                /* convert id2 to a REAL and store in $$TEMP */
+                generate("ltof", id2, $$TEMP);
+                /*
+                 * Check if the offset into the current stack frame is null.
+                 * Store --> move from src into dest + offset.
+                 * Move  --> moves from src to dest.
+                 */
+                if (offset != null) { generate("stor", $$TEMP, offset, id1); }
+                else { generate("move", $$TEMP, id1); }
+                break;
+
+            /* id1 = INTEGER , id2 = REAL */
+            default:
+                /* case 3 */
+                throw SemanticError.UnmatchedTypes(id1.getName(), id2.getName(), lineNum);
+        }
+    }
+
+
+    /**
+     *
+     */
+    private void generationRoutineSA43(SymbolTableEntry id1, Token operator, SymbolTableEntry id2){
         SymbolTableEntry $$TEMP;
         SymbolTableEntry $$TEMP1;
         SymbolTableEntry $$TEMP2;
@@ -479,219 +574,189 @@ public class SemanticActions {
                 semanticsStack.push($$TEMP2);
                 break;
         }
-    } /* end of action 43 */
-
-    /**
-     * action_44
-     */
-    private void action_44(Token token){
-        /* push operator --> a token */
-        semanticsStack.push(token);
     }
 
     /**
-     * action_45
+     *
      */
-    private void action_45(Token token) {
-        /* obtain ids and the operator between them */
-        SymbolTableEntry id1 = (SymbolTableEntry) semanticsStack.pop();
-        Token operator = (Token) semanticsStack.pop();
-        SymbolTableEntry id2 = (SymbolTableEntry) semanticsStack.pop();
-
-        /* check if a bad mod (id1 and id2) are not ints */
-        if (typeCheck(id1, id2) != 0 && operator.getOpType() == Token.OperatorType.MOD) {
-            throw SemanticError.BadMod(operator.getLineNum());
-        }
-
-        SymbolTableEntry $$TEMP;
-        SymbolTableEntry $$TEMP1;
-        SymbolTableEntry $$TEMP2;
-        SymbolTableEntry $$TEMP3;
-
+    private void generationRoutineSA45(SymbolTableEntry id1, Token operator, SymbolTableEntry id2){
         switch (typeCheck(id1, id2)) {
             /* id1 = INTEGER , id2 = INTEGER */
             case 0:
-                if (operator.getOpType() == Token.OperatorType.MOD) {
-                    /* */
-                    $$TEMP1 = create("$$TEMP" + tempCount, TokenType.INTEGER);
-                    tempCount++;
-                    $$TEMP2 = create("$$TEMP" + tempCount, TokenType.INTEGER);
-                    tempCount++;
-
-                    generate("move", id1, $$TEMP1);
-                    generate("move", $$TEMP1, $$TEMP2);
-                    generate("sub", $$TEMP2, id2, $$TEMP1);
-                    /* bge: jump to label index - 2 if $$TEMP1 >= id2 */
-                    generate("bge", $$TEMP1, id2, quads.nextQuadIndex() - 2);
-                    /* push result */
-                    semanticsStack.push($$TEMP1);
-                } else if (operator.getOpType() == Token.OperatorType.DIVIDE) {
-                    $$TEMP1 = create("$$TEMP" + tempCount, TokenType.REAL);
-                    tempCount++;
-                    $$TEMP2 = create("$$TEMP" + tempCount, TokenType.REAL);
-                    tempCount++;
-                    $$TEMP3 = create("$$TEMP" + tempCount, TokenType.REAL);
-                    tempCount++;
-
-                    generate("ltof", id1, $$TEMP1);
-                    generate("ltof", id2, $$TEMP2);
-                    generate("fdiv", $$TEMP1, $$TEMP2, $$TEMP3);
-
-                    /* push result */
-                    semanticsStack.push($$TEMP3);
-                } else {
-                    $$TEMP = create("$$TEMP" + tempCount, TokenType.INTEGER);
-                    tempCount++;
-
-                    generate(opToString(operator), id1, id2, $$TEMP);
-                    semanticsStack.push($$TEMP);
-                }
+                generationRoutineSA45a(id1, operator, id2);
                 break;
             /* id1 = REAL , id2 = REAL */
             case 1:
-                if (operator.getOpType() == Token.OperatorType.DIV) {
-                    /* coerce into integers */
-                    $$TEMP1 = create("$$TEMP" + tempCount, TokenType.INTEGER);
-                    tempCount++;
-                    $$TEMP2 = create("$$TEMP" + tempCount, TokenType.INTEGER);
-                    tempCount++;
-                    /* RESULT := */
-                    $$TEMP3 = create("$$TEMP" + tempCount, TokenType.INTEGER);
-                    tempCount++;
-
-                    generate("ftol", id1, $$TEMP1);
-                    generate("ftol", id2, $$TEMP2);
-                    generate("div", $$TEMP1, $$TEMP2, $$TEMP3);
-                    semanticsStack.push($$TEMP3);
-                } else {
-                    $$TEMP = create("$$TEMP" + tempCount, TokenType.REAL);
-                    tempCount++;
-
-                    generate("f" + opToString(operator), id1, id2, $$TEMP);
-                    semanticsStack.push($$TEMP);
-                }
+                generationRoutineSA45b(id1, operator, id2);
                 break;
 
             /* id1 = REAL , id2 = INTEGER */
             case 2:
-                if (operator.getOpType() == Token.OperatorType.DIV) {
-                    $$TEMP1 = create("$$TEMP" + tempCount, TokenType.INTEGER);
-                    tempCount++;
-                    $$TEMP2 = create("$$TEMP" + tempCount, TokenType.INTEGER);
-                    tempCount++;
-
-                    generate("ftol", id1, $$TEMP1);
-                    generate("div", $$TEMP1, id2, $$TEMP2);
-                    semanticsStack.push($$TEMP2);
-                } else {
-                    $$TEMP1 = create("$$TEMP" + tempCount, TokenType.REAL);
-                    tempCount++;
-                    $$TEMP2 = create("$$TEMP" + tempCount, TokenType.REAL);
-                    tempCount++;
-
-                    generate("ltof", id2, $$TEMP1);
-                    generate("f" + opToString(operator), id1, $$TEMP1, $$TEMP2);
-                    semanticsStack.push($$TEMP2);
-                }
+                generationRoutineSA45c(id1, operator, id2);
                 break;
 
             /* id1 = INTEGER , id2 = REAL */
             default:
-                if (operator.getOpType() == Token.OperatorType.DIV) {
-                    $$TEMP1 = create("$$TEMP" + tempCount, TokenType.INTEGER);
-                    tempCount++;
-                    $$TEMP2 = create("$$TEMP" + tempCount, TokenType.INTEGER);
-                    tempCount++;
-
-                    generate("ftol", id2, $$TEMP1);
-                    generate("div", id1, $$TEMP1, $$TEMP2);
-                    semanticsStack.push($$TEMP2);
-                } else {
-                    $$TEMP1 = create("$$TEMP" + tempCount, TokenType.REAL);
-                    tempCount++;
-                    $$TEMP2 = create("$$TEMP" + tempCount, TokenType.REAL);
-                    tempCount++;
-
-                    generate("ltof", id1, $$TEMP1);
-                    generate("f" + opToString(operator), $$TEMP1, id2, $$TEMP2);
-                    semanticsStack.push($$TEMP2);
-                }
+                generationRoutineSA45d(id1, operator, id2);
                 break;
         }
     }
 
 
     /**
-     * action_46:
+     *
      */
-    private void action_46(Token token){
-        if(token.getTokenType() == TokenType.IDENTIFIER){
-            SymbolTableEntry id = lookupEntry(token.getValue());
-            /* Throw error if id is not in Symbol Table */
-            if(id == null){ throw SemanticError.UndeclaredVariabe(token.getValue(), token.getLineNum()); }
-            semanticsStack.push(id);
-        }
-        else if(token.getTokenType() == TokenType.INTCONSTANT ||
-                token.getTokenType() == TokenType.REALCONSTANT){
-
-            /* look up the constant in the constant Symbol Table */
-            ConstantEntry constnt = (ConstantEntry) constTable.lookup(token.getValue().toUpperCase());
-
-            /* if constant not found, create it and insert it */
-            if(constnt == null){
-                if(token.getTokenType() == TokenType.INTCONSTANT){
-                    constnt = new ConstantEntry(token.getValue(), TokenType.INTEGER);
-                }
-                else{
-                    constnt = new ConstantEntry(token.getValue(), TokenType.REAL);
-                }
-                insertToConst(constnt);
-            }
-            /* push the constant */
-            semanticsStack.push(constnt);
-        }
-    }
-
-    /**
-     * action_48
-     */
-    private void action_48(Token token){
-        /* obtain the offset */
-        SymbolTableEntry offset = (SymbolTableEntry) semanticsStack.pop();
-        /* if the offset is not null, move from src + offset into dest -> push dest. */
-        if(offset != null){
-            SymbolTableEntry id = (SymbolTableEntry) semanticsStack.pop();
-            SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, token.getTokenType());
+    private void generationRoutineSA45a(SymbolTableEntry id1, Token operator, SymbolTableEntry id2){
+        if (operator.getOpType() == Token.OperatorType.MOD) {
+            /* */
+            SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, TokenType.INTEGER);
             tempCount++;
-            generate("load", id, offset, $$TEMP);
+            SymbolTableEntry $$TEMP2 = create("$$TEMP" + tempCount, TokenType.INTEGER);
+            tempCount++;
+
+            generate("move", id1, $$TEMP1);
+            generate("move", $$TEMP1, $$TEMP2);
+            generate("sub", $$TEMP2, id2, $$TEMP1);
+            /* bge: jump to label index - 2 if $$TEMP1 >= id2 */
+            generate("bge", $$TEMP1, id2, quads.nextQuadIndex() - 2);
+            /* push result */
+            semanticsStack.push($$TEMP1);
+        } else if (operator.getOpType() == Token.OperatorType.DIVIDE) {
+            SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, TokenType.REAL);
+            tempCount++;
+            SymbolTableEntry $$TEMP2 = create("$$TEMP" + tempCount, TokenType.REAL);
+            tempCount++;
+            SymbolTableEntry $$TEMP3 = create("$$TEMP" + tempCount, TokenType.REAL);
+            tempCount++;
+
+            generate("ltof", id1, $$TEMP1);
+            generate("ltof", id2, $$TEMP2);
+            generate("fdiv", $$TEMP1, $$TEMP2, $$TEMP3);
+
+            /* push result */
+            semanticsStack.push($$TEMP3);
+        } else {
+            SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, TokenType.INTEGER);
+            tempCount++;
+
+            generate(opToString(operator), id1, id2, $$TEMP);
             semanticsStack.push($$TEMP);
         }
     }
 
     /**
-     * action_55: semantic action 55
-     * @param token: the Token in question.
+     *
      */
-    private void action_55(Token token){
-        /* BACKPATCH(GLOBAL_STORE,GLOBAL_MEM) */
-        backPatch(globalStore, globalMem);
-        /* GEN(free GLOBAL_MEM) */
-        generate("free", this.globalMem);
-        /* GEN(PROCEND) */
-        generate("PROCEND");
+    private void generationRoutineSA45b(SymbolTableEntry id1, Token operator, SymbolTableEntry id2){
+        if (operator.getOpType() == Token.OperatorType.DIV) {
+            /* coerce into integers */
+            SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, TokenType.INTEGER);
+            tempCount++;
+            SymbolTableEntry $$TEMP2 = create("$$TEMP" + tempCount, TokenType.INTEGER);
+            tempCount++;
+            /* RESULT := */
+            SymbolTableEntry $$TEMP3 = create("$$TEMP" + tempCount, TokenType.INTEGER);
+            tempCount++;
+
+            generate("ftol", id1, $$TEMP1);
+            generate("ftol", id2, $$TEMP2);
+            generate("div", $$TEMP1, $$TEMP2, $$TEMP3);
+            semanticsStack.push($$TEMP3);
+        } else {
+            SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, TokenType.REAL);
+            tempCount++;
+
+            generate("f" + opToString(operator), id1, id2, $$TEMP);
+            semanticsStack.push($$TEMP);
+        }
     }
 
     /**
-     * action_56: semantic action 56
-     * @param token: the Token in question.
+     *
      */
-    private void action_56(Token token){
-        /* GEN(PROCBEGIN main) */
-        generate("PROCBEGIN", "main");
-        /* GLOBAL_STORE = NEXTQUAD */
-        globalStore = quads.nextQuadIndex();
-        /* GEN(alloc,_) */
-        generate("alloc", "_");
+    private void generationRoutineSA45c(SymbolTableEntry id1, Token operator, SymbolTableEntry id2){
+        if (operator.getOpType() == Token.OperatorType.DIV) {
+            SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, TokenType.INTEGER);
+            tempCount++;
+            SymbolTableEntry $$TEMP2 = create("$$TEMP" + tempCount, TokenType.INTEGER);
+            tempCount++;
+
+            generate("ftol", id1, $$TEMP1);
+            generate("div", $$TEMP1, id2, $$TEMP2);
+            semanticsStack.push($$TEMP2);
+        } else {
+            SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, TokenType.REAL);
+            tempCount++;
+            SymbolTableEntry $$TEMP2 = create("$$TEMP" + tempCount, TokenType.REAL);
+            tempCount++;
+
+            generate("ltof", id2, $$TEMP1);
+            generate("f" + opToString(operator), id1, $$TEMP1, $$TEMP2);
+            semanticsStack.push($$TEMP2);
+        }
+    }
+
+    /**
+     *
+     */
+    private void generationRoutineSA45d(SymbolTableEntry id1, Token operator, SymbolTableEntry id2){
+        if (operator.getOpType() == Token.OperatorType.DIV) {
+            SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, TokenType.INTEGER);
+            tempCount++;
+            SymbolTableEntry $$TEMP2 = create("$$TEMP" + tempCount, TokenType.INTEGER);
+            tempCount++;
+
+            generate("ftol", id2, $$TEMP1);
+            generate("div", id1, $$TEMP1, $$TEMP2);
+            semanticsStack.push($$TEMP2);
+        } else {
+            SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, TokenType.REAL);
+            tempCount++;
+            SymbolTableEntry $$TEMP2 = create("$$TEMP" + tempCount, TokenType.REAL);
+            tempCount++;
+
+            generate("ltof", id1, $$TEMP1);
+            generate("f" + opToString(operator), $$TEMP1, id2, $$TEMP2);
+            semanticsStack.push($$TEMP2);
+        }
+    }
+
+
+    /**
+     *
+     */
+    private void findAndPushID(Token token){
+        SymbolTableEntry id = lookupEntry(token.getValue());
+        /* Throw error if id is not in Symbol Table */
+        if(id == null){ throw SemanticError.UndeclaredVariabe(token.getValue(), token.getLineNum()); }
+        semanticsStack.push(id);
+    }
+
+    /**
+     *
+     */
+    private boolean isConstant(Token token){
+        return (token.getTokenType() == TokenType.INTCONSTANT ||
+                token.getTokenType() == TokenType.REALCONSTANT);
+    }
+
+    /**
+     *
+     */
+    private void findAndPushConst(Token token){
+        /* look up the constant in the constant Symbol Table */
+        ConstantEntry constnt = (ConstantEntry) constTable.lookup(token.getValue().toUpperCase());
+
+        /* if constant not found, create it and insert it */
+        if(constnt == null){
+            if(token.getTokenType() == TokenType.INTCONSTANT){
+                constnt = new ConstantEntry(token.getValue(), TokenType.INTEGER);
+            }
+            else{ constnt = new ConstantEntry(token.getValue(), TokenType.REAL); }
+            insertToConst(constnt);
+        }
+        /* push the constant */
+        semanticsStack.push(constnt);
     }
 
 
