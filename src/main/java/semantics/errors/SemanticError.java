@@ -59,8 +59,8 @@ public class SemanticError extends Error {
         return new SemanticError("Type of: "+name1+" and of: "+name2+" don't match on line: "+linNumber);
     }
 
-    public static SemanticError BadMod(){
-        return new SemanticError("Bad Mod Setup");
+    public static SemanticError BadMod(int lineNumber){
+        return new SemanticError("Bad Mod Setup For Mod on Line: "+lineNumber);
     }
 
 }

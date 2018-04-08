@@ -37,7 +37,8 @@ public class Token{
         MOD,
         AND,
         OR,
-        NOT
+        NOT,
+        NONE
     }
     /**
      * Token constructor
@@ -48,7 +49,7 @@ public class Token{
         this.tType = tType;
         this.value = value;
         this.lineNum = lineNum;
-        this.opT = null;
+        this.opT = OperatorType.NONE;
     }
 
     /**
@@ -60,7 +61,7 @@ public class Token{
         this.tType = tType;
         this.value = value;
         this.lineNum = 0; // TODO: this must be modified later.
-        this.opT = null;
+        this.opT = OperatorType.NONE;
     }
 
     /**
