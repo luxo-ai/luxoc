@@ -1081,7 +1081,7 @@ public class SemanticActions {
 
             /* move value (e.g: 1.902) into $$TEMP */
             generate("move", op.getName(), $$TEMP);
-            int addr = Math.abs(((VariableEntry) op).getAddress());
+            int addr = Math.abs(((VariableEntry) $$TEMP).getAddress());
             return (getPrefix(tviCode, $$TEMP) + addr);
         }
         // throw semantic error?
