@@ -163,7 +163,7 @@ public class Parser {
             /* ::: PREDICTED: SEMANTIC-ACTION ::: */
             else if(predicted.isSemAction()){
                 SemanticAction act = (SemanticAction) predicted;
-                if(debug){ System.out.println(); }
+                if(debug){ System.out.println("Action: "+act.getIndex()+"\n"); }
                 semActions.execute(act.getIndex(), prevToken);
             }
         }
