@@ -42,8 +42,8 @@ public class SemanticError extends Error {
         return new SemanticError("The semantic action: "+num+" does not exist");
     }
 
-    public static SemanticError UnrecognizedTypes(TokenType tt1, TokenType tt2){
-        return new SemanticError("The combination of Type: "+tt1+" and Type: "+tt2+" is unrecognized");
+    public static SemanticError UnrecognizedTypes(TokenType tt1, TokenType tt2, int lineNum){
+        return new SemanticError("The combination of Type: "+tt1+" and Type: "+tt2+" is unrecognized on line: "+lineNum);
     }
 
     // TODO: line number?

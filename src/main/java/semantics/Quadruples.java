@@ -54,7 +54,16 @@ public class Quadruples {
      * @param offset: offset into quadruple line
      * @param entry: the entry to replace the current entry.
      */
-    public void setEntry(int line, int offset, String entry){ quadruples.elementAt(line)[offset] = entry; }
+    public void setEntry(int line, int offset, String entry){
+        System.out.println("HERE@2");
+        System.out.println(line);
+        System.out.println(offset);
+       // print();
+        System.out.println(quadruples.elementAt(line)[0]);
+        System.out.println(quadruples.elementAt(line)[offset]);
+        System.out.println(entry);
+        quadruples.elementAt(line)[offset] = entry;
+    }
 
     /**
      * nextQuadIndex: gives the next quadruple index.
@@ -93,7 +102,7 @@ public class Quadruples {
     public void print(){
         int lineNumber = 1;
         String separator;
-        System.out.println("::: TVI CODE ::: ");
+        System.out.println("CODE");
         Enumeration<String[]> en = this.quadruples.elements();
         /* skip line one */
         en.nextElement();
@@ -130,7 +139,7 @@ public class Quadruples {
         String separator;
 
         /* save the header */
-        writer.println("::: TVI Code :::");
+        writer.println("CODE");
 
         Enumeration<String[]> en = this.quadruples.elements();
         en.nextElement();
@@ -167,7 +176,7 @@ public class Quadruples {
         String separator;
 
         /* save the header (comment with ; ) */
-        writer.println("; ::: TVI Code :::");
+        writer.println("CODE");
 
         Enumeration<String[]> en = this.quadruples.elements();
         en.nextElement();
