@@ -134,7 +134,6 @@ public class Quadruples {
 
         Enumeration<String[]> en = this.quadruples.elements();
         en.nextElement();
-        en.nextElement();
 
         while(en.hasMoreElements()){
             String[] quad = en.nextElement();
@@ -143,8 +142,9 @@ public class Quadruples {
             if(quad[1] != null){ writer.print(separator + quad[1]); }
             if(quad[2] != null){
                 separator = ", ";
-                writer.print(separator + quad[3]);
+                writer.print(separator + quad[2]);
             }
+            if(quad[3] != null){ writer.print(separator + quad[3]); }
             writer.println();
             lineNumber ++;
         }
@@ -171,7 +171,6 @@ public class Quadruples {
 
         Enumeration<String[]> en = this.quadruples.elements();
         en.nextElement();
-        en.nextElement();
 
         while(en.hasMoreElements()){
             String[] quad = en.nextElement();
@@ -180,8 +179,9 @@ public class Quadruples {
             if(quad[1] != null){ writer.print(separator + quad[1]); }
             if(quad[2] != null){
                 separator = ", ";
-                writer.print(separator + quad[3]);
+                writer.print(separator + quad[2]);
             }
+            if(quad[3] != null){ writer.print(separator + quad[3]); }
             writer.println();
             lineNumber ++;
         }

@@ -20,7 +20,7 @@ public class ArrayEntry extends SymbolTableEntry{
     private int upperBound;
     private int lowerBound;
     private boolean isParam;
-   // private boolean global; // to indicate what table is in?
+   // private boolean global; // to indicate what table is in.
 
     /**
      * ArrayEntry constructor

@@ -21,7 +21,7 @@ public class Token{
     private int lineNum;
 
     private OperatorType opT;
-    /// TODO ?????
+    /* keep track of the kind of operator */
     public enum OperatorType{
         EQ,
         NEQ,
@@ -38,8 +38,9 @@ public class Token{
         AND,
         OR,
         NOT,
-        NONE
+        NONE // not an operator
     }
+
     /**
      * Token constructor
      * @param tType a TokenType
