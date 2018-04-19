@@ -4,6 +4,6 @@ var a, b : integer;
   x : array [0..5] of real;
 begin
   b := a * 4;
-  c := (b + a)/ 2;
-  x[b] := c
+  c := (b + a)/ 2
+
 end.

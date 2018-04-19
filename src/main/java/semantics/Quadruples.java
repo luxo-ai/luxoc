@@ -54,16 +54,7 @@ public class Quadruples {
      * @param offset: offset into quadruple line
      * @param entry: the entry to replace the current entry.
      */
-    public void setEntry(int line, int offset, String entry){
-        System.out.println("HERE@2");
-        System.out.println(line);
-        System.out.println(offset);
-       // print();
-        System.out.println(quadruples.elementAt(line)[0]);
-        System.out.println(quadruples.elementAt(line)[offset]);
-        System.out.println(entry);
-        quadruples.elementAt(line)[offset] = entry;
-    }
+    public void setEntry(int line, int offset, String entry){ quadruples.elementAt(line)[offset] = entry; }
 
     /**
      * nextQuadIndex: gives the next quadruple index.
@@ -123,13 +114,13 @@ public class Quadruples {
 
 
     /**
-     * saveQuadruples: save the quadruples to a file
+     * writeQ: save the quadruples to a file
      * @param fileName: the name of the file.
      * @param encoding: the encoding of the file.
      * @throws FileNotFoundException: in case the file cannot be created.
      * @throws UnsupportedEncodingException: in case the encoding is not supported.
      */
-    public void saveQuadruples(String fileName, String encoding) throws FileNotFoundException, UnsupportedEncodingException{
+    public void writeQ(String fileName, String encoding) throws FileNotFoundException, UnsupportedEncodingException{
         /* PrintWriter allows for writing of formatted text to a file */
         PrintWriter writer = new PrintWriter(fileName + ".tvi", encoding);
 
@@ -161,12 +152,12 @@ public class Quadruples {
     }
 
     /**
-     * saveQuadruples: save the quadruples to a file
+     * writeQ: save the quadruples to a file
      * @param fileName: the name of the file.
      * @throws FileNotFoundException: in case the file cannot be created.
      * @throws UnsupportedEncodingException: in case the encoding is not supported.
      */
-    public void saveQuadruples(String fileName) throws FileNotFoundException, UnsupportedEncodingException{
+    public void writeQ(String fileName) throws FileNotFoundException, UnsupportedEncodingException{
         /* PrintWriter allows for writing of formatted text to a file */
         PrintWriter writer = new PrintWriter(fileName + ".tvi", "UTF-8");
 

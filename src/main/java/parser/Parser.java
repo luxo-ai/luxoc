@@ -98,7 +98,10 @@ public class Parser {
     /**
      * debugMode: sets the debug mode to true
      */
-    public void debugMode(){ this.debug = true; }
+    public void debugMode(){
+        this.debug = true;
+        semActions.debugMode();
+    }
 
     /**
      * run: routine that runs the parser. Implementation
@@ -163,7 +166,7 @@ public class Parser {
             /* ::: PREDICTED: SEMANTIC-ACTION ::: */
             else if(predicted.isSemAction()){
                 SemanticAction act = (SemanticAction) predicted;
-                if(debug){ System.out.println("Action: "+act.getIndex()+"\n"); }
+                if(debug){ System.out.println("SEMANTIC ACTION: "+act.getIndex()+""); }
                 semActions.execute(act.getIndex(), prevToken);
             }
         }
@@ -210,6 +213,8 @@ public class Parser {
         else{
             System.out.println("Parsed Successfully!");
             dumpStack();
+            System.out.println();
+            semActions.printQ();
         }
     }
 

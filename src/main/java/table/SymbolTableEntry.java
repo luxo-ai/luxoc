@@ -112,7 +112,6 @@ public class SymbolTableEntry implements TableEntryInterface{
      * isConstant: determines if the entry is a constant.
      * @return True if the entry is a constant, False otherwise. Default is False.
      */
-    @Deprecated
     public boolean isConstant(){ return false; }
 
     /**
