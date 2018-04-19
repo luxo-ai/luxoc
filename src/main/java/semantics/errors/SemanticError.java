@@ -51,16 +51,20 @@ public class SemanticError extends Error {
         return new SemanticError("Input and Output not specified in program identifier list");
     }
 
-    public static SemanticError UndeclaredVariabe(String name, int lineNumber){
+    public static SemanticError UndeclaredVariable(String name, int lineNumber){
         return new SemanticError("Undeclared variable: "+name+" on line: "+lineNumber);
     }
 
     public static SemanticError UnmatchedTypes(String name1, String name2, int linNumber){
-        return new SemanticError("Type of: "+name1+" and of: "+name2+" don't match on line: "+linNumber);
+        return new SemanticError("The types of: "+name1+" and of: "+name2+" don't match on line: "+linNumber);
     }
 
     public static SemanticError BadMod(int lineNumber){
-        return new SemanticError("Bad Mod Setup For Mod on Line: "+lineNumber);
+        return new SemanticError("Bad MOD setup on line: "+lineNumber+" operands of the MOD operator must both be of type: Integer");
+    }
+
+    public static SemanticError BadDiv(int lineNumber){
+        return new SemanticError("Bad DIV setup on line: "+lineNumber+" operands of the DIV operator must both be of type: Integer");
     }
 
 }
