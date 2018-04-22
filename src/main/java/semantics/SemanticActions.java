@@ -375,6 +375,8 @@ public class SemanticActions {
         /* if not found, ERROR (undeclared variable) */
         if(id == null){ throw SemanticError.UndeclaredVariable(token.getValue(), token.getLineNum()); }
         semanticsStack.push(id);
+        /* added after semantic actions 3 */
+        semanticsStack.push(ETYPE.ARITHMETIC);
     }
 
     /**
@@ -382,10 +384,14 @@ public class SemanticActions {
      * @param token: the Token in question.
      */
     private void action_31(Token token) {
+        ETYPE eTYPE = (ETYPE) semanticsStack.pop();
+        isArithmetic(eTYPE, token.getLineNum());
+
         /* Grab the operands and offset off the stack */
         SymbolTableEntry id2 = (SymbolTableEntry) semanticsStack.pop();
         SymbolTableEntry offset = (SymbolTableEntry) semanticsStack.pop(); // simply make null.
         SymbolTableEntry id1 = (SymbolTableEntry) semanticsStack.pop();
+        // handle errors?
         generationRoutineSA31(id1, offset, id2, token.getLineNum());
     }
 
@@ -414,6 +420,9 @@ public class SemanticActions {
      * action_41
      */
     private void action_41(Token token){
+        ETYPE eTYPE = (ETYPE) semanticsStack.pop();
+        isArithmetic(eTYPE, token.getLineNum());
+
         /* pop off the id and sign from the stack */
         SymbolTableEntry id = (SymbolTableEntry) semanticsStack.pop();
         Token sign = (Token) semanticsStack.pop();
@@ -430,6 +439,7 @@ public class SemanticActions {
             semanticsStack.push($$TEMP);
         }
         else{ semanticsStack.push(id); }
+        semanticsStack.push(ETYPE.ARITHMETIC);
     }
 
     /**
@@ -437,6 +447,9 @@ public class SemanticActions {
      * Note: always favor converting to real, if a real present. Think scope.
      */
     private void action_43OLD(Token token) {
+        ETYPE eTYPE = (ETYPE) semanticsStack.pop();
+        isRelational(eTYPE, token.getLineNum());
+
         /* obtain ids and the operator between them */
         SymbolTableEntry id2 = (SymbolTableEntry) semanticsStack.pop();
         Token operator = (Token) semanticsStack.pop();
@@ -477,6 +490,7 @@ public class SemanticActions {
     private void action_46(Token token){
         if(token.getTokenType() == TokenType.IDENTIFIER){ findAndPushID(token); }
         else if(isConstant(token)){ findAndPushConst(token); }
+        semanticsStack.push(ETYPE.ARITHMETIC);
     }
 
     /**
@@ -592,7 +606,7 @@ public class SemanticActions {
         }
         else{
             semanticsStack.push(id);
-            semanticsStack.push(ETYPE.ARITHMETIC);
+            semanticsStack.push(ETYPE.ARITHMETIC); // eTYPE
         }
     }
 
@@ -600,8 +614,17 @@ public class SemanticActions {
      * action_54
      */
     private void action_54(Token token){
-        /* pop id */
-        SymbolTableEntry id = (SymbolTableEntry) semanticsStack.pop();
+        SymbolTableEntry id;
+        if(semanticsStack.peek() instanceof ETYPE){
+            System.out.println("HERE!");
+            ETYPE eTYPE = (ETYPE) semanticsStack.pop();
+            id = (SymbolTableEntry) semanticsStack.peek();
+            semanticsStack.push(eTYPE);
+        }
+        else{
+            /* pop id */
+            id = (SymbolTableEntry) semanticsStack.pop();
+        }
         if(!(id.isProcedure())){ throw SemanticError.BadProcedure(id.getName(), token.getLineNum()); }
     }
 
@@ -626,12 +649,10 @@ public class SemanticActions {
         ETYPE eTYPE = (ETYPE) semanticsStack.pop();
         isArithmetic(eTYPE, token.getLineNum());
         SymbolTableEntry id = (SymbolTableEntry) semanticsStack.pop();
+        ArrayEntry array = (ArrayEntry) semanticsStack.peek();
         /* check if bounds make sense */
         if(id.getType() != TokenType.INTEGER){ throw SemanticError.InvalidArrayBounds(token.getLineNum()); }
         else{
-            /* otherwise get the array */
-            ArrayEntry array = (ArrayEntry) semanticsStack.peek();
-
             SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, TokenType.INTEGER);
             tempCount++;
             generate("sub", id, array.getLowerBound(), $$TEMP);
@@ -653,16 +674,43 @@ public class SemanticActions {
     /**
      * action_52
      */
-    private void action_52(Token token){ }
+    private void action_52(Token token){
+        ETYPE eTYPE = (ETYPE) semanticsStack.pop();
+        SymbolTableEntry id = (SymbolTableEntry) semanticsStack.pop();
+
+        if(!id.isFunction()){
+            // throw error
+            throw new Error("ERROR");
+        }
+        FunctionEntry func = (FunctionEntry) id;
+        if(func.getNumOfParam() > 0){
+            throw new Error("ERROR");
+        }
+        //generate("call", id, 0);
+        SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, id.getType());
+        semanticsStack.push($$TEMP1);
+        semanticsStack.push(ETYPE.ARITHMETIC);
+    }
 
     /**
      * action_34 New
      */
     private void action_34(Token token){
-        if(semanticsStack.peek() instanceof ETYPE){ semanticsStack.pop(); }
-        SymbolTableEntry id = (SymbolTableEntry) semanticsStack.peek();
-        if(!semanticsStack.isEmpty() && id.isFunction()){ action_52(token); }
-        else { semanticsStack.push(null); }
+        if(semanticsStack.peek() instanceof ETYPE){
+            semanticsStack.pop();
+        }
+        if(!semanticsStack.isEmpty()){
+            SymbolTableEntry id = (SymbolTableEntry) semanticsStack.peek();
+            if(id.isFunction()){
+                action_52(token);
+            }
+            else{
+                semanticsStack.push(null);
+            }
+        }
+        else{
+            semanticsStack.push(null);
+        }
     }
 
     /**
@@ -762,7 +810,7 @@ public class SemanticActions {
      * isRelational
      */
     private void isRelational(ETYPE eTYPE, int lineNumber){
-        if(eTYPE != ETYPE.RELATIONAL){ throw SemanticError.InvalidRelational(lineNumber); }
+        if(eTYPE != ETYPE.RELATIONAL){ throw SemanticError.InvalidRelational(lexer.getLineNum()); }
     }
 
     /**
@@ -791,9 +839,11 @@ public class SemanticActions {
             ArrayList<Integer> eTRUE2 = (ArrayList<Integer>) semanticsStack.pop();
             Token operator = (Token) semanticsStack.pop();
 
+            System.out.println(operator);
             if(operator.getOpType() == Token.OperatorType.OR){
                 /* pop E(1) FALSE */
                 semanticsStack.pop();
+                System.out.println(token.getLineNum());
                 ArrayList<Integer> eTRUE = (ArrayList<Integer>) semanticsStack.pop();
 
                 ArrayList<Integer> eTRUE3 = merge(eTRUE, eTRUE2);
@@ -814,6 +864,7 @@ public class SemanticActions {
         SymbolTableEntry id1 = (SymbolTableEntry) semanticsStack.pop();
         isArithmetic(eTYPE, token.getLineNum());
         generationRoutineSA43(id1, operator, id2);
+        semanticsStack.push(ETYPE.ARITHMETIC);
     }
 
 
@@ -825,7 +876,7 @@ public class SemanticActions {
         if(eTYPE == ETYPE.RELATIONAL){
             if(token.getOpType() == Token.OperatorType.AND){
                 ArrayList<Integer> eFALSE = (ArrayList<Integer>) semanticsStack.pop();
-                ArrayList<Integer> eTRUE = (ArrayList<Integer>) semanticsStack.pop();
+                ArrayList<Integer> eTRUE = (ArrayList<Integer>) semanticsStack.peek();
                 semanticsStack.push(eFALSE);
                 backPatch(eTRUE, quads.nextQuadIndex());
             }
@@ -849,7 +900,7 @@ public class SemanticActions {
                 /* pop E(1) TRUE */
                 semanticsStack.pop();
 
-                ArrayList<Integer> eTRUE3 = eTRUE2;
+                ArrayList<Integer> eTRUE3 = eTRUE2; // TODO: REDUNDANT
                 ArrayList<Integer> eFALSE3 = merge(eFALSE, eFALSE2);
 
                 semanticsStack.push(eTRUE3);
@@ -859,6 +910,8 @@ public class SemanticActions {
         }
         /* otherwise same routine as before */
         else{
+            isArithmetic(eTYPE, token.getLineNum());
+
             /* obtain ids and the operator between them */
             SymbolTableEntry id2 = (SymbolTableEntry) semanticsStack.pop();
             Token operator = (Token) semanticsStack.pop();
@@ -869,6 +922,7 @@ public class SemanticActions {
                 throw SemanticError.BadMod(operator.getLineNum());
             }
             generationRoutineSA45(id1, operator, id2);
+            semanticsStack.push(ETYPE.ARITHMETIC);
         }
     }
 
@@ -892,6 +946,8 @@ public class SemanticActions {
      */
     private void action_22(Token token){
         ETYPE eTYPE = (ETYPE) semanticsStack.pop();
+        System.out.println(token);
+        System.out.println(lexer.getPrevToken());
         isRelational(eTYPE, token.getLineNum());
 
         ArrayList<Integer> eFALSE = (ArrayList<Integer>) semanticsStack.pop();
