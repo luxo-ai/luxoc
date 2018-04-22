@@ -630,8 +630,8 @@ public class SemanticActions {
         ETYPE eTYPE = (ETYPE) semanticsStack.pop();
         if(token.getOpType() == Token.OperatorType.OR){
             isRelational(eTYPE, token.getLineNum());
-            ArrayList<Integer> eFALSE = (ArrayList<Integer>) semanticsStack.pop(); /* cast to ArrayList<Integer>? */
-            backPatch(eFALSE, quads.nextQuadIndex());
+            ArrayList<Integer> eFALSE = (ArrayList<Integer>) semanticsStack.peek(); /* cast to ArrayList<Integer>? */
+            backPatch(eFALSE, quads.nextQuadIndex()); // TODO: pop => peek
         }
         else{ isArithmetic(eTYPE, token.getLineNum()); }
         /* push operator as a Token */
@@ -669,13 +669,15 @@ public class SemanticActions {
                 semanticsStack.push(eFALSE2);
             }
         }
-        /* from before */
-        SymbolTableEntry id2 = (SymbolTableEntry) semanticsStack.pop();
-        Token operator = (Token) semanticsStack.pop();
-        SymbolTableEntry id1 = (SymbolTableEntry) semanticsStack.pop();
-        isArithmetic(eTYPE, token.getLineNum());
-        generationRoutineSA43(id1, operator, id2);
-        semanticsStack.push(ETYPE.ARITHMETIC);
+        else{
+            /* from before */
+            SymbolTableEntry id2 = (SymbolTableEntry) semanticsStack.pop();
+            Token operator = (Token) semanticsStack.pop();
+            SymbolTableEntry id1 = (SymbolTableEntry) semanticsStack.pop();
+            isArithmetic(eTYPE, token.getLineNum());
+            generationRoutineSA43(id1, operator, id2);
+            semanticsStack.push(ETYPE.ARITHMETIC);
+        }
     }
 
     /**
