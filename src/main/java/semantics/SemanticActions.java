@@ -36,6 +36,12 @@ public class SemanticActions {
      */
     class Action{ void run(Token token){ } }
 
+    /**
+     * ETYPE: enum flags for representing either
+     * Relational or Arithmetic expressions
+     */
+    enum ETYPE{ ARITHMETIC, RELATIONAL }
+
     /*
      * Constants:
      * - INITIAL_SIZE: the initial size of each symbol table.
@@ -63,6 +69,14 @@ public class SemanticActions {
     private int localMem;
 
     /*
+     * TVI Controls
+     */
+    private Quadruples quads;
+    private int localStore;
+    private int globalStore;
+    private int tempCount;
+
+    /*
      * Symbol Tables:
      * - localTable: stores local variables
      * - globalTable: stores global variables
@@ -79,10 +93,19 @@ public class SemanticActions {
      */
     private Stack<Object> semanticsStack;
     private Action[] actions;
-    private Quadruples quads;
-    private int globalStore;
     private Tokenizer lexer;
-    private int tempCount;
+
+
+    /*
+     * Misc
+     */
+    private SymbolTableEntry currentFunc = null;
+    private int paramCounter = 0;
+    private Stack<Integer> paramCount = new Stack<>();
+    private ArrayList<Integer> skipElse;
+    private Integer beginLoop;
+    private NextParameter nextParam = new NextParameter();
+
 
     /**
      * SemanticAction constructor
@@ -106,6 +129,7 @@ public class SemanticActions {
         /* initialize quadruples */
         quads = new Quadruples();
         globalStore = 0;
+        localStore = 0;
 
         /* pass control of the lexer */
         this.lexer = lexer;
@@ -366,6 +390,87 @@ public class SemanticActions {
     }
 
     /**
+     * action_22
+     */
+    private void action_22(Token token){
+        ETYPE eTYPE = (ETYPE) semanticsStack.pop();
+        System.out.println(token);
+        System.out.println(lexer.getPrevToken());
+        isRelational(eTYPE, token.getLineNum());
+
+        ArrayList<Integer> eFALSE = (ArrayList<Integer>) semanticsStack.pop();
+        ArrayList<Integer> eTRUE = (ArrayList<Integer>) semanticsStack.peek();
+
+        semanticsStack.push(eFALSE);
+        backPatch(eTRUE, quads.nextQuadIndex());
+    }
+
+    /**
+     * action_24
+     */
+    private void action_24(Token token){
+        beginLoop = quads.nextQuadIndex();
+        semanticsStack.push(beginLoop);
+    }
+
+    /**
+     * action_25
+     */
+    private void action_25(Token token){
+        ETYPE eTYPE = (ETYPE) semanticsStack.pop();
+        isRelational(eTYPE, token.getLineNum());
+
+        ArrayList<Integer> eFALSE = (ArrayList<Integer>) semanticsStack.pop();
+        ArrayList<Integer> eTRUE = (ArrayList<Integer>) semanticsStack.peek();
+        semanticsStack.push(eFALSE);
+        backPatch(eTRUE, quads.nextQuadIndex());
+    }
+
+    /**
+     * action_26
+     */
+    private void action_26(Token token){
+        ArrayList<Integer> eFALSE = (ArrayList<Integer>) semanticsStack.pop();
+        /* pop ETRUE */
+        semanticsStack.pop();
+        Integer begin = (Integer) semanticsStack.pop();
+        generate("goto", begin.toString());
+        backPatch(eFALSE, quads.nextQuadIndex());
+    }
+
+    /**
+     * action_27
+     */
+    private void action_27(Token token){
+        skipElse = makeList(quads.nextQuadIndex());
+        generate("goto", "_");
+        ArrayList<Integer> eFALSE = (ArrayList<Integer>) semanticsStack.peek();
+        backPatch(eFALSE, quads.nextQuadIndex());
+        semanticsStack.push(skipElse);
+    }
+
+    /**
+     * action_28
+     */
+    private void action_28(Token token){
+        skipElse = (ArrayList<Integer>) semanticsStack.pop();
+        /* pop EFALSE and ETRUE */
+        semanticsStack.pop();
+        semanticsStack.pop();
+        backPatch(skipElse, quads.nextQuadIndex());
+    }
+
+    /**
+     * action_29
+     */
+    private void action_29(Token token){
+        ArrayList<Integer> eFALSE = (ArrayList<Integer>) semanticsStack.pop();
+        /* pop ETRUE */
+        semanticsStack.pop();
+        backPatch(eFALSE, quads.nextQuadIndex());
+    }
+
+    /**
      * action_30
      * @param token: the Token in question.
      */
@@ -396,239 +501,6 @@ public class SemanticActions {
     }
 
     /**
-     * need to otherwise push a null offset. Action 34
-     */
-    private void action_34OLD(Token token){ semanticsStack.push(null); } // instead in 31 make null
-
-    /**
-     * action_40
-     */
-    private void action_40(Token token){
-        /* push sign on the stack */
-        semanticsStack.push(token);
-    }
-
-    /**
-     * action_42
-     */
-    private void action_42OLD(Token token){
-        /* push operator --> a token */
-        semanticsStack.push(token);
-    }
-
-    /**
-     * action_41
-     */
-    private void action_41(Token token){
-        ETYPE eTYPE = (ETYPE) semanticsStack.pop();
-        isArithmetic(eTYPE, token.getLineNum());
-
-        /* pop off the id and sign from the stack */
-        SymbolTableEntry id = (SymbolTableEntry) semanticsStack.pop();
-        Token sign = (Token) semanticsStack.pop();
-        /* check if the sign is a unary minus */
-        if(sign.getTokenType() == TokenType.UNARYMINUS){
-            SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, id.getType());
-            tempCount++;
-            if(id.getType() == TokenType.INTEGER){
-                generate("uminus", id, $$TEMP);
-            }
-            else{
-                generate("fuminus", id, $$TEMP);
-            }
-            semanticsStack.push($$TEMP);
-        }
-        else{ semanticsStack.push(id); }
-        semanticsStack.push(ETYPE.ARITHMETIC);
-    }
-
-    /**
-     * action_43:
-     * Note: always favor converting to real, if a real present. Think scope.
-     */
-    private void action_43OLD(Token token) {
-        ETYPE eTYPE = (ETYPE) semanticsStack.pop();
-        isRelational(eTYPE, token.getLineNum());
-
-        /* obtain ids and the operator between them */
-        SymbolTableEntry id2 = (SymbolTableEntry) semanticsStack.pop();
-        Token operator = (Token) semanticsStack.pop();
-        SymbolTableEntry id1 = (SymbolTableEntry) semanticsStack.pop();
-        generationRoutineSA43(id1, operator, id2);
-    }
-
-    /**
-     * action_44
-     */
-    private void action_44OLD(Token token){
-        /* push operator --> a token */
-        semanticsStack.push(token);
-    }
-
-    /**
-     * action_45
-     */
-    private void action_45OLD(Token token) {
-        /* obtain ids and the operator between them */
-        SymbolTableEntry id2 = (SymbolTableEntry) semanticsStack.pop();
-        Token operator = (Token) semanticsStack.pop();
-        SymbolTableEntry id1 = (SymbolTableEntry) semanticsStack.pop();
-
-        /* check if a bad mod (id1 and id2) are not ints */
-        if (typeCheck(id1, id2) != 0 && operator.getOpType() == Token.OperatorType.MOD) {
-            throw SemanticError.BadMod(operator.getLineNum());
-        }
-        if (typeCheck(id1, id2) != 0 && operator.getOpType() == Token.OperatorType.DIV) {
-            throw SemanticError.BadDiv(operator.getLineNum());
-        }
-        generationRoutineSA45(id1, operator, id2);
-    }
-
-    /**
-     * action_46
-     */
-    private void action_46(Token token){
-        if(token.getTokenType() == TokenType.IDENTIFIER){ findAndPushID(token); }
-        else if(isConstant(token)){ findAndPushConst(token); }
-        semanticsStack.push(ETYPE.ARITHMETIC);
-    }
-
-    /**
-     * action_48
-     */
-    private void action_48OLD(Token token){
-        /* obtain the offset */
-        SymbolTableEntry offset = null; //(SymbolTableEntry) semanticsStack.pop();
-
-        /* if the offset is not null, move from src + offset into dest -> push dest. */
-        if(offset != null){
-            SymbolTableEntry id = (SymbolTableEntry) semanticsStack.pop();
-            SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, id.getType());
-            tempCount++;
-            generate("load", id, offset, $$TEMP);
-            semanticsStack.push($$TEMP);
-        }
-    }
-
-    /**
-     * action_55
-     * @param token: the Token in question.
-     */
-    private void action_55(Token token){
-        /* BACKPATCH(GLOBAL_STORE,GLOBAL_MEM) */
-        backPatch(globalStore, globalMem);
-        /* GEN(free GLOBAL_MEM) */
-        generate("free", this.globalMem);
-        /* GEN(PROCEND) */
-        generate("PROCEND");
-    }
-
-    /**
-     * action_56
-     * @param token: the Token in question.
-     */
-    private void action_56(Token token){
-        /* GEN(PROCBEGIN main) */
-        generate("PROCBEGIN", "main");
-        /* GLOBAL_STORE = NEXTQUAD */
-        globalStore = quads.nextQuadIndex();
-        /* GEN(alloc,_) */
-        generate("alloc", "_");
-    }
-
-
-
-    private int localStore = 0;
-    private SymbolTableEntry currentFunction = null;
-    private int paramCounter = 0;
-    private Stack<Integer> paramCount = new Stack<>();
-
-    enum ETYPE{ ARITHMETIC, RELATIONAL }
-
-    ArrayList<Integer> skipElse;
-    Integer beginLoop;
-
-    NextParameter nextParam = new NextParameter();
-
-    class NextParameter{
-        Stack<LinkedList<ParameterInfo>> paramLists;
-        Stack<Integer> paramPointers;
-
-        NextParameter(){
-            paramLists = new Stack<>();
-            paramPointers = new Stack<Integer>();
-        }
-
-        public void push(LinkedList<ParameterInfo> paramList){
-            this.paramLists.push(paramList);
-            this.paramPointers.push(0);
-        }
-
-        public LinkedList<ParameterInfo> pop(){
-            this.paramPointers.pop();
-            return this.paramLists.pop();
-        }
-
-
-        public ParameterInfo getNextParam(){
-            return this.paramLists.peek().get(this.paramPointers.peek());
-        }
-
-        public void increment(){
-            this.paramPointers.push((this.paramPointers.pop()) + 1);
-        }
-    }
-
-    private ArrayList<Integer> makeList(int i){
-        ArrayList<Integer> listy = new ArrayList<>();
-        listy.add(i);
-        return listy;
-    }
-
-    private ArrayList<Integer> merge(ArrayList<Integer> l1, ArrayList<Integer> l2){
-        ArrayList<Integer> merged = new ArrayList<>(l1);
-        merged.addAll(l2);
-        return merged;
-    }
-
-    /**
-     * action_53
-     */
-    private void action_53(Token token){
-        /* pop ETYPE */
-        semanticsStack.pop();
-        /* pop id */
-        SymbolTableEntry id = (SymbolTableEntry) semanticsStack.pop();
-
-        if(id.isFunction()){
-            if(id != currentFunction){ throw SemanticError.BadFunction(id.getName(), token.getLineNum()); }
-            semanticsStack.push(((FunctionEntry) id).getResult());
-        }
-        else{
-            semanticsStack.push(id);
-            semanticsStack.push(ETYPE.ARITHMETIC); // eTYPE
-        }
-    }
-
-    /**
-     * action_54
-     */
-    private void action_54(Token token){
-        SymbolTableEntry id;
-        if(semanticsStack.peek() instanceof ETYPE){
-            System.out.println("HERE!");
-            ETYPE eTYPE = (ETYPE) semanticsStack.pop();
-            id = (SymbolTableEntry) semanticsStack.peek();
-            semanticsStack.push(eTYPE);
-        }
-        else{
-            /* pop id */
-            id = (SymbolTableEntry) semanticsStack.pop();
-        }
-        if(!(id.isProcedure())){ throw SemanticError.BadProcedure(id.getName(), token.getLineNum()); }
-    }
-
-    /**
      * action_32
      */
     private void action_32(Token token){
@@ -636,10 +508,6 @@ public class SemanticActions {
         isArithmetic(eTYPE, token.getLineNum());
         SymbolTableEntry id = (SymbolTableEntry) semanticsStack.peek();
         if(!id.isArray()){ throw SemanticError.ExpectedArray(token.getLineNum()); }
-    }
-
-    private void isArithmetic(ETYPE eTYPE, int lineNumber) throws SemanticError {
-        if(eTYPE != ETYPE.ARITHMETIC){ throw SemanticError.BadETYPE(lineNumber); }
     }
 
     /**
@@ -661,38 +529,6 @@ public class SemanticActions {
     }
 
     /**
-     * generate for 33
-     */
-    private void generate(String tviCode, SymbolTableEntry operand, int bound, SymbolTableEntry operand2){
-        String op = toAddress(tviCode, operand);
-        String op2 = String.valueOf(bound);
-        String op3 = toAddress(tviCode, operand2);
-        String[] quadrpl = {tviCode, op, op2, op3};
-        quads.addQuad(quadrpl);
-    }
-
-    /**
-     * action_52
-     */
-    private void action_52(Token token){
-        ETYPE eTYPE = (ETYPE) semanticsStack.pop();
-        SymbolTableEntry id = (SymbolTableEntry) semanticsStack.pop();
-
-        if(!id.isFunction()){
-            // throw error
-            throw new Error("ERROR");
-        }
-        FunctionEntry func = (FunctionEntry) id;
-        if(func.getNumOfParam() > 0){
-            throw new Error("ERROR");
-        }
-        //generate("call", id, 0);
-        SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, id.getType());
-        semanticsStack.push($$TEMP1);
-        semanticsStack.push(ETYPE.ARITHMETIC);
-    }
-
-    /**
      * action_34 New
      */
     private void action_34(Token token){
@@ -701,38 +537,10 @@ public class SemanticActions {
         }
         if(!semanticsStack.isEmpty()){
             SymbolTableEntry id = (SymbolTableEntry) semanticsStack.peek();
-            if(id.isFunction()){
-                action_52(token);
-            }
-            else{
-                semanticsStack.push(null);
-            }
+            if(id.isFunction()){ action_52(token); }
+            else{ semanticsStack.push(null); }
         }
-        else{
-            semanticsStack.push(null);
-        }
-    }
-
-    /**
-     * action_48
-     */
-    private void action_48(Token token){
-        /* pop ETYPE if possible */
-        if(semanticsStack.peek() instanceof ETYPE){ semanticsStack.pop(); }
-        /* obtain the offset */
-        SymbolTableEntry offset = (SymbolTableEntry) semanticsStack.pop();
-        /* if the offset is not null, load src + offset into dest -> push dest. */
-        if(offset != null){
-            if(offset.isFunction()){ action_52(token); }
-            else{
-                SymbolTableEntry id = (SymbolTableEntry) semanticsStack.pop();
-                SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, id.getType());
-                tempCount++;
-                generate("load", id, offset, $$TEMP);
-                semanticsStack.push($$TEMP);
-            }
-        }
-        semanticsStack.push(ETYPE.ARITHMETIC);
+        else{ semanticsStack.push(null); }
     }
 
     /**
@@ -782,13 +590,37 @@ public class SemanticActions {
     }
 
     /**
-     * generate
+     * action_40
      */
-    private void generate(String tviCode, SymbolTableEntry operand1, SymbolTableEntry operand2, String operand3){
-        String op1 = toAddress(tviCode, operand1);
-        String op2 = toAddress(tviCode, operand2);
-        String[] quadrpl = {tviCode, op1, op2, operand3};
-        quads.addQuad(quadrpl);
+    private void action_40(Token token){
+        /* push sign on the stack */
+        semanticsStack.push(token);
+    }
+
+    /**
+     * action_41
+     */
+    private void action_41(Token token){
+        ETYPE eTYPE = (ETYPE) semanticsStack.pop();
+        isArithmetic(eTYPE, token.getLineNum());
+
+        /* pop off the id and sign from the stack */
+        SymbolTableEntry id = (SymbolTableEntry) semanticsStack.pop();
+        Token sign = (Token) semanticsStack.pop();
+        /* check if the sign is a unary minus */
+        if(sign.getTokenType() == TokenType.UNARYMINUS){
+            SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, id.getType());
+            tempCount++;
+            if(id.getType() == TokenType.INTEGER){
+                generate("uminus", id, $$TEMP);
+            }
+            else{
+                generate("fuminus", id, $$TEMP);
+            }
+            semanticsStack.push($$TEMP);
+        }
+        else{ semanticsStack.push(id); }
+        semanticsStack.push(ETYPE.ARITHMETIC);
     }
 
     /**
@@ -804,27 +636,6 @@ public class SemanticActions {
         else{ isArithmetic(eTYPE, token.getLineNum()); }
         /* push operator as a Token */
         semanticsStack.push(token);
-    }
-
-    /**
-     * isRelational
-     */
-    private void isRelational(ETYPE eTYPE, int lineNumber){
-        if(eTYPE != ETYPE.RELATIONAL){ throw SemanticError.InvalidRelational(lexer.getLineNum()); }
-    }
-
-    /**
-     * backpatch
-     */
-    private void backPatch(ArrayList<Integer> list, int i){
-        for(Integer pointer: list){
-            String[] quadrpl = quads.getQuad(pointer);
-            for(int k = 0; k < quadrpl.length; k++){
-                if(quadrpl[k] != null && quadrpl[k].equals("_")){
-                    quads.setEntry(pointer, k, String.valueOf(i));
-                }
-            }
-        }
     }
 
     /**
@@ -866,7 +677,6 @@ public class SemanticActions {
         generationRoutineSA43(id1, operator, id2);
         semanticsStack.push(ETYPE.ARITHMETIC);
     }
-
 
     /**
      * action_44:
@@ -927,6 +737,15 @@ public class SemanticActions {
     }
 
     /**
+     * action_46
+     */
+    private void action_46(Token token){
+        if(token.getTokenType() == TokenType.IDENTIFIER){ findAndPushID(token); }
+        else if(isConstant(token)){ findAndPushConst(token); }
+        semanticsStack.push(ETYPE.ARITHMETIC);
+    }
+
+    /**
      * action_47
      */
     private void action_47(Token token){
@@ -942,107 +761,110 @@ public class SemanticActions {
     }
 
     /**
-     * action_22
+     * action_48
      */
-    private void action_22(Token token){
+    private void action_48(Token token){
+        /* pop ETYPE if possible */
+        if(semanticsStack.peek() instanceof ETYPE){ semanticsStack.pop(); }
+        /* obtain the offset */
+        SymbolTableEntry offset = (SymbolTableEntry) semanticsStack.pop();
+        /* if the offset is not null, load src + offset into dest -> push dest. */
+        if(offset != null){
+            if(offset.isFunction()){ action_52(token); }
+            else{
+                SymbolTableEntry id = (SymbolTableEntry) semanticsStack.pop();
+                SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, id.getType());
+                tempCount++;
+                generate("load", id, offset, $$TEMP);
+                semanticsStack.push($$TEMP);
+            }
+        }
+        semanticsStack.push(ETYPE.ARITHMETIC);
+    }
+
+    /**
+     * action_52
+     */
+    private void action_52(Token token){
         ETYPE eTYPE = (ETYPE) semanticsStack.pop();
-        System.out.println(token);
-        System.out.println(lexer.getPrevToken());
-        isRelational(eTYPE, token.getLineNum());
+        SymbolTableEntry id = (SymbolTableEntry) semanticsStack.pop();
 
-        ArrayList<Integer> eFALSE = (ArrayList<Integer>) semanticsStack.pop();
-        ArrayList<Integer> eTRUE = (ArrayList<Integer>) semanticsStack.peek();
-
-        semanticsStack.push(eFALSE);
-        backPatch(eTRUE, quads.nextQuadIndex());
+        if(!id.isFunction()){
+            // throw error
+            throw new Error("ERROR");
+        }
+        FunctionEntry func = (FunctionEntry) id;
+        if(func.getNumOfParam() > 0){
+            throw new Error("ERROR");
+        }
+        //generate("call", id, 0);
+        SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, id.getType());
+        semanticsStack.push($$TEMP1);
+        semanticsStack.push(ETYPE.ARITHMETIC);
     }
 
     /**
-     * action_27
+     * action_53
      */
-    private void action_27(Token token){
-        skipElse = makeList(quads.nextQuadIndex());
-        generate("goto", "_");
-        ArrayList<Integer> eFALSE = (ArrayList<Integer>) semanticsStack.peek();
-        backPatch(eFALSE, quads.nextQuadIndex());
-        semanticsStack.push(skipElse);
-    }
-
-    /**
-     * action_28
-     */
-    private void action_28(Token token){
-        skipElse = (ArrayList<Integer>) semanticsStack.pop();
-        /* pop EFALSE and ETRUE */
+    private void action_53(Token token){
+        /* pop ETYPE */
         semanticsStack.pop();
-        semanticsStack.pop();
-        backPatch(skipElse, quads.nextQuadIndex());
+        /* pop id */
+        SymbolTableEntry id = (SymbolTableEntry) semanticsStack.pop();
+
+        if(id.isFunction()){
+            if(id != currentFunc){ throw SemanticError.BadFunction(id.getName(), token.getLineNum()); }
+            semanticsStack.push(((FunctionEntry) id).getResult());
+        }
+        else{
+            semanticsStack.push(id);
+            semanticsStack.push(ETYPE.ARITHMETIC); // eTYPE
+        }
     }
 
     /**
-     * action_29
+     * action_54
      */
-    private void action_29(Token token){
-        ArrayList<Integer> eFALSE = (ArrayList<Integer>) semanticsStack.pop();
-        /* pop ETRUE */
-        semanticsStack.pop();
-        backPatch(eFALSE, quads.nextQuadIndex());
+    private void action_54(Token token){
+        SymbolTableEntry id;
+        if(semanticsStack.peek() instanceof ETYPE){
+            System.out.println("HERE!");
+            ETYPE eTYPE = (ETYPE) semanticsStack.pop();
+            id = (SymbolTableEntry) semanticsStack.peek();
+            semanticsStack.push(eTYPE);
+        }
+        else{
+            /* pop id */
+            id = (SymbolTableEntry) semanticsStack.pop();
+        }
+        if(!(id.isProcedure())){ throw SemanticError.BadProcedure(id.getName(), token.getLineNum()); }
     }
 
     /**
-     * action_24
+     * action_55
+     * @param token: the Token in question.
      */
-    private void action_24(Token token){
-        beginLoop = quads.nextQuadIndex();
-        semanticsStack.push(beginLoop);
+    private void action_55(Token token){
+        /* BACKPATCH(GLOBAL_STORE,GLOBAL_MEM) */
+        backPatch(globalStore, globalMem);
+        /* GEN(free GLOBAL_MEM) */
+        generate("free", this.globalMem);
+        /* GEN(PROCEND) */
+        generate("PROCEND");
     }
 
     /**
-     * action_25
+     * action_56
+     * @param token: the Token in question.
      */
-    private void action_25(Token token){
-        ETYPE eTYPE = (ETYPE) semanticsStack.pop();
-        isRelational(eTYPE, token.getLineNum());
-
-        ArrayList<Integer> eFALSE = (ArrayList<Integer>) semanticsStack.pop();
-        ArrayList<Integer> eTRUE = (ArrayList<Integer>) semanticsStack.peek();
-        semanticsStack.push(eFALSE);
-        backPatch(eTRUE, quads.nextQuadIndex());
+    private void action_56(Token token){
+        /* GEN(PROCBEGIN main) */
+        generate("PROCBEGIN", "main");
+        /* GLOBAL_STORE = NEXTQUAD */
+        globalStore = quads.nextQuadIndex();
+        /* GEN(alloc,_) */
+        generate("alloc", "_");
     }
-
-    /**
-     * action_26
-     */
-    private void action_26(Token token){
-        ArrayList<Integer> eFALSE = (ArrayList<Integer>) semanticsStack.pop();
-        /* pop ETRUE */
-        semanticsStack.pop();
-        Integer begin = (Integer) semanticsStack.pop();
-        generate("goto", begin.toString());
-        backPatch(eFALSE, quads.nextQuadIndex());
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     /* ----------------- END OF SEMANTIC ACTIONS ----------------- */
 
@@ -1568,6 +1390,27 @@ public class SemanticActions {
         quads.addQuad(quadrpl);
     }
 
+    /**
+     * generate for 33
+     */
+    private void generate(String tviCode, SymbolTableEntry operand, int bound, SymbolTableEntry operand2){
+        String op = toAddress(tviCode, operand);
+        String op2 = String.valueOf(bound);
+        String op3 = toAddress(tviCode, operand2);
+        String[] quadrpl = {tviCode, op, op2, op3};
+        quads.addQuad(quadrpl);
+    }
+
+    /**
+     * generate for 39
+     */
+    private void generate(String tviCode, SymbolTableEntry operand1, SymbolTableEntry operand2, String operand3){
+        String op1 = toAddress(tviCode, operand1);
+        String op2 = toAddress(tviCode, operand2);
+        String[] quadrpl = {tviCode, op1, op2, operand3};
+        quads.addQuad(quadrpl);
+    }
+
     /*  -----------  End of GEN  ------------ */
 
 
@@ -1735,6 +1578,58 @@ public class SemanticActions {
             }
         }
     }
+
+    /**
+     * backpatch
+     */
+    private void backPatch(ArrayList<Integer> list, int i){
+        for(Integer pointer: list){
+            String[] quadrpl = quads.getQuad(pointer);
+            for(int k = 0; k < quadrpl.length; k++){
+                if(quadrpl[k] != null && quadrpl[k].equals("_")){
+                    quads.setEntry(pointer, k, String.valueOf(i));
+                }
+            }
+        }
+    }
+
+    /* --------------- EFALSE, ETRUE HELPERS ------------------ */
+
+    /**
+     * makeList
+     */
+    private ArrayList<Integer> makeList(int i){
+        ArrayList<Integer> listy = new ArrayList<>();
+        listy.add(i);
+        return listy;
+    }
+
+    /**
+     * merge
+     */
+    private ArrayList<Integer> merge(ArrayList<Integer> l1, ArrayList<Integer> l2){
+        ArrayList<Integer> merged = new ArrayList<>(l1);
+        merged.addAll(l2);
+        return merged;
+    }
+
+    /* ---------------- ETYPE HELPERS ------------------- */
+
+    /**
+     * isArithmetic
+     */
+    private void isArithmetic(ETYPE eTYPE, int lineNumber) throws SemanticError {
+        if(eTYPE != ETYPE.ARITHMETIC){ throw SemanticError.BadETYPE(lineNumber); }
+    }
+
+    /**
+     * isRelational
+     */
+    private void isRelational(ETYPE eTYPE, int lineNumber){
+        if(eTYPE != ETYPE.RELATIONAL){ throw SemanticError.InvalidRelational(lexer.getLineNum()); }
+    }
+
+    /* ------------------ SEMANTIC ACTION FEATURES ---------------------- */
 
     /**
      * semanticStackDump: routine to dump the semantic stack.
