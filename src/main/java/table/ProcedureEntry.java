@@ -15,10 +15,8 @@ import java.util.LinkedList;
  * ProcedureEntry class
  * @author Luis Serazo
  */
-public class ProcedureEntry extends SymbolTableEntry {
+public class ProcedureEntry extends RoutineEntry {
 
-    private int numOfParameters;
-    private LinkedList parameterInfo;
 
     /**
      * ProcedureEntry constructor
@@ -27,22 +25,21 @@ public class ProcedureEntry extends SymbolTableEntry {
      * @param parameterInfo: information about the parameters.
      */
     public ProcedureEntry(String name, int numOfParameters, LinkedList<ParameterInfo> parameterInfo){
-        super(name, TokenType.PROCEDURE);
-        this.numOfParameters = numOfParameters;
-        this.parameterInfo = parameterInfo;
+        super(name, TokenType.PROCEDURE, numOfParameters, parameterInfo);
     }
 
     /**
      * getNumParam: getter method for the number of parameters
      * @return the number of parameters
      */
-    public int getNumOfParam(){ return this.numOfParameters; }
+    public int getNumOfParam(){ return super.getNumOfParam(); }
+
 
     /**
      * getParamInfo: getter method for the parameter information
      * @return the parameter information
      */
-    public LinkedList getParamInfo(){ return this.parameterInfo; }
+    public LinkedList getParamInfo(){ return super.getParamInfo(); }
 
     /**
      * isProcedure: override the parent isProcedure method.

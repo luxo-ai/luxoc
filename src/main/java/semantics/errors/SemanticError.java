@@ -65,7 +65,7 @@ public class SemanticError extends Error {
         return new SemanticError("Bad DIV setup on line: "+lineNumber+" operands of the DIV operator must both be of type: Integer.");
     }
 
-    /* SEM 3 */
+    /* SEM PHASE 3 */
 
     public static SemanticError BadFunction(String name, int lineNumber){
         return new SemanticError("Bad function: "+name+" on line: "+lineNumber+".");
@@ -90,5 +90,9 @@ public class SemanticError extends Error {
     public static SemanticError InvalidRelational(int lineNumber){
         return new SemanticError("Not valid relational operator on line: "+lineNumber);
     }
+
+    /* SEM PHASE 4 */
+
+
 
 }

@@ -23,6 +23,18 @@ public class VariableEntry extends SymbolTableEntry{
     /**
      * VariableEntry constructor
      * @param name: the String name of the entry
+     * @param tokenType: the type of variable
+     */
+    public VariableEntry(String name, TokenType tokenType){
+        super(name, tokenType);
+        this.address = 0; /* 0x0 (default temporary spot) */
+        this.isParam = false;
+        this.isFuncResult = false;
+    }
+
+    /**
+     * VariableEntry constructor
+     * @param name: the String name of the entry
      * @param address: the address in memory of the variable
      * @param tokenType: the type of variable
      */
@@ -61,7 +73,6 @@ public class VariableEntry extends SymbolTableEntry{
     /**
      * setAddress: setter method for the memory address of the variable.
      * @param newAddress: the new address of the variable
-     * Note: probably don't need this, but it seemed like a good measure for now.
      */
     protected void setAddress(int newAddress){ this.address = newAddress; }
 
