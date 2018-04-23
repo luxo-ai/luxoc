@@ -100,7 +100,6 @@ public class SemanticActions {
      * Misc
      */
     private SymbolTableEntry currentFunc = null;
-    private int paramCounter = 0;
     private Stack<Integer> paramCount = new Stack<>();
     private ArrayList<Integer> skipElse;
     private Integer beginLoop;
@@ -159,113 +158,113 @@ public class SemanticActions {
         // 4
         this.actions[3] = new Action(){ @Override public void run(Token token) { action_4(token); } };
         // 5
-        this.actions[4] = new Action();
+        this.actions[4] = new Action(){ @Override public void run(Token token) { action_5(token); } };
         // 6
         this.actions[5] = new Action(){ @Override public void run(Token token) { action_6(token); } };
         // 7
         this.actions[6] = new Action(){ @Override public void run(Token token) { action_7(token); } };
         // 8
-        this.actions[7] = new Action();
+        this.actions[7] = new Action(){ @Override public void run(Token token) { throw new Error("Action Not In Grammar"); } };
         // 9
         this.actions[8] = new Action(){ @Override public void run(Token token) { action_9(token); } };
         // 10
-        this.actions[9] = new Action();
+        this.actions[9] = new Action(){ @Override public void run(Token token) { throw new Error("Action Not In Grammar"); } };
         // 11
-        this.actions[10] = new Action();
+        this.actions[10] = new Action(){ @Override public void run(Token token) { action_11(token); } };
         // 12
-        this.actions[11] = new Action();
+        this.actions[11] = new Action(){ @Override public void run(Token token) { throw new Error("Action Not In Grammar"); } };
         // 13
         this.actions[12] = new Action(){ @Override public void run(Token token) { action_13(token); } };
         // 14
-        this.actions[13] = new Action();
+        this.actions[13] = new Action(){ @Override public void run(Token token) { throw new Error("Action Not In Grammar"); } };
         // 15
-        this.actions[14] = new Action();
+        this.actions[14] = new Action(){ @Override public void run(Token token) { action_15(token); } };
         // 16
-        this.actions[15] = new Action();
+        this.actions[15] = new Action(){ @Override public void run(Token token) { action_16(token); } };
         // 17
-        this.actions[16] = new Action();
+        this.actions[16] = new Action(){ @Override public void run(Token token) { action_17(token); } };
         // 18
-        this.actions[17] = new Action();
+        this.actions[17] = new Action(){ @Override public void run(Token token) { throw new Error("Action Not In Grammar"); } };
         // 19
-        this.actions[18] = new Action();
+        this.actions[18] = new Action(){ @Override public void run(Token token) { action_19(token); } };
         // 20
-        this.actions[19] = new Action();
+        this.actions[19] = new Action(){ @Override public void run(Token token) { action_20(token); } };
         // 21
-        this.actions[20] = new Action();
+        this.actions[20] = new Action(){ @Override public void run(Token token) { action_21(token); } };
         // 22
-        this.actions[21] = new Action(){ @Override void run(Token token){ action_22(token); } };
+        this.actions[21] = new Action(){ @Override public void run(Token token){ action_22(token); } };
         // 23
-        this.actions[22] = new Action();
+        this.actions[22] = new Action(){ @Override public void run(Token token) { throw new Error("Action Not In Grammar"); } };
         // 24
-        this.actions[23] = new Action(){ @Override void run(Token token){ action_24(token); } };
+        this.actions[23] = new Action(){ @Override public void run(Token token){ action_24(token); } };
         // 25
-        this.actions[24] = new Action(){ @Override void run(Token token){ action_25(token); } };
+        this.actions[24] = new Action(){ @Override public void run(Token token){ action_25(token); } };
         // 26
-        this.actions[25] = new Action(){ @Override void run(Token token){ action_26(token); } };
+        this.actions[25] = new Action(){ @Override public void run(Token token){ action_26(token); } };
         // 27
-        this.actions[26] = new Action(){ @Override void run(Token token){ action_27(token); } };
+        this.actions[26] = new Action(){ @Override public void run(Token token){ action_27(token); } };
         // 28
-        this.actions[27] = new Action(){ @Override void run(Token token){ action_28(token); } };
+        this.actions[27] = new Action(){ @Override public void run(Token token){ action_28(token); } };
         // 29
-        this.actions[28] = new Action(){ @Override void run(Token token){ action_29(token); } };
+        this.actions[28] = new Action(){ @Override public void run(Token token){ action_29(token); } };
         // 30
-        this.actions[29] = new Action(){ @Override void run(Token token) { action_30(token); } };
+        this.actions[29] = new Action(){ @Override public void run(Token token) { action_30(token); } };
         // 31
-        this.actions[30] = new Action(){ @Override void run(Token token) { action_31(token); } };
+        this.actions[30] = new Action(){ @Override public void run(Token token) { action_31(token); } };
         // 32
-        this.actions[31] = new Action(){ @Override void run(Token token){ action_32(token); } };
+        this.actions[31] = new Action(){ @Override public void run(Token token){ action_32(token); } };
         // 33
-        this.actions[32] = new Action(){ @Override void run(Token token){ action_33(token); } };
+        this.actions[32] = new Action(){ @Override public void run(Token token){ action_33(token); } };
         // 34
-        this.actions[33] = new Action(){ @Override void run(Token token){ action_34(token); } };
+        this.actions[33] = new Action(){ @Override public void run(Token token){ action_34(token); } };
         // 35
-        this.actions[34] = new Action();
+        this.actions[34] = new Action(){ @Override public void run(Token token) { action_35(token); } };
         // 36
-        this.actions[35] = new Action();
+        this.actions[35] = new Action(){ @Override public void run(Token token) { action_36(token); } };
         // 37
-        this.actions[36] = new Action();
+        this.actions[36] = new Action(){ @Override public void run(Token token) { action_37(token); } };
         // 38
-        this.actions[37] = new Action(){ @Override void run(Token token){ action_38(token); } };
+        this.actions[37] = new Action(){ @Override public void run(Token token){ action_38(token); } };
         // 39
-        this.actions[38] = new Action(){ @Override void run(Token token){ action_39(token); } };
+        this.actions[38] = new Action(){ @Override public void run(Token token){ action_39(token); } };
         // 40
-        this.actions[39] = new Action(){ @Override void run(Token token) { action_40(token); } };
+        this.actions[39] = new Action(){ @Override public void run(Token token) { action_40(token); } };
         // 41
-        this.actions[40] = new Action(){ @Override void run(Token token) { action_41(token); } };
+        this.actions[40] = new Action(){ @Override public void run(Token token) { action_41(token); } };
         // 42
-        this.actions[41] = new Action(){ @Override void run(Token token) { action_42(token); } };
+        this.actions[41] = new Action(){ @Override public void run(Token token) { action_42(token); } };
         // 43
-        this.actions[42] = new Action(){ @Override void run(Token token) { action_43(token); } };
+        this.actions[42] = new Action(){ @Override public void run(Token token) { action_43(token); } };
         // 44
-        this.actions[43] = new Action(){ @Override void run(Token token) { action_44(token); } };
+        this.actions[43] = new Action(){ @Override public void run(Token token) { action_44(token); } };
         // 45
-        this.actions[44] = new Action(){ @Override void run(Token token) { action_45(token); } };
+        this.actions[44] = new Action(){ @Override public void run(Token token) { action_45(token); } };
         // 46
-        this.actions[45] = new Action(){ @Override void run(Token token) { action_46(token); } };
+        this.actions[45] = new Action(){ @Override public void run(Token token) { action_46(token); } };
         // 47
-        this.actions[46] = new Action(){ @Override void run(Token token){ action_47(token);} };
+        this.actions[46] = new Action(){ @Override public void run(Token token){ action_47(token);} };
         // 48
-        this.actions[47] = new Action(){ @Override void run(Token token) { action_48(token); } };
+        this.actions[47] = new Action(){ @Override public void run(Token token) { action_48(token); } };
         // 49
-        this.actions[48] = new Action();
+        this.actions[48] = new Action(){ @Override public void run(Token token) { action_49(token); } };
         // 50
-        this.actions[49] = new Action();
+        this.actions[49] = new Action(){ @Override public void run(Token token) { action_50(token); } };
         // 51
-        this.actions[50] = new Action();
+        this.actions[50] = new Action(){ @Override public void run(Token token) { action_51(token); } };
         // 52
-        this.actions[51] = new Action();
+        this.actions[51] = new Action(){ @Override public void run(Token token) { action_52(token); } };
         // 53
-        this.actions[52] = new Action(){ @Override void run(Token token) { action_53(token); } };
+        this.actions[52] = new Action(){ @Override public void run(Token token) { action_53(token); } };
         // 54
-        this.actions[53] = new Action(){ @Override void run(Token token) { action_54(token); } };
+        this.actions[53] = new Action(){ @Override public void run(Token token) { action_54(token); } };
         // 55
-        this.actions[54] = new Action(){ @Override void run(Token token) { action_55(token); } };
+        this.actions[54] = new Action(){ @Override public void run(Token token) { action_55(token); } };
         // 56
-        this.actions[55] = new Action(){ @Override void run(Token token) { action_56(token); } };
+        this.actions[55] = new Action(){ @Override public void run(Token token) { action_56(token); } };
         // 57
-        this.actions[56] = new Action();
+        this.actions[56] = new Action(){ @Override public void run(Token token) { throw new Error("Action Not In Grammar"); } };
         // 58
-        this.actions[57] = new Action();
+        this.actions[57] = new Action(){ @Override public void run(Token token) { throw new Error("Action Not In Grammar"); } };
     } // end of INIT
 
     /**
@@ -338,6 +337,17 @@ public class SemanticActions {
     }
 
     /**
+     * action_5
+     */
+    private void action_5(Token token){
+        this.insert = false;
+        SymbolTableEntry id = (SymbolTableEntry) semanticsStack.pop();
+        generate("PROCBEGIN", id);
+        this.localStore = quads.nextQuadIndex();
+        generate("alloc", "_");
+    }
+
+    /**
      * action_6
      * @param token: the Token in question.
      */
@@ -381,12 +391,122 @@ public class SemanticActions {
     }
 
     /**
+     * action_11
+     */
+    private void action_11(Token token){
+        this.global = true;
+        localTable.delete();
+        currentFunc = null;
+        backPatch(localStore, localMem);
+        generate("free", localMem);
+        generate("PROCEND");
+    }
+
+    /**
      * action_13
      * @param token: the Token in question.
      */
     private void action_13(Token token){
         /* push id (identifier) */
         semanticsStack.push(token);
+    }
+
+    /**
+     * action_15
+     */
+    private void action_15(Token token){
+        VariableEntry funResult = createFunResult("$$" + token.getValue(), TokenType.INTEGER);
+        FunctionEntry func = new FunctionEntry(token.getValue(), 0, new LinkedList<ParameterInfo>(), funResult);
+        if(global){ insertToGlobal(func, token.getLineNum()); }
+        else{ insertToLocal(func, token.getLineNum()); }
+
+        semanticsStack.push(func);
+        this.global = false;
+        this.localMem = 0;
+    }
+
+    /**
+     * action_16
+     */
+    private void action_16(Token token){
+        Token tok = (Token) semanticsStack.pop();
+        TokenType tType = tok.getTokenType();
+        SymbolTableEntry id = (SymbolTableEntry) semanticsStack.peek();
+        id.setType(tType);
+        currentFunc = id;
+        /* set the type in the symbol table too */
+        System.out.println(tok.getLineNum());
+        System.out.println(token.getLineNum());
+        lookupEntry("$$" + id.getName()).setType(tType);
+    }
+
+    /**
+     * action_17
+     */
+    private void action_17(Token token){
+        ProcedureEntry proc = new ProcedureEntry(token.getValue(), 0, new LinkedList<ParameterInfo>());
+        if(global){ insertToGlobal(proc, token.getLineNum()); }
+        else{ insertToLocal(proc, token.getLineNum()); }
+
+        semanticsStack.push(proc);
+        this.global = false;
+        localMem = 0;
+    }
+
+    /**
+     * action_19
+     */
+    private void action_19(Token token){ paramCount.push(0); }
+
+    /**
+     * action_20
+     */
+    private void action_20(Token token){
+        Integer numberOfParam = paramCount.pop();
+        /* obtain the procedure or function through base class */
+        RoutineEntry rout = (RoutineEntry) semanticsStack.peek();
+        rout.setNumOfParam(numberOfParam);
+    }
+
+    /**
+     * action_21
+     */
+    private void action_21(Token token){
+        int lower = -1,upper = -1;
+        int numOfParam = paramCount.pop();
+
+        Token tok = (Token) semanticsStack.pop();
+        TokenType type = tok.getTokenType();
+
+        if(this.array){
+            upper = intValue(((ConstantEntry) semanticsStack.pop()));
+            lower = intValue(((ConstantEntry) semanticsStack.pop()));
+        }
+
+        LinkedList<ParameterInfo> paramList = new LinkedList<>();
+        if(semanticsStack.peek() instanceof Token){
+            Token id = (Token) semanticsStack.peek();
+            while(id.getTokenType() == TokenType.IDENTIFIER){
+                ParameterInfo paramInfo = new ParameterInfo(id.getValue(), type);
+
+                if(this.array){ storeArraySA22(id.getValue(), lower, upper, localMem, type, token.getLineNum()); }
+                else{ storeVarSA22(id.getValue(), type, localMem, token.getLineNum()); }
+
+                numOfParam++;
+                paramList.add(paramInfo);
+                semanticsStack.pop();
+
+                if(semanticsStack.peek() instanceof Token){ id = (Token) semanticsStack.peek(); }
+                else{ break; }
+            }
+            this.array = false;
+        }
+        if(semanticsStack.peek() instanceof RoutineEntry){
+            RoutineEntry rout = (RoutineEntry) semanticsStack.peek();
+            rout.setParamInfo(paramList);
+        }
+        paramCount.push(numOfParam);
+
     }
 
     /**
@@ -529,7 +649,7 @@ public class SemanticActions {
     }
 
     /**
-     * action_34 New
+     * action_34
      */
     private void action_34(Token token){
         if(semanticsStack.peek() instanceof ETYPE){
@@ -541,6 +661,91 @@ public class SemanticActions {
             else{ semanticsStack.push(null); }
         }
         else{ semanticsStack.push(null); }
+    }
+
+    /**
+     * action_35
+     */
+    private void action_35(Token token){
+        paramCount.push(0);
+        ETYPE eTYPE = (ETYPE) semanticsStack.pop();
+        ProcedureEntry proc = (ProcedureEntry) semanticsStack.peek();
+        semanticsStack.push(eTYPE);
+        nextParam.push(proc.getParamInfo());
+    }
+
+    /**
+     * action_36
+     */
+    private void action_36(Token token){
+        if(semanticsStack.peek() instanceof ETYPE){ semanticsStack.pop(); }
+        ProcedureEntry proc = (ProcedureEntry) semanticsStack.pop();
+
+        if(proc.getNumOfParam() != 0){ throw new Error("Wrong Number of Parameters. Proceedure Should have 0 Parameters."); }
+        generate("call", proc, 0);
+    }
+
+    /**
+     * action_37
+     */
+    private void action_37(Token token){
+        ETYPE eTYPE = (ETYPE) semanticsStack.pop();
+        isArithmetic(eTYPE, token.getLineNum());
+        if(semanticsStack.peek() instanceof ETYPE){ semanticsStack.pop(); }
+
+        SymbolTableEntry id = (SymbolTableEntry) semanticsStack.peek();
+        if(!(id.isVariable() || id.isConstant() || id.isFunctionResult() || id.isArray())){
+            throw new Error("TYPE MISMATCH on LINE x");
+        }
+        paramCount.push((paramCount.pop()) + 1);
+        RoutineEntry rout = getRoutine();
+
+        if(rout.getName() != null && !(rout.getName().equals("READ") || rout.getName().equals("WRITE"))){
+            if(paramCount.peek() > rout.getNumOfParam()){ throw new Error("Incorrect Number of Parameters"); }
+            ParameterInfo paramInfo = nextParam.nextParam();
+            ensureParamType(id.getType(), paramInfo.getType());
+            if(paramInfo.isArray()){ ensureArrayBounds(paramInfo); }
+            nextParam.increment();
+        }
+    }
+
+    /**
+     * for action 37
+     */
+    private void ensureParamType(TokenType type1, TokenType type2){
+        if(type1 == TokenType.INTCONSTANT){ type1 = TokenType.INTEGER; }
+        else if(type1 == TokenType.REALCONSTANT){ type1 = TokenType.REAL; }
+        /* adjust type 2 */
+        if(type2 == TokenType.INTCONSTANT){ type2 = TokenType.INTEGER; }
+        else if(type2 == TokenType.REALCONSTANT){ type2 = TokenType.REAL; }
+
+        /* check if the same type */
+        if(!(type1 == type2)){ throw new Error("Parameter Type Mismatch on Line: "); }
+    }
+
+    /**
+     * for action 37
+     */
+    private void ensureArrayBounds(ParameterInfo info){
+        ArrayEntry arry = getArray();
+        if(arry.getLowerBound() != info.getLB()){ throw new Error("Bad array lower bound on line: "); }
+        if(arry.getUpperBound() != info.getUB()){ throw new Error("Bad array upper bound on line: "); }
+    }
+
+
+    /**
+     * for action 37
+     */
+    private ArrayEntry getArray(){
+        Object[] semanticArray = semanticsStack.toArray();
+        ArrayEntry entry = null;
+        for(Object obj : semanticArray){
+            if(obj instanceof ArrayEntry){
+                entry = (ArrayEntry) obj;
+                break;
+            }
+        }
+        return entry;
     }
 
     /**
@@ -711,12 +916,8 @@ public class SemanticActions {
                 ArrayList<Integer> eFALSE = (ArrayList<Integer>) semanticsStack.pop();
                 /* pop E(1) TRUE */
                 semanticsStack.pop();
-
-                ArrayList<Integer> eTRUE3 = eTRUE2; // TODO: REDUNDANT
-                ArrayList<Integer> eFALSE3 = merge(eFALSE, eFALSE2);
-
-                semanticsStack.push(eTRUE3);
-                semanticsStack.push(eFALSE3);
+                semanticsStack.push(eTRUE2);
+                semanticsStack.push(merge(eFALSE, eFALSE2));
                 semanticsStack.push(ETYPE.RELATIONAL);
             }
         }
@@ -785,23 +986,170 @@ public class SemanticActions {
     }
 
     /**
+     * action_49
+     */
+    private void action_49(Token token){
+        ETYPE eTYPE = (ETYPE) semanticsStack.pop();
+        isArithmetic(eTYPE, token.getLineNum());
+        SymbolTableEntry id = (SymbolTableEntry) semanticsStack.peek();
+        semanticsStack.push(eTYPE);
+
+        if(!(id.isFunction())){ throw new Error("Type mismatch on line: "); }
+
+        paramCount.push(0);
+        FunctionEntry func = (FunctionEntry) id;
+        nextParam.push(func.getParamInfo());
+    }
+
+    /**
+     * action_50
+     */
+    private void action_50(Token token) {
+        if(semanticsStack.peek() instanceof SymbolTableEntry) {
+            Stack<SymbolTableEntry> inverseStack = eachEntryFromBottomToTop();
+
+            while (!(inverseStack.isEmpty())) {
+                SymbolTableEntry entry = inverseStack.pop();
+                generate("param", entry);
+                localMem++;
+            }
+            int numOfParam = paramCount.pop();
+            /* pop ETYPE */
+            semanticsStack.pop();
+            SymbolTableEntry entry = (SymbolTableEntry) semanticsStack.pop();
+
+
+            if (numOfParam > ((FunctionEntry) entry).getNumOfParam()) {
+                throw new Error("Wrong number of parameters");
+            }
+            generate("call", entry, numOfParam);
+            nextParam.pop();
+            SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, entry.getType());
+            tempCount++;
+
+            generate("move", ((FunctionEntry) entry).getResult(), $$TEMP);
+            semanticsStack.push($$TEMP);
+            semanticsStack.push(ETYPE.ARITHMETIC);
+        }
+    }
+
+    /**
+     * action_51
+     */
+    private void action_51(Token token){
+        RoutineEntry rout = getRoutine();
+        if(rout == null){ throw new Error("ERROR ROUTINE NULL - NO SUCH Func or proc"); }
+
+        if(rout.getName() != null && rout.getName().equals("READ")){ readSA51(token); }
+        else if(rout.getName() != null && rout.getName().equals("WRITE")){ writeSA51(token); }
+        else{
+            if(paramCount.peek() != rout.getParamInfo().size()){ throw new Error("INCORRECT NUMBER OF PARAMETERS"); }
+
+            Stack<SymbolTableEntry> container = eachEntryFromBottomToTop();
+            while(!container.isEmpty()){
+                SymbolTableEntry param = container.pop();
+                generate("param", param);
+                localMem++;
+            }
+            generate("call", rout, paramCount.pop());
+            nextParam.pop();
+            if(semanticsStack.peek() instanceof ETYPE){ semanticsStack.pop(); }
+            semanticsStack.pop();
+        }
+    }
+
+    /**
+     * for action 51
+     */
+    private Stack<SymbolTableEntry> eachEntryFromBottomToTop() {
+        Stack<SymbolTableEntry> container = new Stack<>();
+        SymbolTableEntry id;
+        while ((!semanticsStack.isEmpty()) && semanticsStack.peek() instanceof SymbolTableEntry) {
+            id = (SymbolTableEntry) semanticsStack.peek();
+            container.push(id);
+            semanticsStack.pop();
+        }
+        return container;
+    }
+
+    /**
+     * for action 51
+     */
+    private RoutineEntry getRoutine(){
+        Object[] semanticArray = semanticsStack.toArray();
+        RoutineEntry rout = null;
+
+        for(Object obj : semanticArray){
+            if(obj instanceof RoutineEntry){
+                rout = (RoutineEntry) obj;
+                break;
+            }
+        }
+        return rout;
+    }
+
+    /**
+     * for action 51
+     */
+    private void generate(String tviCode, SymbolTableEntry operand1, int operand2){
+        String op1 = toAddress(tviCode, operand1);
+        String[] quadrpl = {tviCode, op1, String.valueOf(operand2), null};
+        quads.addQuad(quadrpl);
+    }
+
+    /**
+     * for action 51
+     */
+    private void writeSA51(Token token){
+        Stack<SymbolTableEntry> entryStack = eachEntryFromBottomToTop();
+        while(!entryStack.isEmpty()){
+            SymbolTableEntry entry = entryStack.pop();
+            generate("print", "\"" + entry.getName() + " = " + "\"");
+            if(entry.getType() == TokenType.REAL){ generate("foutp", lookupEntry(entry.getName())); }
+            else{ generate("outp", entry); }
+
+            generate("newl");
+        }
+        paramCount.pop();
+        if(semanticsStack.peek() instanceof ETYPE){ semanticsStack.pop(); }
+        semanticsStack.pop();
+
+    }
+
+    /**
+     * for action 51
+     */
+    private void readSA51(Token token){
+        Stack<SymbolTableEntry> entryStack = eachEntryFromBottomToTop();
+        while(!entryStack.isEmpty()){
+            SymbolTableEntry entry = entryStack.pop();
+            generate("print", "\"Enter Value: \"");
+            if(entry.getType() == TokenType.REAL){ generate("finp", lookupEntry(entry.getName())); }
+            else{ generate("inp", entry); }
+        }
+        paramCount.pop();
+        if(semanticsStack.peek() instanceof ETYPE){ semanticsStack.pop(); }
+        semanticsStack.pop();
+
+    }
+
+    /**
      * action_52
      */
     private void action_52(Token token){
-        ETYPE eTYPE = (ETYPE) semanticsStack.pop();
+        /* pop ETYPE */
+        semanticsStack.pop();
         SymbolTableEntry id = (SymbolTableEntry) semanticsStack.pop();
 
-        if(!id.isFunction()){
-            // throw error
-            throw new Error("ERROR");
-        }
+        if(!id.isFunction()){ throw new Error("ERROR TYPE MISTMATCH ON LINE "); }
+
         FunctionEntry func = (FunctionEntry) id;
-        if(func.getNumOfParam() > 0){
-            throw new Error("ERROR");
-        }
-        //generate("call", id, 0);
-        SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, id.getType());
-        semanticsStack.push($$TEMP1);
+        if(func.getNumOfParam() > 0){ throw new Error("ERROR WRONG NUMBER OF PARAMETERS "); }
+
+        generate("call", func, 0);
+        SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, id.getType());
+        generate("move", func.getResult(), $$TEMP);
+        semanticsStack.push($$TEMP);
         semanticsStack.push(ETYPE.ARITHMETIC);
     }
 
@@ -1104,7 +1452,7 @@ public class SemanticActions {
      */
     private void storeArray(ConstantEntry UB, ConstantEntry LB, int MEM_SIZE, TokenType TYP){
         /*  For each id on the semantic stack  */
-        while(!semanticsStack.isEmpty()){ // TODO: maybe use the new pseudo code? is identifier?
+        while((!semanticsStack.isEmpty()) && semanticsStack.peek() instanceof Token){ // TODO: maybe use the new pseudo code? is identifier?
             Token ID = (Token) semanticsStack.pop();
 
             /* if GLOBAL/LOCAL = GLOBAL (store in global memory) */
@@ -1130,7 +1478,7 @@ public class SemanticActions {
      */
     private void storeVariable(TokenType TYP){
         /*  For each id on the semantic stack  */
-        while(!semanticsStack.isEmpty()){ // TODO: maybe use the new pseudo code? is identifier?
+        while((!semanticsStack.isEmpty()) && semanticsStack.peek() instanceof Token){ // TODO: maybe use the new pseudo code? is identifier?
             Token ID = (Token) semanticsStack.pop();
 
             /* if GLOBAL/LOCAL = GLOBAL (store in global memory) */
@@ -1243,7 +1591,9 @@ public class SemanticActions {
      */
     private SymbolTableEntry lookupEntry(String name){
         if(global){ return globalTable.lookup(name.toUpperCase()); }
-        return localTable.lookup(name.toUpperCase());
+        SymbolTableEntry entry = localTable.lookup(name.toUpperCase());
+        if(entry == null){ return globalTable.lookup(name.toUpperCase()); }
+        else{ return entry; }
     }
 
     /**
@@ -1264,6 +1614,26 @@ public class SemanticActions {
         ProcedureEntry entry = new ProcedureEntry(token.getValue(), 0, new LinkedList<ParameterInfo>());
         entry.setToReserved();
         insertToGlobal(entry, token.getLineNum());
+    }
+
+    /**
+     * storeArraySA22
+     */
+    private void storeArraySA22(String name, int lower, int upper, int address, TokenType type, int lineNumber){
+        ArrayEntry arry = new ArrayEntry(name, address, type, upper, lower, true);
+        if(global){ insertToGlobal(arry, lineNumber); }
+        else{ insertToLocal(arry, lineNumber); }
+        this.localMem++; // ??
+    }
+
+    /**
+     * storeVarSA22
+     */
+    private void storeVarSA22(String name, TokenType type, int address, int lineNumber){
+        VariableEntry var = new VariableEntry(name, address, type, true);
+        if(global){ insertToGlobal(var, lineNumber);}
+        else{ insertToLocal(var, lineNumber); }
+        this.localMem++; // ??
     }
 
     /**
@@ -1413,6 +1783,15 @@ public class SemanticActions {
         quads.addQuad(quadrpl);
     }
 
+    /**
+     * generate for 5
+     */
+    private void generate(String tviCode, SymbolTableEntry operand){
+        String op = toAddress(tviCode, operand);
+        String[] quadrpl = {tviCode, op, null, null};
+        quads.addQuad(quadrpl);
+    }
+
     /*  -----------  End of GEN  ------------ */
 
 
@@ -1436,6 +1815,18 @@ public class SemanticActions {
         insertToGlobal($$NAME);
         globalMem++;
         return $$NAME;
+    }
+
+    /**
+     * createFunResult: creates a function result
+     * @param name:
+     * @param type:
+     */
+    private VariableEntry createFunResult(String name, TokenType type) throws SymbolTableError, SemanticError{
+        VariableEntry $$FRESULT = new VariableEntry(name, -globalMem, type);
+        insertToGlobal($$FRESULT);
+        globalMem++;
+        return $$FRESULT;
     }
 
     /**
@@ -1511,6 +1902,9 @@ public class SemanticActions {
             case "ADD":
                 return "add";
 
+            case "DIV":
+                return "div";
+
             case "DIVIDE":
                 return "div";
 
@@ -1539,7 +1933,7 @@ public class SemanticActions {
                 return "bne";
 
             default:
-                return null;
+                return "";
         }
     }
 

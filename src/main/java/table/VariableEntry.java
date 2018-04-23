@@ -65,6 +65,21 @@ public class VariableEntry extends SymbolTableEntry{
     }
 
     /**
+     * VariableEntry constructor
+     * @param name: the String name of the entry
+     * @param address: the address in memory of the variable
+     * @param tokenType: the type of variable
+     * @param isParam: boolean indicating if parameter
+     *
+     */
+    public VariableEntry(String name, int address, TokenType tokenType, boolean isParam){
+        super(name, tokenType);
+        this.address = address;
+        this.isParam = isParam;
+        this.isFuncResult = false;
+    }
+
+    /**
      * getAddress: getter method for the address
      * @return the address of the variable
      */

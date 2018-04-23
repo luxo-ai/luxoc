@@ -1,56 +1,72 @@
-Program reltest (input,output);
+Program theUltimateTest (input,output);
+{
+    This file contains a version of ult.pas with errors removed
+}
+
 Var
-  h,i,j,k,l:integer;
-  m,o : array[1..5] of integer;
-  n : array[0..4] of real;
-  s,t,u,v,x : real;
+  h,z,i,x,y : integer;
+  w : array [1..5] of integer;
+  rl : real;
+
+function gcd (a, b : integer) : result integer;
+var x : integer;
+begin
+  write(a,b);
+  if (b <= 0) then gcd := a
+  else begin
+    x := a;
+    while (x >= b) do
+    begin
+      x := x - b
+    end;
+    gcd := gcd(b,x)
+  end
+end
+
+procedure this (why : integer; note : real);
+begin
+  { The comparison checks how you handle arithmetic
+    and comparisons with mixed type numbers  }
+  if ((why = note - 1608) or (not (note = why)))
+  then if (x - y = 0)
+  then begin
+    w[i] := why div 5
+  end
+end
+
+procedure that;
+var h : integer;
+  z : real;
+begin
+  h := 1;
+  z := 7.43;
+  x := y{;}
+  {this(h,z)}
+end
 
 begin
-
-  h := -1;
-  i := 0;
-  j := 1;
-  k := 2;
-  l := 3;
-
-
-  h := h * (-1) + 3;
-
-  s := -1.1;
-  t := 1.1;
-  u := 2.1;
-  v := 3.1;
-  x := 4.1;
-
-  o[1] := 1;
-  o[2] := 2;
-  o[3] := 3;
-  o[4] := 4;
-  o[5] := 5;
-
-  m[i+1] := h;
-  m[k] := i;
-  m[l] := j;
-  m[h] := k;
-  m[j+h] := l;
-
-  n[h] := s;
-  n[i] := t;
-  n[j] := u;
-  n[k] := v;
-  n[l] := x;
-
-
-  while j < 6 do
+  i := 1;
+  x := 5;
+  While (I <= 5) and (x <= 75) do
   begin
-    j := j +1
-
-  end;
-
-
-  while (((i <= h) or (m[5] > 8)) and (o[1] < 35)) do
-  begin
+    w [i] := x;
+    w[x] := w[i] * 20;
     i := i + 1
-  end
-
+  end;
+  read (x,y);
+  write(x,y);
+  if x>y then write (gcd(x, y)) else write (gcd (h,z));
+  w[x] := 6758;
+  rl := 23e10;
+  write(w[x]);
+  {this (gcd(x,y),rl);}
+  {this (w[x],rl);}
+  that;
+  i := 1;
+  while (i <= 5) do
+  begin
+    write(w[i]);
+    i := i + 1
+  end;
+  write(h,i,x,y,z)
 end.
