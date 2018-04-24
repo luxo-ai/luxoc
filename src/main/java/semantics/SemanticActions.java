@@ -1452,7 +1452,7 @@ public class SemanticActions {
      */
     private void storeArray(ConstantEntry UB, ConstantEntry LB, int MEM_SIZE, TokenType TYP){
         /*  For each id on the semantic stack  */
-        while((!semanticsStack.isEmpty()) && semanticsStack.peek() instanceof Token){ // TODO: maybe use the new pseudo code? is identifier?
+        while((!semanticsStack.isEmpty()) && (semanticsStack.peek() instanceof Token)){ // TODO: maybe use the new pseudo code? is identifier?
             Token ID = (Token) semanticsStack.pop();
 
             /* if GLOBAL/LOCAL = GLOBAL (store in global memory) */
@@ -1478,7 +1478,7 @@ public class SemanticActions {
      */
     private void storeVariable(TokenType TYP){
         /*  For each id on the semantic stack  */
-        while((!semanticsStack.isEmpty()) && semanticsStack.peek() instanceof Token){ // TODO: maybe use the new pseudo code? is identifier?
+        while((!semanticsStack.isEmpty()) && (semanticsStack.peek() instanceof Token)){ // TODO: maybe use the new pseudo code? is identifier?
             Token ID = (Token) semanticsStack.pop();
 
             /* if GLOBAL/LOCAL = GLOBAL (store in global memory) */
