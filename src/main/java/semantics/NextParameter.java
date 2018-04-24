@@ -1,11 +1,19 @@
+/*
+ * File: NextParameter.java
+ * Desc: stack of parameter list pointers
+ */
+
 package main.java.semantics;
 
 import main.java.table.ParameterInfo;
-
 import java.util.LinkedList;
 import java.util.Stack;
 
 
+/**
+ * NextParameter class
+ * @author Luis Serazo
+ */
 public class NextParameter{
 
     private Stack<LinkedList<ParameterInfo>> paramLists;

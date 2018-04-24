@@ -21,7 +21,6 @@ public class SymbolTableEntry implements TableEntryInterface{
 
     /* metdata */
     private boolean reserved;
-
     /* string component */
     private String name;
     /* token component */
@@ -59,6 +58,12 @@ public class SymbolTableEntry implements TableEntryInterface{
      * @return the Token Type of this entry.
      */
     public TokenType getType(){ return this.tokenType; }
+
+    /**
+     * setType: setter method for the Type of the entry.
+     * @param newType: the updated type of the SymbolTableEntry.
+     */
+    public void setType(TokenType newType){ this.tokenType = newType; }
 
     /**
      * nameToUpperCase: sets the name to upper case

@@ -14,10 +14,8 @@ import java.util.LinkedList;
  * FunctionEntry class
  * @author Luis Serazo
  */
-public class FunctionEntry extends SymbolTableEntry{
+public class FunctionEntry extends RoutineEntry {
 
-    private int numOfParameters;
-    private LinkedList parameterInfo;
     private VariableEntry result;
 
     /**
@@ -28,9 +26,7 @@ public class FunctionEntry extends SymbolTableEntry{
      * @param result: a variable entry
      */
     public FunctionEntry(String name, int numOfParameters, LinkedList<ParameterInfo> parameterInfo, VariableEntry result){
-        super(name, TokenType.FUNCTION);
-        this.numOfParameters = numOfParameters;
-        this.parameterInfo = parameterInfo;
+        super(name, TokenType.FUNCTION, numOfParameters, parameterInfo);
         this.result = result;
     }
 
@@ -38,13 +34,15 @@ public class FunctionEntry extends SymbolTableEntry{
      * getNumParam: getter method for the number of parameters
      * @return the number of parameters
      */
-    public int getNumOfParam(){ return this.numOfParameters; }
+    public int getNumOfParam(){ return super.getNumOfParam(); }
+
 
     /**
      * getParamInfo: getter method for the parameter information
      * @return the parameter information
      */
-    public LinkedList getParamInfo(){ return this.parameterInfo; }
+    public LinkedList<ParameterInfo> getParamInfo(){ return super.getParamInfo(); }
+
 
     /**
      * getResult: variable entry for the result

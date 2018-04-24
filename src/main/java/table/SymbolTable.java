@@ -63,6 +63,12 @@ public class SymbolTable{
     public int size(){ return table.size(); }
 
     /**
+     * delete: clears all entries in the symbol table.
+     * Used in Semantic Action Phase 4.
+     */
+    public void delete(){ this.table.clear(); }
+
+    /**
      * dumpTable: routine prints the symbol table contents
      */
     public void dumpTable(){
