@@ -191,27 +191,27 @@ public class SemanticActions {
         // 23
         this.actions[22] = new Action(){ @Override public void run(Token token) { throw SemanticError.NoSuchAction(23); } };
         // 24
-        this.actions[23] = new Action(){ @Override public void run(Token token){ action_24(token); } };
+        this.actions[23] = new Action(){ @Override public void run(Token token) { action_24(token); } };
         // 25
-        this.actions[24] = new Action(){ @Override public void run(Token token){ action_25(token); } };
+        this.actions[24] = new Action(){ @Override public void run(Token token) { action_25(token); } };
         // 26
-        this.actions[25] = new Action(){ @Override public void run(Token token){ action_26(token); } };
+        this.actions[25] = new Action(){ @Override public void run(Token token) { action_26(token); } };
         // 27
-        this.actions[26] = new Action(){ @Override public void run(Token token){ action_27(token); } };
+        this.actions[26] = new Action(){ @Override public void run(Token token) { action_27(token); } };
         // 28
-        this.actions[27] = new Action(){ @Override public void run(Token token){ action_28(token); } };
+        this.actions[27] = new Action(){ @Override public void run(Token token) { action_28(token); } };
         // 29
-        this.actions[28] = new Action(){ @Override public void run(Token token){ action_29(token); } };
+        this.actions[28] = new Action(){ @Override public void run(Token token) { action_29(token); } };
         // 30
         this.actions[29] = new Action(){ @Override public void run(Token token) { action_30(token); } };
         // 31
         this.actions[30] = new Action(){ @Override public void run(Token token) { action_31(token); } };
         // 32
-        this.actions[31] = new Action(){ @Override public void run(Token token){ action_32(token); } };
+        this.actions[31] = new Action(){ @Override public void run(Token token) { action_32(token); } };
         // 33
-        this.actions[32] = new Action(){ @Override public void run(Token token){ action_33(token); } };
+        this.actions[32] = new Action(){ @Override public void run(Token token) { action_33(token); } };
         // 34
-        this.actions[33] = new Action(){ @Override public void run(Token token){ action_34(token); } };
+        this.actions[33] = new Action(){ @Override public void run(Token token) { action_34(token); } };
         // 35
         this.actions[34] = new Action(){ @Override public void run(Token token) { action_35(token); } };
         // 36
@@ -219,9 +219,9 @@ public class SemanticActions {
         // 37
         this.actions[36] = new Action(){ @Override public void run(Token token) { action_37(token); } };
         // 38
-        this.actions[37] = new Action(){ @Override public void run(Token token){ action_38(token); } };
+        this.actions[37] = new Action(){ @Override public void run(Token token) { action_38(token); } };
         // 39
-        this.actions[38] = new Action(){ @Override public void run(Token token){ action_39(token); } };
+        this.actions[38] = new Action(){ @Override public void run(Token token) { action_39(token); } };
         // 40
         this.actions[39] = new Action(){ @Override public void run(Token token) { action_40(token); } };
         // 41
@@ -237,7 +237,7 @@ public class SemanticActions {
         // 46
         this.actions[45] = new Action(){ @Override public void run(Token token) { action_46(token); } };
         // 47
-        this.actions[46] = new Action(){ @Override public void run(Token token){ action_47(token);} };
+        this.actions[46] = new Action(){ @Override public void run(Token token) { action_47(token);} };
         // 48
         this.actions[47] = new Action(){ @Override public void run(Token token) { action_48(token); } };
         // 49
