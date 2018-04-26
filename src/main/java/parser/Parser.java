@@ -99,7 +99,7 @@ public class Parser {
      * debugMode: sets the debug mode to true
      */
     public void debugMode(){
-        this.debug = true;
+        //this.debug = true;
         semActions.debugMode();
     }
 

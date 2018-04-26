@@ -17,29 +17,29 @@ import java.util.Stack;
 public class NextParameter{
 
     private Stack<LinkedList<ParameterInfo>> paramLists;
-    private Stack<Integer> paramPointers;
+    int currentParam;
 
     NextParameter(){
         paramLists = new Stack<>();
-        paramPointers = new Stack<>();
+        currentParam = 0;
     }
 
-    public LinkedList<ParameterInfo> pop(){
-        paramPointers.pop();
+    LinkedList<ParameterInfo> pop(){
+        currentParam = 0;
         return paramLists.pop();
     }
 
-    public void push(LinkedList<ParameterInfo> paramList){
+    void push(LinkedList<ParameterInfo> paramList){
         paramLists.push(paramList);
-        paramPointers.push(0);
     }
 
-    public ParameterInfo nextParam(){
-        return paramLists.peek().get(paramPointers.peek());
+    ParameterInfo nextParam(){
+        ParameterInfo paramInfo = paramLists.peek().get(currentParam);
+        currentParam++;
+        return paramInfo;
     }
 
-    public void increment(){
-        paramPointers.push((paramPointers.pop()) + 1);
+    ParameterInfo getParamAt(int i){
+        return paramLists.peek().get(i);
     }
-
 }

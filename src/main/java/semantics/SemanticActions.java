@@ -3,12 +3,6 @@
  *
  * Desc: contains the semantic actions of the compiler.
  *
- * - Semantic Actions 1 [x]
- * - Semantic Actions 2 [x]
- * - Semantic Actions 3 [ ]
- *
- * Sem 1: actions 1, 2, 3, 4, 6, 7, 9, 13.
- * Sem 2: actions 55, 56, 30, 31, 40, 41, 42, 43, 44, 45, 46, and 48.
  */
 package main.java.semantics;
 
@@ -104,6 +98,7 @@ public class SemanticActions {
     private ArrayList<Integer> skipElse;
     private Integer beginLoop;
     private NextParameter nextParam = new NextParameter();
+   // private Stack<LinkedList<ParameterInfo>> nextParam;
 
 
     /**
@@ -164,19 +159,19 @@ public class SemanticActions {
         // 7
         this.actions[6] = new Action(){ @Override public void run(Token token) { action_7(token); } };
         // 8
-        this.actions[7] = new Action(){ @Override public void run(Token token) { throw new Error("Action Not In Grammar"); } };
+        this.actions[7] = new Action(){ @Override public void run(Token token) { throw SemanticError.NoSuchAction(8); } };
         // 9
         this.actions[8] = new Action(){ @Override public void run(Token token) { action_9(token); } };
         // 10
-        this.actions[9] = new Action(){ @Override public void run(Token token) { throw new Error("Action Not In Grammar"); } };
+        this.actions[9] = new Action(){ @Override public void run(Token token) { throw SemanticError.NoSuchAction(10); } };
         // 11
         this.actions[10] = new Action(){ @Override public void run(Token token) { action_11(token); } };
         // 12
-        this.actions[11] = new Action(){ @Override public void run(Token token) { throw new Error("Action Not In Grammar"); } };
+        this.actions[11] = new Action(){ @Override public void run(Token token) { throw SemanticError.NoSuchAction(12); } };
         // 13
         this.actions[12] = new Action(){ @Override public void run(Token token) { action_13(token); } };
         // 14
-        this.actions[13] = new Action(){ @Override public void run(Token token) { throw new Error("Action Not In Grammar"); } };
+        this.actions[13] = new Action(){ @Override public void run(Token token) { throw SemanticError.NoSuchAction(14); } };
         // 15
         this.actions[14] = new Action(){ @Override public void run(Token token) { action_15(token); } };
         // 16
@@ -184,7 +179,7 @@ public class SemanticActions {
         // 17
         this.actions[16] = new Action(){ @Override public void run(Token token) { action_17(token); } };
         // 18
-        this.actions[17] = new Action(){ @Override public void run(Token token) { throw new Error("Action Not In Grammar"); } };
+        this.actions[17] = new Action(){ @Override public void run(Token token) { throw SemanticError.NoSuchAction(18); } };
         // 19
         this.actions[18] = new Action(){ @Override public void run(Token token) { action_19(token); } };
         // 20
@@ -194,7 +189,7 @@ public class SemanticActions {
         // 22
         this.actions[21] = new Action(){ @Override public void run(Token token){ action_22(token); } };
         // 23
-        this.actions[22] = new Action(){ @Override public void run(Token token) { throw new Error("Action Not In Grammar"); } };
+        this.actions[22] = new Action(){ @Override public void run(Token token) { throw SemanticError.NoSuchAction(23); } };
         // 24
         this.actions[23] = new Action(){ @Override public void run(Token token){ action_24(token); } };
         // 25
@@ -262,9 +257,9 @@ public class SemanticActions {
         // 56
         this.actions[55] = new Action(){ @Override public void run(Token token) { action_56(token); } };
         // 57
-        this.actions[56] = new Action(){ @Override public void run(Token token) { throw new Error("Action Not In Grammar"); } };
+        this.actions[56] = new Action(){ @Override public void run(Token token) { throw SemanticError.NoSuchAction(57); } };
         // 58
-        this.actions[57] = new Action(){ @Override public void run(Token token) { throw new Error("Action Not In Grammar"); } };
+        this.actions[57] = new Action(){ @Override public void run(Token token) { throw SemanticError.NoSuchAction(58); } };
     } // end of INIT
 
     /**
@@ -278,7 +273,7 @@ public class SemanticActions {
     public void execute(int actionID, Token token) throws SemanticError, SymbolTableError{
         try{
             this.actions[actionID - 1].run(token);
-            if(debug){ semanticStackDump(); }
+            if(debug){ semanticStackDump(""+actionID); }
         }
         catch (ArrayIndexOutOfBoundsException ex){ throw SemanticError.ActionDoesNotExist(actionID); }
     }
@@ -289,6 +284,8 @@ public class SemanticActions {
     /**
      * action_1
      * @param token: the Token in question.
+     * Inserting into symbol table
+     *
      */
     private void action_1(Token token){
         /* INSERT/SEARCH = INSERT */
@@ -298,6 +295,7 @@ public class SemanticActions {
     /**
      * action_2
      * @param token: the Token in question.
+     * No longer inserting into symbol table
      */
     private void action_2(Token token){
         /* INSERT/SEARCH = SEARCH */
@@ -330,6 +328,7 @@ public class SemanticActions {
     /**
      * action_4
      * @param token: the Token in question.
+     * Push declarations of same type. i.e: var i,x,y: integer
      */
     private void action_4(Token token){
         /* push TYPE through the full Token */
@@ -470,8 +469,10 @@ public class SemanticActions {
 
     /**
      * action_21
+     * For same type
      */
     private void action_21(Token token){
+        semanticStackDump();
         int lower = -1,upper = -1;
         int numOfParam = paramCount.pop();
 
@@ -484,9 +485,8 @@ public class SemanticActions {
         }
 
         LinkedList<ParameterInfo> paramList = new LinkedList<>();
-        if(semanticsStack.peek() instanceof Token){
-            Token id = (Token) semanticsStack.peek();
-            while(id.getTokenType() == TokenType.IDENTIFIER){
+            while(semanticsStack.peek() instanceof Token && (((Token) semanticsStack.peek()).getTokenType() == TokenType.IDENTIFIER)){
+                Token id = (Token) semanticsStack.pop();
                 ParameterInfo paramInfo = new ParameterInfo(id.getValue(), type);
 
                 if(this.array){ storeArraySA22(id.getValue(), lower, upper, localMem, type, token.getLineNum()); }
@@ -494,16 +494,12 @@ public class SemanticActions {
 
                 numOfParam++;
                 paramList.add(paramInfo);
-                semanticsStack.pop();
-
-                if(semanticsStack.peek() instanceof Token){ id = (Token) semanticsStack.peek(); }
-                else{ break; }
             }
             this.array = false;
-        }
+
         if(semanticsStack.peek() instanceof RoutineEntry){
             RoutineEntry rout = (RoutineEntry) semanticsStack.peek();
-            rout.setParamInfo(paramList);
+            rout.appendParamInfo(paramList);
         }
         paramCount.push(numOfParam);
 
@@ -514,8 +510,7 @@ public class SemanticActions {
      */
     private void action_22(Token token){
         ETYPE eTYPE = (ETYPE) semanticsStack.pop();
-        System.out.println(token);
-        System.out.println(lexer.getPrevToken());
+
         isRelational(eTYPE, token.getLineNum());
 
         ArrayList<Integer> eFALSE = (ArrayList<Integer>) semanticsStack.pop();
@@ -681,9 +676,10 @@ public class SemanticActions {
         if(semanticsStack.peek() instanceof ETYPE){ semanticsStack.pop(); }
         ProcedureEntry proc = (ProcedureEntry) semanticsStack.pop();
 
-        if(proc.getNumOfParam() != 0){ throw new Error("Wrong Number of Parameters. Proceedure Should have 0 Parameters."); }
+        if(proc.getNumOfParam() != 0){ throw SemanticError.WrongNumberOfParameters(proc.getName(), token.getLineNum()); }
         generate("call", proc, 0);
     }
+
 
     /**
      * action_37
@@ -695,24 +691,27 @@ public class SemanticActions {
 
         SymbolTableEntry id = (SymbolTableEntry) semanticsStack.peek();
         if(!(id.isVariable() || id.isConstant() || id.isFunctionResult() || id.isArray())){
-            throw new Error("TYPE MISMATCH on LINE x");
+            throw SemanticError.InvalidParameter(id.getName(), token.getLineNum());
         }
         paramCount.push((paramCount.pop()) + 1);
         RoutineEntry rout = getRoutine();
+        if(rout == null){ throw SemanticError.RoutineNotFound(token.getLineNum()); }
 
         if(rout.getName() != null && !(rout.getName().equals("READ") || rout.getName().equals("WRITE"))){
-            if(paramCount.peek() > rout.getNumOfParam()){ throw new Error("Incorrect Number of Parameters"); }
+            if(paramCount.peek() > rout.getNumOfParam()){ throw SemanticError.WrongNumberOfParameters(rout.getName(), token.getLineNum()); }
             ParameterInfo paramInfo = nextParam.nextParam();
-            ensureParamType(id.getType(), paramInfo.getType());
-            if(paramInfo.isArray()){ ensureArrayBounds(paramInfo); }
-            nextParam.increment();
+            ensureParamType(id.getType(), paramInfo.getType(), token.getLineNum());
+            if(paramInfo.isArray()){ ensureArrayBounds(paramInfo, token.getLineNum()); }
+            // nextParam.increment();
         }
     }
 
     /**
      * for action 37
      */
-    private void ensureParamType(TokenType type1, TokenType type2){
+    private void ensureParamType(TokenType type1, TokenType type2, int lineNumber){
+        System.out.println(type1);
+        System.out.println(type2);
         if(type1 == TokenType.INTCONSTANT){ type1 = TokenType.INTEGER; }
         else if(type1 == TokenType.REALCONSTANT){ type1 = TokenType.REAL; }
         /* adjust type 2 */
@@ -720,16 +719,18 @@ public class SemanticActions {
         else if(type2 == TokenType.REALCONSTANT){ type2 = TokenType.REAL; }
 
         /* check if the same type */
-        if(!(type1 == type2)){ throw new Error("Parameter Type Mismatch on Line: "); }
+        if(!(type1 == type2)){ throw SemanticError.ParameterTypeMismatch(type1, type2, lineNumber); }
     }
 
     /**
      * for action 37
      */
-    private void ensureArrayBounds(ParameterInfo info){
+    private void ensureArrayBounds(ParameterInfo info, int lineNumber){
         ArrayEntry arry = getArray();
-        if(arry.getLowerBound() != info.getLB()){ throw new Error("Bad array lower bound on line: "); }
-        if(arry.getUpperBound() != info.getUB()){ throw new Error("Bad array upper bound on line: "); }
+        if(arry == null){ throw SemanticError.RoutineNotFound(lineNumber); }
+
+        if(arry.getLowerBound() != info.getLB()){ throw SemanticError.InvalidArrayBound(false, lineNumber); }
+        if(arry.getUpperBound() != info.getUB()){ throw SemanticError.InvalidArrayBound(true, lineNumber); }
     }
 
 
@@ -772,16 +773,17 @@ public class SemanticActions {
         switch(typeCheck(id1, id2)){
             case 0:
             case 1:
+                System.out.println(opToString(operator));
                 generate(opToString(operator), id1, id2, "_");
                 break;
             case 2:
-                $$TEMP = create("$$TEMP" + tempCount, TokenType.REAL);
+                $$TEMP = create("$$TEMP" + tempCount, TokenType.REAL, global);
                 tempCount++;
                 generate("ltof", id2, $$TEMP);
                 generate(opToString(operator), id1, $$TEMP, "_");
                 break;
             case 3:
-                $$TEMP = create("$$TEMP" + tempCount, TokenType.REAL);
+                $$TEMP = create("$$TEMP" + tempCount, TokenType.REAL, global);
                 tempCount++;
                 generate("ltof", id1, $$TEMP);
                 generate(opToString(operator), $$TEMP, id2, "_");
@@ -994,7 +996,7 @@ public class SemanticActions {
         SymbolTableEntry id = (SymbolTableEntry) semanticsStack.peek();
         semanticsStack.push(eTYPE);
 
-        if(!(id.isFunction())){ throw new Error("Type mismatch on line: "); }
+        if(!(id.isFunction())){ throw SemanticError.TypeMismatch(token.getLineNum()); }
 
         paramCount.push(0);
         FunctionEntry func = (FunctionEntry) id;
@@ -1006,13 +1008,15 @@ public class SemanticActions {
      */
     private void action_50(Token token) {
         if(semanticsStack.peek() instanceof SymbolTableEntry) {
-            Stack<SymbolTableEntry> inverseStack = eachEntryFromBottomToTop();
+            paramGenerationRoutine();
+           // Stack<SymbolTableEntry> inverseStack = eachEntryFromBottomToTop();
 
-            while (!(inverseStack.isEmpty())) {
-                SymbolTableEntry entry = inverseStack.pop();
-                generate("param", entry);
-                localMem++;
-            }
+           // while (!(inverseStack.isEmpty())) {
+           //     SymbolTableEntry entry = inverseStack.pop();
+           //     generate("param", entry);
+           //     localMem++;
+           //  }
+
             int numOfParam = paramCount.pop();
             /* pop ETYPE */
             semanticsStack.pop();
@@ -1020,11 +1024,11 @@ public class SemanticActions {
 
 
             if (numOfParam > ((FunctionEntry) entry).getNumOfParam()) {
-                throw new Error("Wrong number of parameters");
+                throw SemanticError.WrongNumberOfParameters(entry.getName(), token.getLineNum());
             }
             generate("call", entry, numOfParam);
             nextParam.pop();
-            SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, entry.getType());
+            SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, entry.getType(), global);
             tempCount++;
 
             generate("move", ((FunctionEntry) entry).getResult(), $$TEMP);
@@ -1034,23 +1038,42 @@ public class SemanticActions {
     }
 
     /**
+     * for action 51
+     */
+    private void paramGenerationRoutine() {
+        SymbolTableEntry id;
+        while ((!semanticsStack.isEmpty()) && semanticsStack.peek() instanceof SymbolTableEntry) {
+            id = (SymbolTableEntry) semanticsStack.pop();
+            generate("param", id);
+            localMem++;
+        }
+    }
+
+
+
+
+
+    /**
      * action_51
      */
     private void action_51(Token token){
         RoutineEntry rout = getRoutine();
-        if(rout == null){ throw new Error("ERROR ROUTINE NULL - NO SUCH Func or proc"); }
+        if(rout == null){ throw SemanticError.RoutineNotFound(token.getLineNum()); }
 
         if(rout.getName() != null && rout.getName().equals("READ")){ readSA51(token); }
         else if(rout.getName() != null && rout.getName().equals("WRITE")){ writeSA51(token); }
         else{
-            if(paramCount.peek() != rout.getParamInfo().size()){ throw new Error("INCORRECT NUMBER OF PARAMETERS"); }
-
-            Stack<SymbolTableEntry> container = eachEntryFromBottomToTop();
-            while(!container.isEmpty()){
-                SymbolTableEntry param = container.pop();
-                generate("param", param);
-                localMem++;
+            if(paramCount.peek() != rout.getParamInfo().size()){
+                throw SemanticError.WrongNumberOfParameters(rout.getName(), token.getLineNum());
             }
+
+           // Stack<SymbolTableEntry> container = eachEntryFromBottomToTop();
+           // while(!container.isEmpty()){
+           //     SymbolTableEntry param = container.pop();
+           //     generate("param", param);
+           //     localMem++;
+          //  }
+            paramGenerationRoutine();
             generate("call", rout, paramCount.pop());
             nextParam.pop();
             if(semanticsStack.peek() instanceof ETYPE){ semanticsStack.pop(); }
@@ -1147,7 +1170,7 @@ public class SemanticActions {
         if(func.getNumOfParam() > 0){ throw new Error("ERROR WRONG NUMBER OF PARAMETERS "); }
 
         generate("call", func, 0);
-        SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, id.getType());
+        SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, id.getType(), global);
         generate("move", func.getResult(), $$TEMP);
         semanticsStack.push($$TEMP);
         semanticsStack.push(ETYPE.ARITHMETIC);
@@ -1178,7 +1201,6 @@ public class SemanticActions {
     private void action_54(Token token){
         SymbolTableEntry id;
         if(semanticsStack.peek() instanceof ETYPE){
-            System.out.println("HERE!");
             ETYPE eTYPE = (ETYPE) semanticsStack.pop();
             id = (SymbolTableEntry) semanticsStack.peek();
             semanticsStack.push(eTYPE);
@@ -1236,7 +1258,7 @@ public class SemanticActions {
 
             /* id1 = REAL , id2 = INTEGER */
             case 2:
-                SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, TokenType.REAL);
+                SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, TokenType.REAL, global);
                 tempCount++;
                 /* convert id2 to a REAL and store in $$TEMP */
                 generate("ltof", id2, $$TEMP);
@@ -1268,7 +1290,7 @@ public class SemanticActions {
             /* id1 = INTEGER , id2 = INTEGER */
             case 0:
                 /* RESULT := */
-                $$TEMP = create("$$TEMP" + tempCount, TokenType.INTEGER);
+                $$TEMP = create("$$TEMP" + tempCount, TokenType.INTEGER, global);
                 tempCount++;
                 /* generate the tvi target code */
                 generate(opToString(operator), id1, id2, $$TEMP);
@@ -1279,7 +1301,7 @@ public class SemanticActions {
             /* id1 = REAL , id2 = REAL */
             case 1:
                 /* RESULT := */
-                $$TEMP = create("$$TEMP" + tempCount, TokenType.REAL);
+                $$TEMP = create("$$TEMP" + tempCount, TokenType.REAL, global);
                 tempCount++;
                 generate("f" + opToString(operator), id1, id2, $$TEMP);
                 /* push result */
@@ -1289,10 +1311,10 @@ public class SemanticActions {
             /* id1 = REAL , id2 = INTEGER */
             case 2:
                 /* TEMP1 for casting id2 to REAL */
-                $$TEMP1 = create("$$TEMP" + tempCount, TokenType.REAL);
+                $$TEMP1 = create("$$TEMP" + tempCount, TokenType.REAL, global);
                 tempCount++;
                 /* RESULT := */
-                $$TEMP2 = create("$$TEMP" + tempCount, TokenType.REAL);
+                $$TEMP2 = create("$$TEMP" + tempCount, TokenType.REAL, global);
                 tempCount++;
 
                 generate("ltof", id2, $$TEMP1);
@@ -1304,10 +1326,10 @@ public class SemanticActions {
             /* id1 = INTEGER , id2 = REAL */
             default:
                 /* TEMP1 for casting id1 to REAL */
-                $$TEMP1 = create("$$TEMP" + tempCount, TokenType.REAL);
+                $$TEMP1 = create("$$TEMP" + tempCount, TokenType.REAL, global);
                 tempCount++;
                 /* RESULT := */
-                $$TEMP2 = create("$$TEMP" + tempCount, TokenType.REAL);
+                $$TEMP2 = create("$$TEMP" + tempCount, TokenType.REAL, global);
                 tempCount++;
 
                 generate("ltof", id1, $$TEMP1);
@@ -1351,11 +1373,11 @@ public class SemanticActions {
     private void generationRoutineSA45a(SymbolTableEntry id1, Token operator, SymbolTableEntry id2){
         if (operator.getOpType() == Token.OperatorType.MOD) {
             /* */
-            SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, TokenType.INTEGER);
+            SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, TokenType.INTEGER, global);
             tempCount++;
-            SymbolTableEntry $$TEMP2 = create("$$TEMP" + tempCount, TokenType.INTEGER);
+            SymbolTableEntry $$TEMP2 = create("$$TEMP" + tempCount, TokenType.INTEGER, global);
             tempCount++;
-            SymbolTableEntry $$TEMP3 = create("$$TEMP" + tempCount, TokenType.INTEGER);
+            SymbolTableEntry $$TEMP3 = create("$$TEMP" + tempCount, TokenType.INTEGER, global);
             tempCount++;
 
             generate("div", id1, id2, $$TEMP1);
@@ -1365,11 +1387,11 @@ public class SemanticActions {
             semanticsStack.push($$TEMP3);
 
         } else if (operator.getOpType() == Token.OperatorType.DIVIDE) {
-            SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, TokenType.REAL);
+            SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, TokenType.REAL, global);
             tempCount++;
-            SymbolTableEntry $$TEMP2 = create("$$TEMP" + tempCount, TokenType.REAL);
+            SymbolTableEntry $$TEMP2 = create("$$TEMP" + tempCount, TokenType.REAL, global);
             tempCount++;
-            SymbolTableEntry $$TEMP3 = create("$$TEMP" + tempCount, TokenType.REAL);
+            SymbolTableEntry $$TEMP3 = create("$$TEMP" + tempCount, TokenType.REAL, global);
             tempCount++;
 
             generate("ltof", id1, $$TEMP1);
@@ -1380,8 +1402,11 @@ public class SemanticActions {
             semanticsStack.push($$TEMP3);
 
         } else {
-            SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, TokenType.INTEGER);
+            SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, TokenType.INTEGER, global);
             tempCount++;
+            System.out.println(id1);
+            System.out.println(id2);
+            System.out.println($$TEMP);
             generate(opToString(operator), id1, id2, $$TEMP);
             semanticsStack.push($$TEMP);
         }
@@ -1391,7 +1416,7 @@ public class SemanticActions {
      * generationRoutineSA45b: for semantic action 45
      */
     private void generationRoutineSA45b(SymbolTableEntry id1, Token operator, SymbolTableEntry id2){
-        SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, TokenType.REAL);
+        SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, TokenType.REAL, global);
         tempCount++;
         generate("f" + opToString(operator), id1, id2, $$TEMP);
         semanticsStack.push($$TEMP);
@@ -1401,9 +1426,9 @@ public class SemanticActions {
      * generationRoutineSA45c: for semantic action 45
      */
     private void generationRoutineSA45c(SymbolTableEntry id1, Token operator, SymbolTableEntry id2){
-        SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, TokenType.REAL);
+        SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, TokenType.REAL, global);
         tempCount++;
-        SymbolTableEntry $$TEMP2 = create("$$TEMP" + tempCount, TokenType.REAL);
+        SymbolTableEntry $$TEMP2 = create("$$TEMP" + tempCount, TokenType.REAL, global);
         tempCount++;
         generate("ltof", id2, $$TEMP1);
         generate("f" + opToString(operator), id1, $$TEMP1, $$TEMP2);
@@ -1414,9 +1439,9 @@ public class SemanticActions {
      * generationRoutineSA45d: for semantic action 45
      */
     private void generationRoutineSA45d(SymbolTableEntry id1, Token operator, SymbolTableEntry id2){
-        SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, TokenType.REAL);
+        SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, TokenType.REAL, global);
         tempCount++;
-        SymbolTableEntry $$TEMP2 = create("$$TEMP" + tempCount, TokenType.REAL);
+        SymbolTableEntry $$TEMP2 = create("$$TEMP" + tempCount, TokenType.REAL, global);
         tempCount++;
         generate("ltof", id1, $$TEMP1);
         generate("f" + opToString(operator), $$TEMP1, id2, $$TEMP2);
@@ -1664,9 +1689,9 @@ public class SemanticActions {
         /* if constant not found, create it and insert it */
         if(constnt == null){
             if(token.getTokenType() == TokenType.INTCONSTANT){
-                constnt = new ConstantEntry(token.getValue(), TokenType.INTEGER);
+                constnt = new ConstantEntry(token.getValue(), TokenType.INTEGER, global);
             }
-            else{ constnt = new ConstantEntry(token.getValue(), TokenType.REAL); }
+            else{ constnt = new ConstantEntry(token.getValue(), TokenType.REAL, global); }
             insertToConst(constnt);
         }
         /* push the constant */
@@ -1779,6 +1804,8 @@ public class SemanticActions {
     private void generate(String tviCode, SymbolTableEntry operand1, SymbolTableEntry operand2, String operand3){
         String op1 = toAddress(tviCode, operand1);
         String op2 = toAddress(tviCode, operand2);
+        System.out.println(op1);
+        System.out.println(op2);
         String[] quadrpl = {tviCode, op1, op2, operand3};
         quads.addQuad(quadrpl);
     }
@@ -1811,10 +1838,43 @@ public class SemanticActions {
          * - increment GLOBAL_MEM
          * - return $$NAME
          */
-        VariableEntry $$NAME = new VariableEntry(name, -globalMem, type);
-        insertToGlobal($$NAME);
-        globalMem++;
-        return $$NAME;
+        if(global){
+            VariableEntry $$NAME = new VariableEntry(name, -globalMem, type);
+            insertToGlobal($$NAME);
+            globalMem++;
+            return $$NAME;
+        }
+        else{
+            VariableEntry $$NAME = new VariableEntry(name, -localMem, type);
+            insertToLocal($$NAME);
+            localMem++;
+            return $$NAME;
+        }
+    }
+
+    /**
+     * create: creates a new memory location.
+     * @param name:
+     * @param type:
+     */
+    private VariableEntry create(String name, TokenType type, boolean global) throws SymbolTableError, SemanticError{
+        /*
+         * Creates a new memory location by doing the following:
+         * - insert $$NAME in symbol table (Variable_entry)
+         * - $$NAME.type = type
+         * - $$NAME.address = NEGATIVE value of GLOBAL_MEM
+         * - increment GLOBAL_MEM
+         * - return $$NAME
+         */
+
+        // if global call reg create else
+        if(global){ return create(name, type); }
+        else{
+            VariableEntry $$NAME = new VariableEntry(name, -localMem, type);
+            insertToLocal($$NAME);
+            localMem++;
+            return $$NAME;
+        }
     }
 
     /**
@@ -1841,6 +1901,7 @@ public class SemanticActions {
             return (op.getName().toLowerCase());
         }
         if (op.isVariable()) {
+            System.out.println("VAR");
             int addr = Math.abs(((VariableEntry) op).getAddress());
             return (getTag(tviCode, op) + addr);
         }
@@ -1850,11 +1911,13 @@ public class SemanticActions {
         }
         /* else create constant entry. */
         if (op.isConstant()) {
+            System.out.println("CONST");
             /* if hasn't already been saved? */
-            SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, op.getType());
+            SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, op.getType(), global);
             tempCount++;
 
             /* move value (e.g: 1.902) into $$TEMP */
+            // HERE MOVE
             generate("move", op.getName(), $$TEMP);
             int addr = Math.abs(((VariableEntry) $$TEMP).getAddress());
             return (getTag(tviCode, $$TEMP) + addr);
@@ -1933,7 +1996,7 @@ public class SemanticActions {
                 return "bne";
 
             default:
-                return "";
+                throw SemanticError.OperandStringUnknown(op.getOpType().toString());
         }
     }
 
@@ -2053,6 +2116,35 @@ public class SemanticActions {
             System.out.println("\t\t ---> Semantic Stack: [ ]");
             System.out.println("\n");
         }
+    }
+
+    /**
+     * semanticStackDump: routine to dump the semantic stack.
+     */
+    private void semanticStackDump(String id) {
+        System.out.println("Semantic Action: "+id);
+        if (!semanticsStack.isEmpty()) {
+            System.out.print("Stack: ");
+            /* make a copy of the stack */
+            Stack<Object> stackCopy = new Stack<>();
+            stackCopy.addAll(semanticsStack);
+
+            /* print the first element of the stack */
+            System.out.print("[ " + stackCopy.pop());
+            while (!stackCopy.isEmpty()) {
+                /* print the remaining elements */
+                System.out.print(", " + stackCopy.pop());
+            }
+            System.out.println(" ]");
+
+        }
+        /* otherwise, report an empty stack */
+        else {
+            System.out.println("Stack: [ ]");
+
+        }
+        quads.print();
+        System.out.println("\n");
     }
 
     /**

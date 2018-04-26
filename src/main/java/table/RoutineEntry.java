@@ -44,5 +44,14 @@ public class RoutineEntry extends SymbolTableEntry{
      * setParamInfo: setter method for the parameter information
      * @param newInfo: the new param info
      */
-    public void setParamInfo(LinkedList<ParameterInfo> newInfo){ this.parameterInfo = newInfo; }
+    public void setParamInfo(LinkedList<ParameterInfo> newInfo){
+        this.parameterInfo = newInfo;
+    }
+
+    /**
+     * appendParamInfo
+     */
+    public void appendParamInfo(LinkedList<ParameterInfo> paramInfo){
+        this.parameterInfo.addAll(paramInfo);
+    }
 }

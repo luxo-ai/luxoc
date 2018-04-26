@@ -88,11 +88,46 @@ public class SemanticError extends Error {
     }
 
     public static SemanticError InvalidRelational(int lineNumber){
-        return new SemanticError("Not valid relational operator on line: "+lineNumber);
+        return new SemanticError("Not valid relational operator on line: "+lineNumber+".");
     }
 
     /* SEM PHASE 4 */
+    public static SemanticError NoSuchAction(int actionID){
+        return new SemanticError("Semantic Action: "+actionID+" is not in use. No current implementation.");
+    }
 
+    public static SemanticError WrongNumberOfParameters(String routineName, int lineNumber){
+        return new SemanticError("Wrong number of parameters given to: "+routineName+" on line: "+lineNumber+".");
+    }
 
+    public static SemanticError InvalidParameter(String paramName, int lineNumber){
+        return new SemanticError("Invalid parameter: "+paramName+" being passed to a function on line: "+lineNumber+" parameters must be variables, constants, or arrays.");
+    }
+
+    public static SemanticError ParameterTypeMismatch(TokenType t1, TokenType t2, int lineNumber){
+        return new SemanticError("Attempting to use a parameter of type: "+t1+" when routine expected a type of: "+t2+" on line: "+lineNumber+".");
+    }
+
+    public static SemanticError InvalidArrayBound(boolean upper, int lineNumber){
+        String bound = "upper";
+        if(!upper){ bound = "lower"; }
+        return new SemanticError("Bad "+bound+" array bound on line: "+lineNumber+".");
+    }
+
+    public static SemanticError TypeMismatch(int lineNumber){
+        return new SemanticError("Type mismatch on line: "+lineNumber+".");
+    }
+
+    public static SemanticError RoutineNotFound(int lineNumber){
+        return new SemanticError("Routine Not Found On Line: "+lineNumber+".");
+    }
+
+    public static SemanticError ArrayNotFound(int lineNumber){
+        return new SemanticError("Array Not Found On Line: "+lineNumber+".");
+    }
+
+    public static SemanticError OperandStringUnknown(String name){
+        return new SemanticError("Internal Error. TVI operand string unkown for: "+name+".");
+    }
 
 }

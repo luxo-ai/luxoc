@@ -88,6 +88,11 @@ public class ParameterInfo {
     public TokenType getType(){ return this.type; }
 
     /**
+     * getName: getter method for the name of the param
+     */
+    public String getName(){ return this.name; }
+
+    /**
      * setScope: setter method for the scope of the parameter
      * @param newScope: the new scope
      */
