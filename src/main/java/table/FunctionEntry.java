@@ -34,6 +34,7 @@ public class FunctionEntry extends RoutineEntry {
      * getNumParam: getter method for the number of parameters
      * @return the number of parameters
      */
+    @Override
     public int getNumOfParam(){ return super.getNumOfParam(); }
 
 
@@ -41,6 +42,7 @@ public class FunctionEntry extends RoutineEntry {
      * getParamInfo: getter method for the parameter information
      * @return the parameter information
      */
+    @Override
     public LinkedList<ParameterInfo> getParamInfo(){ return super.getParamInfo(); }
 
 

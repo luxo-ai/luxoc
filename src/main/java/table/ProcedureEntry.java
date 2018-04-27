@@ -32,6 +32,7 @@ public class ProcedureEntry extends RoutineEntry {
      * getNumParam: getter method for the number of parameters
      * @return the number of parameters
      */
+    @Override
     public int getNumOfParam(){ return super.getNumOfParam(); }
 
 
@@ -39,7 +40,8 @@ public class ProcedureEntry extends RoutineEntry {
      * getParamInfo: getter method for the parameter information
      * @return the parameter information
      */
-    public LinkedList getParamInfo(){ return super.getParamInfo(); }
+    @Override
+    public LinkedList<ParameterInfo> getParamInfo(){ return super.getParamInfo(); }
 
     /**
      * isProcedure: override the parent isProcedure method.
