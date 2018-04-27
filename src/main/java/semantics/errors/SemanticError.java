@@ -83,11 +83,11 @@ public class SemanticError extends Error {
     }
 
     public static SemanticError InvalidArithmetic(int lineNumber){
-        return new SemanticError("Invalid arithmetic expression on line: "+lineNumber+".");
+        return new SemanticError("Invalid expression on line: "+lineNumber+". Expected an arithmetic expression but found a relational expression.");
     }
 
     public static SemanticError InvalidRelational(int lineNumber){
-        return new SemanticError("Invalid relational expression on line: "+lineNumber+".");
+        return new SemanticError("Invalid expression on line: "+lineNumber+". Expected a relational expression but found an arithmetic expression.");
     }
 
     /* SEM PHASE 4 */
