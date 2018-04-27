@@ -273,7 +273,7 @@ public class SemanticActions {
     public void execute(int actionID, Token token) throws SemanticError, SymbolTableError{
         try{
             this.actions[actionID - 1].run(token);
-            if(debug){ semanticStackDump(""+actionID); }
+            if(debug){ semanticStackDump(); }
         }
         catch (ArrayIndexOutOfBoundsException ex){ throw SemanticError.ActionDoesNotExist(actionID); }
     }
@@ -434,8 +434,6 @@ public class SemanticActions {
         id.setType(tType);
         currentFunc = id;
         /* set the type in the symbol table too */
-        System.out.println(tok.getLineNum());
-        System.out.println(token.getLineNum());
         lookupEntry("$$" + id.getName()).setType(tType);
     }
 
@@ -472,7 +470,6 @@ public class SemanticActions {
      * For same type
      */
     private void action_21(Token token){
-        semanticStackDump();
         int lower = -1,upper = -1;
         int numOfParam = paramCount.pop();
 
@@ -709,8 +706,6 @@ public class SemanticActions {
      * for action 37
      */
     private void ensureParamType(TokenType type1, TokenType type2, int lineNumber){
-        System.out.println(type1);
-        System.out.println(type2);
         if(type1 == TokenType.INTCONSTANT){ type1 = TokenType.INTEGER; }
         else if(type1 == TokenType.REALCONSTANT){ type1 = TokenType.REAL; }
         /* adjust type 2 */
@@ -772,7 +767,6 @@ public class SemanticActions {
         switch(typeCheck(id1, id2)){
             case 0:
             case 1:
-                System.out.println(opToString(operator));
                 generate(opToString(operator), id1, id2, "_");
                 break;
             case 2:
@@ -853,13 +847,10 @@ public class SemanticActions {
             ArrayList<Integer> eTRUE2 = (ArrayList<Integer>) semanticsStack.pop();
             Token operator = (Token) semanticsStack.pop();
 
-            System.out.println(operator);
             if(operator.getOpType() == Token.OperatorType.OR){
                 /* pop E(1) FALSE */
                 semanticsStack.pop();
-                System.out.println(token.getLineNum());
                 ArrayList<Integer> eTRUE = (ArrayList<Integer>) semanticsStack.pop();
-
                 ArrayList<Integer> eTRUE3 = merge(eTRUE, eTRUE2);
 
                 semanticsStack.push(eTRUE3);
@@ -1779,8 +1770,6 @@ public class SemanticActions {
     private void generate(String tviCode, SymbolTableEntry operand1, SymbolTableEntry operand2, String operand3){
         String op1 = toAddress(tviCode, operand1);
         String op2 = toAddress(tviCode, operand2);
-        System.out.println(op1);
-        System.out.println(op2);
         String[] quadrpl = {tviCode, op1, op2, operand3};
         quads.addQuad(quadrpl);
     }
@@ -2105,7 +2094,6 @@ public class SemanticActions {
                 System.out.print(", " + stackCopy.pop());
             }
             System.out.println(" ]");
-
         }
         /* otherwise, report an empty stack */
         else {
