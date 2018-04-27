@@ -414,7 +414,7 @@ public class SemanticActions {
      * action_15
      */
     private void action_15(Token token){
-        VariableEntry funResult = createFunResult("$$" + token.getValue(), TokenType.INTEGER);
+        VariableEntry funResult = createFunResult("$$" + token.getValue(), TokenType.INTEGER); // use tempCount and increment?
         FunctionEntry func = new FunctionEntry(token.getValue(), 0, new LinkedList<ParameterInfo>(), funResult);
         if(global){ insertToGlobal(func, token.getLineNum()); }
         else{ insertToLocal(func, token.getLineNum()); }
@@ -637,7 +637,6 @@ public class SemanticActions {
         if(id.getType() != TokenType.INTEGER){ throw SemanticError.InvalidArrayBounds(token.getLineNum()); }
         else{
             SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, TokenType.INTEGER);
-            tempCount++;
             generate("sub", id, array.getLowerBound(), $$TEMP);
             semanticsStack.push($$TEMP);
         }
@@ -777,14 +776,12 @@ public class SemanticActions {
                 generate(opToString(operator), id1, id2, "_");
                 break;
             case 2:
-                $$TEMP = create("$$TEMP" + tempCount, TokenType.REAL, global);
-                tempCount++;
+                $$TEMP = create("$$TEMP" + tempCount, TokenType.REAL);
                 generate("ltof", id2, $$TEMP);
                 generate(opToString(operator), id1, $$TEMP, "_");
                 break;
             case 3:
-                $$TEMP = create("$$TEMP" + tempCount, TokenType.REAL, global);
-                tempCount++;
+                $$TEMP = create("$$TEMP" + tempCount, TokenType.REAL);
                 generate("ltof", id1, $$TEMP);
                 generate(opToString(operator), $$TEMP, id2, "_");
         }
@@ -817,7 +814,6 @@ public class SemanticActions {
         /* check if the sign is a unary minus */
         if(sign.getTokenType() == TokenType.UNARYMINUS){
             SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, id.getType());
-            tempCount++;
             if(id.getType() == TokenType.INTEGER){
                 generate("uminus", id, $$TEMP);
             }
@@ -979,7 +975,6 @@ public class SemanticActions {
             else{
                 SymbolTableEntry id = (SymbolTableEntry) semanticsStack.pop();
                 SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, id.getType());
-                tempCount++;
                 generate("load", id, offset, $$TEMP);
                 semanticsStack.push($$TEMP);
             }
@@ -1028,8 +1023,7 @@ public class SemanticActions {
             }
             generate("call", entry, numOfParam);
             nextParam.pop();
-            SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, entry.getType(), global);
-            tempCount++;
+            SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, entry.getType());
 
             generate("move", ((FunctionEntry) entry).getResult(), $$TEMP);
             semanticsStack.push($$TEMP);
@@ -1164,13 +1158,13 @@ public class SemanticActions {
         semanticsStack.pop();
         SymbolTableEntry id = (SymbolTableEntry) semanticsStack.pop();
 
-        if(!id.isFunction()){ throw new Error("ERROR TYPE MISTMATCH ON LINE "); }
+        if(!id.isFunction()){ throw SemanticError.TypeMismatch(token.getLineNum()); }
 
         FunctionEntry func = (FunctionEntry) id;
-        if(func.getNumOfParam() > 0){ throw new Error("ERROR WRONG NUMBER OF PARAMETERS "); }
+        if(func.getNumOfParam() > 0){ throw SemanticError.WrongNumberOfParameters(func.getName(), token.getLineNum()); }
 
         generate("call", func, 0);
-        SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, id.getType(), global);
+        SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, id.getType());
         generate("move", func.getResult(), $$TEMP);
         semanticsStack.push($$TEMP);
         semanticsStack.push(ETYPE.ARITHMETIC);
@@ -1258,8 +1252,7 @@ public class SemanticActions {
 
             /* id1 = REAL , id2 = INTEGER */
             case 2:
-                SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, TokenType.REAL, global);
-                tempCount++;
+                SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, TokenType.REAL);
                 /* convert id2 to a REAL and store in $$TEMP */
                 generate("ltof", id2, $$TEMP);
                 /*
@@ -1290,8 +1283,7 @@ public class SemanticActions {
             /* id1 = INTEGER , id2 = INTEGER */
             case 0:
                 /* RESULT := */
-                $$TEMP = create("$$TEMP" + tempCount, TokenType.INTEGER, global);
-                tempCount++;
+                $$TEMP = create("$$TEMP" + tempCount, TokenType.INTEGER);
                 /* generate the tvi target code */
                 generate(opToString(operator), id1, id2, $$TEMP);
                 /* push result */
@@ -1301,8 +1293,7 @@ public class SemanticActions {
             /* id1 = REAL , id2 = REAL */
             case 1:
                 /* RESULT := */
-                $$TEMP = create("$$TEMP" + tempCount, TokenType.REAL, global);
-                tempCount++;
+                $$TEMP = create("$$TEMP" + tempCount, TokenType.REAL);
                 generate("f" + opToString(operator), id1, id2, $$TEMP);
                 /* push result */
                 semanticsStack.push($$TEMP);
@@ -1311,11 +1302,9 @@ public class SemanticActions {
             /* id1 = REAL , id2 = INTEGER */
             case 2:
                 /* TEMP1 for casting id2 to REAL */
-                $$TEMP1 = create("$$TEMP" + tempCount, TokenType.REAL, global);
-                tempCount++;
+                $$TEMP1 = create("$$TEMP" + tempCount, TokenType.REAL);
                 /* RESULT := */
-                $$TEMP2 = create("$$TEMP" + tempCount, TokenType.REAL, global);
-                tempCount++;
+                $$TEMP2 = create("$$TEMP" + tempCount, TokenType.REAL);
 
                 generate("ltof", id2, $$TEMP1);
                 generate("f" + opToString(operator), id1, $$TEMP1, $$TEMP2); // float operator
@@ -1326,11 +1315,9 @@ public class SemanticActions {
             /* id1 = INTEGER , id2 = REAL */
             default:
                 /* TEMP1 for casting id1 to REAL */
-                $$TEMP1 = create("$$TEMP" + tempCount, TokenType.REAL, global);
-                tempCount++;
+                $$TEMP1 = create("$$TEMP" + tempCount, TokenType.REAL);
                 /* RESULT := */
-                $$TEMP2 = create("$$TEMP" + tempCount, TokenType.REAL, global);
-                tempCount++;
+                $$TEMP2 = create("$$TEMP" + tempCount, TokenType.REAL);
 
                 generate("ltof", id1, $$TEMP1);
                 generate("f" + opToString(operator), $$TEMP1, id2, $$TEMP2); // float operator
@@ -1373,12 +1360,9 @@ public class SemanticActions {
     private void generationRoutineSA45a(SymbolTableEntry id1, Token operator, SymbolTableEntry id2){
         if (operator.getOpType() == Token.OperatorType.MOD) {
             /* */
-            SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, TokenType.INTEGER, global);
-            tempCount++;
-            SymbolTableEntry $$TEMP2 = create("$$TEMP" + tempCount, TokenType.INTEGER, global);
-            tempCount++;
-            SymbolTableEntry $$TEMP3 = create("$$TEMP" + tempCount, TokenType.INTEGER, global);
-            tempCount++;
+            SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, TokenType.INTEGER);
+            SymbolTableEntry $$TEMP2 = create("$$TEMP" + tempCount, TokenType.INTEGER);
+            SymbolTableEntry $$TEMP3 = create("$$TEMP" + tempCount, TokenType.INTEGER);
 
             generate("div", id1, id2, $$TEMP1);
             generate("mul", id2, $$TEMP1, $$TEMP2);
@@ -1387,12 +1371,9 @@ public class SemanticActions {
             semanticsStack.push($$TEMP3);
 
         } else if (operator.getOpType() == Token.OperatorType.DIVIDE) {
-            SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, TokenType.REAL, global);
-            tempCount++;
-            SymbolTableEntry $$TEMP2 = create("$$TEMP" + tempCount, TokenType.REAL, global);
-            tempCount++;
-            SymbolTableEntry $$TEMP3 = create("$$TEMP" + tempCount, TokenType.REAL, global);
-            tempCount++;
+            SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, TokenType.REAL);
+            SymbolTableEntry $$TEMP2 = create("$$TEMP" + tempCount, TokenType.REAL);
+            SymbolTableEntry $$TEMP3 = create("$$TEMP" + tempCount, TokenType.REAL);
 
             generate("ltof", id1, $$TEMP1);
             generate("ltof", id2, $$TEMP2);
@@ -1402,11 +1383,8 @@ public class SemanticActions {
             semanticsStack.push($$TEMP3);
 
         } else {
-            SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, TokenType.INTEGER, global);
-            tempCount++;
-            System.out.println(id1);
-            System.out.println(id2);
-            System.out.println($$TEMP);
+            SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, TokenType.INTEGER);
+
             generate(opToString(operator), id1, id2, $$TEMP);
             semanticsStack.push($$TEMP);
         }
@@ -1416,8 +1394,7 @@ public class SemanticActions {
      * generationRoutineSA45b: for semantic action 45
      */
     private void generationRoutineSA45b(SymbolTableEntry id1, Token operator, SymbolTableEntry id2){
-        SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, TokenType.REAL, global);
-        tempCount++;
+        SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, TokenType.REAL);
         generate("f" + opToString(operator), id1, id2, $$TEMP);
         semanticsStack.push($$TEMP);
     }
@@ -1426,10 +1403,9 @@ public class SemanticActions {
      * generationRoutineSA45c: for semantic action 45
      */
     private void generationRoutineSA45c(SymbolTableEntry id1, Token operator, SymbolTableEntry id2){
-        SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, TokenType.REAL, global);
-        tempCount++;
-        SymbolTableEntry $$TEMP2 = create("$$TEMP" + tempCount, TokenType.REAL, global);
-        tempCount++;
+        SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, TokenType.REAL);
+        SymbolTableEntry $$TEMP2 = create("$$TEMP" + tempCount, TokenType.REAL);
+
         generate("ltof", id2, $$TEMP1);
         generate("f" + opToString(operator), id1, $$TEMP1, $$TEMP2);
         semanticsStack.push($$TEMP2);
@@ -1439,10 +1415,9 @@ public class SemanticActions {
      * generationRoutineSA45d: for semantic action 45
      */
     private void generationRoutineSA45d(SymbolTableEntry id1, Token operator, SymbolTableEntry id2){
-        SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, TokenType.REAL, global);
-        tempCount++;
-        SymbolTableEntry $$TEMP2 = create("$$TEMP" + tempCount, TokenType.REAL, global);
-        tempCount++;
+        SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, TokenType.REAL);
+        SymbolTableEntry $$TEMP2 = create("$$TEMP" + tempCount, TokenType.REAL);
+
         generate("ltof", id1, $$TEMP1);
         generate("f" + opToString(operator), $$TEMP1, id2, $$TEMP2);
         semanticsStack.push($$TEMP2);
@@ -1842,12 +1817,14 @@ public class SemanticActions {
             VariableEntry $$NAME = new VariableEntry(name, -globalMem, type);
             insertToGlobal($$NAME);
             globalMem++;
+            tempCount++;
             return $$NAME;
         }
         else{
             VariableEntry $$NAME = new VariableEntry(name, -localMem, type);
             insertToLocal($$NAME);
             localMem++;
+            tempCount++;
             return $$NAME;
         }
     }
@@ -1857,7 +1834,7 @@ public class SemanticActions {
      * @param name:
      * @param type:
      */
-    private VariableEntry create(String name, TokenType type, boolean global) throws SymbolTableError, SemanticError{
+    private VariableEntry createToGlobal(String name, TokenType type) throws SymbolTableError, SemanticError{
         /*
          * Creates a new memory location by doing the following:
          * - insert $$NAME in symbol table (Variable_entry)
@@ -1866,15 +1843,10 @@ public class SemanticActions {
          * - increment GLOBAL_MEM
          * - return $$NAME
          */
-
-        // if global call reg create else
-        if(global){ return create(name, type); }
-        else{
-            VariableEntry $$NAME = new VariableEntry(name, -localMem, type);
-            insertToLocal($$NAME);
-            localMem++;
-            return $$NAME;
-        }
+        VariableEntry $$NAME = new VariableEntry(name, -globalMem, type);
+        insertToGlobal($$NAME);
+        globalMem++;
+        return $$NAME;
     }
 
     /**
@@ -1901,7 +1873,6 @@ public class SemanticActions {
             return (op.getName().toLowerCase());
         }
         if (op.isVariable()) {
-            System.out.println("VAR");
             int addr = Math.abs(((VariableEntry) op).getAddress());
             return (getTag(tviCode, op) + addr);
         }
@@ -1911,10 +1882,8 @@ public class SemanticActions {
         }
         /* else create constant entry. */
         if (op.isConstant()) {
-            System.out.println("CONST");
             /* if hasn't already been saved? */
-            SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, op.getType(), global);
-            tempCount++;
+            SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, op.getType());
 
             /* move value (e.g: 1.902) into $$TEMP */
             // HERE MOVE

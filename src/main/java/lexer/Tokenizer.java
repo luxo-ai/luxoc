@@ -262,19 +262,25 @@ public class Tokenizer {
      * @return a real or integer constant Token.
      */
     private Token getScientific(String buffer, int lineNum, boolean fromInt) {
+
+        String beforeE = buffer;
+        String afterE = "";
+
         char lookAhead = fStream.nextChar();
 
         if(isNumber(lookAhead)){
-            buffer += "" + EXP + lookAhead; // e + the number currentChar is E
+           // buffer += "" + EXP + lookAhead; // e + the number currentChar is E
+            afterE = ""+lookAhead;
             currentChar = fStream.nextChar();
-            return accumulateExp(buffer, lineNum, fromInt, false);
+            return accumulateExp(beforeE, afterE, lineNum, fromInt, false, false);
         }
         if(isPlusOrMinus(lookAhead)){
             char pastSign = fStream.nextChar();
             if(isNumber(pastSign)){
-                buffer += "" + EXP + lookAhead + pastSign ; // e ; +/- ; (the number current is E)
+               // buffer += "" + EXP + lookAhead + pastSign ; // e ; +/- ; (the number current is E)
+                afterE += "" + pastSign;
                 currentChar = fStream.nextChar();
-                return accumulateExp(buffer, lineNum, fromInt, true);
+                return accumulateExp(beforeE, afterE, lineNum, fromInt, true, true);
             }
             else if(fromInt){ throw LexerError.IllegalIdentifierName(lineNum, buffer+currentChar); } // current char still e
             else{ throw LexerError.IllegalRealConstant(lineNum, buffer+currentChar); } // current char still e
@@ -287,31 +293,34 @@ public class Tokenizer {
 
     /**
      * accumulateExp: an accumulator function for getScientific (helps out with the process).
-     * @param buffer: the SN number as a string.
      * @param lineNum: the line number where the SN number starts.
      * @param fromInt: if from integer context.
-     * @param withSign: if exp includes sign
      * @return a real or integer constant Token.
      */
-    private Token accumulateExp(String buffer, int lineNum, boolean fromInt, boolean withSign){ // after exp sign
-        String beforeSign = buffer.substring(0, buffer.length()-2); // remove the sign
+    private Token accumulateExp(String before, String after, int lineNum, boolean fromInt, boolean hasSign, boolean negative){ // after exp sign
+       // String beforeSign = buffer.substring(0, buffer.length()-2); // remove the sign
         while(isNumber(currentChar)) {
-            buffer += currentChar;
+            after += currentChar;
             currentChar = fStream.nextChar();
         }
-        if(isLetter(currentChar) && withSign){
-            if(fromInt){ throw  LexerError.IllegalIdentifierName(lineNum, beforeSign); }
-            throw LexerError.IllegalRealConstant(lineNum, beforeSign);
+        if(isLetter(currentChar) && hasSign){
+            if(fromInt){ throw  LexerError.IllegalIdentifierName(lineNum, before+EXP); }
+            throw LexerError.IllegalRealConstant(lineNum, before+EXP);
         }
 
         if(isLetter(currentChar)){ /* used isLetter before */
-            String ident = illegalAccumulator(buffer);
+            String ident = illegalAccumulator(before+EXP+after);
             if(fromInt){ throw LexerError.IllegalIdentifierName(lineNum, ident); }
             throw LexerError.IllegalRealConstant(lineNum, ident);
         }
+        double bef = Double.valueOf(before);
+        double af = Double.valueOf(after);
+        if(negative){ af = -af; }
+        double expon = Math.pow(10, af);
+        double value = bef*expon;
         /* break loop when encounters a non number */
         fStream.pushBack(currentChar);
-        return new Token(TokenType.REALCONSTANT, buffer, lineNum);
+        return new Token(TokenType.REALCONSTANT, String.format("%.12f",value), lineNum);
     }
 
     /**

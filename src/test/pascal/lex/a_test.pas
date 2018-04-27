@@ -1,5 +1,8 @@
 {comments should be skipped}7*7:=49
 
+23e10
+4E23
+4.0E-23
 0.45454544{I'm treating these kinds of comments as white space}identifier:
 
 program PROGRAM 9320
