@@ -79,7 +79,7 @@ public class SemanticError extends Error {
     }
 
     public static SemanticError InvalidArrayIndex(int lineNumber){
-        return new SemanticError("Invalid array index on line: "+lineNumber+". Array indices must be integers.");
+        return new SemanticError("Invalid array index on line: "+lineNumber+". Array indices must be of type: Integer.");
     }
 
     public static SemanticError InvalidArithmetic(int lineNumber){
