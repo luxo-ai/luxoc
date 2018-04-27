@@ -66,7 +66,6 @@ public class SemanticError extends Error {
     }
 
     /* SEM PHASE 3 */
-
     public static SemanticError BadFunction(String name, int lineNumber){
         return new SemanticError("Bad function: "+name+" on line: "+lineNumber+".");
     }
@@ -75,20 +74,20 @@ public class SemanticError extends Error {
         return new SemanticError("Bad procedure: "+name+" on line: "+lineNumber+".");
     }
 
-    public static SemanticError BadETYPE(int lineNumber){
-        return new SemanticError("Bad expression setup on line: "+lineNumber+".");
-    }
-
     public static SemanticError ExpectedArray(int lineNumber){
         return new SemanticError("Expected array on line: "+lineNumber+".");
     }
 
-    public static SemanticError InvalidArrayBounds(int lineNumber){
-        return new SemanticError("Invalid array bounds on line: "+lineNumber+".");
+    public static SemanticError InvalidArrayIndex(int lineNumber){
+        return new SemanticError("Invalid array index on line: "+lineNumber+". Array indices must be integers.");
+    }
+
+    public static SemanticError InvalidArithmetic(int lineNumber){
+        return new SemanticError("Invalid arithmetic expression on line: "+lineNumber+".");
     }
 
     public static SemanticError InvalidRelational(int lineNumber){
-        return new SemanticError("Not valid relational operator on line: "+lineNumber+".");
+        return new SemanticError("Invalid relational expression on line: "+lineNumber+".");
     }
 
     /* SEM PHASE 4 */
