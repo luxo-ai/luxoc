@@ -923,6 +923,9 @@ public class SemanticActions {
             if(typeCheck(id1, id2) != 0 && operator.getOpType() == Token.OperatorType.MOD){
                 throw SemanticError.BadMod(operator.getLineNum());
             }
+            if (typeCheck(id1, id2) != 0 && operator.getOpType() == Token.OperatorType.DIV) {
+                throw SemanticError.BadDiv(operator.getLineNum());
+            }
             generationRoutineSA45(id1, operator, id2);
             semanticsStack.push(ETYPE.ARITHMETIC);
         }
@@ -1375,7 +1378,6 @@ public class SemanticActions {
 
         } else {
             SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, TokenType.INTEGER);
-
             generate(opToString(operator), id1, id2, $$TEMP);
             semanticsStack.push($$TEMP);
         }
