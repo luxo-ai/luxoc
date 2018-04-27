@@ -486,8 +486,8 @@ public class SemanticActions {
                 Token id = (Token) semanticsStack.pop();
                 ParameterInfo paramInfo = new ParameterInfo(id.getValue(), type);
 
-                if(this.array){ storeArraySA22(id.getValue(), lower, upper, localMem, type, token.getLineNum()); }
-                else{ storeVarSA22(id.getValue(), type, localMem, token.getLineNum()); }
+                if(this.array){ storeArraySA21(id.getValue(), lower, upper, localMem, type, token.getLineNum()); }
+                else{ storeVarSA21(id.getValue(), type, localMem, token.getLineNum()); }
 
                 numOfParam++;
                 paramList.add(paramInfo);
@@ -1608,9 +1608,9 @@ public class SemanticActions {
     }
 
     /**
-     * storeArraySA22
+     * storeArraySA21
      */
-    private void storeArraySA22(String name, int lower, int upper, int address, TokenType type, int lineNumber){
+    private void storeArraySA21(String name, int lower, int upper, int address, TokenType type, int lineNumber){
         ArrayEntry arry = new ArrayEntry(name, address, type, upper, lower, true);
         if(global){ insertToGlobal(arry, lineNumber); }
         else{ insertToLocal(arry, lineNumber); }
@@ -1618,9 +1618,9 @@ public class SemanticActions {
     }
 
     /**
-     * storeVarSA22
+     * storeVarSA21
      */
-    private void storeVarSA22(String name, TokenType type, int address, int lineNumber){
+    private void storeVarSA21(String name, TokenType type, int address, int lineNumber){
         VariableEntry var = new VariableEntry(name, address, type, true);
         if(global){ insertToGlobal(var, lineNumber);}
         else{ insertToLocal(var, lineNumber); }
