@@ -633,10 +633,18 @@ public class SemanticActions {
         if(id.getType() != TokenType.INTEGER){ throw SemanticError.InvalidArrayIndex(token.getLineNum()); }
         else{
             ArrayEntry array = (ArrayEntry) semanticsStack.peek();
-            SymbolTableEntry $$TEMP = create("$$TEMP" + tempCount, TokenType.INTEGER);
-            generate("sub", id, array.getLowerBound(), $$TEMP);
-            semanticsStack.push($$TEMP);
+            SymbolTableEntry $$TEMP1 = create("$$TEMP" + tempCount, TokenType.INTEGER);
+            SymbolTableEntry $$TEMP2 = create("$$TEMP" + tempCount, TokenType.INTEGER);
+            generate("move", array.getLowerBound(), $$TEMP1);
+            generate("sub", id, $$TEMP1, $$TEMP2);
+            semanticsStack.push($$TEMP2);
         }
+    }
+
+    private void generate(String tviCode, int operand1, SymbolTableEntry operand2){
+        String op2 = toAddress(tviCode, operand2);
+        String[] quadrpl = {tviCode, String.valueOf(operand1), op2, null};
+        quads.addQuad(quadrpl);
     }
 
     /**
@@ -939,11 +947,11 @@ public class SemanticActions {
         ETYPE eTYPE = (ETYPE) semanticsStack.pop();
         isRelational(eTYPE, token.getLineNum());
 
-        ArrayList<Integer> eTRUE = (ArrayList<Integer>) semanticsStack.pop();
         ArrayList<Integer> eFALSE = (ArrayList<Integer>) semanticsStack.pop();
+        ArrayList<Integer> eTRUE = (ArrayList<Integer>) semanticsStack.pop();
         /* push on stack in opposite order */
-        semanticsStack.push(eTRUE);
         semanticsStack.push(eFALSE);
+        semanticsStack.push(eTRUE);
         semanticsStack.push(ETYPE.RELATIONAL);
     }
 
