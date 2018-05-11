@@ -262,25 +262,20 @@ public class Tokenizer {
      * @return a real or integer constant Token.
      */
     private Token getScientific(String buffer, int lineNum, boolean fromInt) {
-
-        String beforeE = buffer;
         String afterE = "";
-
         char lookAhead = fStream.nextChar();
 
         if(isNumber(lookAhead)){
-           // buffer += "" + EXP + lookAhead; // e + the number currentChar is E
             afterE = ""+lookAhead;
             currentChar = fStream.nextChar();
-            return accumulateExp(beforeE, afterE, lineNum, fromInt, false);
+            return accumulateExp(buffer, afterE, lineNum, fromInt, false);
         }
         if(isPlusOrMinus(lookAhead)){
             char pastSign = fStream.nextChar();
             if(isNumber(pastSign)){
-               // buffer += "" + EXP + lookAhead + pastSign ; // e ; +/- ; (the number current is E)
                 afterE += "" + pastSign;
                 currentChar = fStream.nextChar();
-                return accumulateExp(beforeE, afterE, lineNum, fromInt, true);
+                return accumulateExp(buffer, afterE, lineNum, fromInt, true);
             }
             else if(fromInt){ throw LexerError.IllegalIdentifierName(lineNum, buffer+currentChar); } // current char still e
             else{ throw LexerError.IllegalRealConstant(lineNum, buffer+currentChar); } // current char still e
@@ -298,7 +293,6 @@ public class Tokenizer {
      * @return a real or integer constant Token.
      */
     private Token accumulateExp(String before, String after, int lineNum, boolean fromInt, boolean hasSign){ // after exp sign
-       // String beforeSign = buffer.substring(0, buffer.length()-2); // remove the sign
         while(isNumber(currentChar)) {
             after += currentChar;
             currentChar = fStream.nextChar();
