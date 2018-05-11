@@ -14,6 +14,7 @@ import main.java.semantics.SemanticActions;
 import main.java.token.Token;
 import main.java.token.TokenType;
 import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;
 import java.util.Stack;
 
@@ -239,6 +240,13 @@ public class Parser {
         }
         /* otherwise, report an empty stack */
         else{ System.out.println("Empty Stack"); }
+    }
+
+    /**
+     * write code to file
+     */
+    public void writeToFile(String filename) throws FileNotFoundException, UnsupportedEncodingException {
+        this.semActions.writeToFile(filename);
     }
 
 } /* end of Parser class */

@@ -26,7 +26,7 @@ public class Tokenizer {
      *
      */
     private static final char SPACE = ' ';
-    private static final char EXP = 'E';
+    private static final char EXP = 'e';
     private static final char EOF = (char) -1;
     private static final int ID_MAX = 20;
 
@@ -216,7 +216,7 @@ public class Tokenizer {
         }
 
         /* If the current character is an: e or E ==> Exp notation */
-        if(Character.toUpperCase(currentChar) == EXP){ return getScientific(buffer, lineNum, true); }
+        if(Character.toLowerCase(currentChar) == EXP){ return getScientific(buffer, lineNum, true); }
 
         /* identifiers cannot begin with numbers */
         if(isLetter(currentChar)){
@@ -242,7 +242,7 @@ public class Tokenizer {
             currentChar = fStream.nextChar();
         }
         /* if the current character is not a number */
-        if (Character.toUpperCase(currentChar) == EXP) { return getScientific(buffer, lineNum, false); }
+        if (Character.toLowerCase(currentChar) == EXP) { return getScientific(buffer, lineNum, false); }
 
         /* real constants cannot cannot be followed by a letter immediately */
         if (isLetter(currentChar)) {
@@ -272,7 +272,7 @@ public class Tokenizer {
            // buffer += "" + EXP + lookAhead; // e + the number currentChar is E
             afterE = ""+lookAhead;
             currentChar = fStream.nextChar();
-            return accumulateExp(beforeE, afterE, lineNum, fromInt, false, false);
+            return accumulateExp(beforeE, afterE, lineNum, fromInt, false);
         }
         if(isPlusOrMinus(lookAhead)){
             char pastSign = fStream.nextChar();
@@ -280,13 +280,13 @@ public class Tokenizer {
                // buffer += "" + EXP + lookAhead + pastSign ; // e ; +/- ; (the number current is E)
                 afterE += "" + pastSign;
                 currentChar = fStream.nextChar();
-                return accumulateExp(beforeE, afterE, lineNum, fromInt, true, true);
+                return accumulateExp(beforeE, afterE, lineNum, fromInt, true);
             }
             else if(fromInt){ throw LexerError.IllegalIdentifierName(lineNum, buffer+currentChar); } // current char still e
             else{ throw LexerError.IllegalRealConstant(lineNum, buffer+currentChar); } // current char still e
         }
         fStream.pushBack(lookAhead);
-        String illegalVal = illegalAccumulator(buffer); // will always be: E
+        String illegalVal = illegalAccumulator(buffer+EXP); // will always be: E
         if(fromInt){ throw LexerError.IllegalIdentifierName(lineNum, illegalVal); }
         throw LexerError.IllegalRealConstant(lineNum, illegalVal);
     }
@@ -297,7 +297,7 @@ public class Tokenizer {
      * @param fromInt: if from integer context.
      * @return a real or integer constant Token.
      */
-    private Token accumulateExp(String before, String after, int lineNum, boolean fromInt, boolean hasSign, boolean negative){ // after exp sign
+    private Token accumulateExp(String before, String after, int lineNum, boolean fromInt, boolean hasSign){ // after exp sign
        // String beforeSign = buffer.substring(0, buffer.length()-2); // remove the sign
         while(isNumber(currentChar)) {
             after += currentChar;
@@ -313,14 +313,10 @@ public class Tokenizer {
             if(fromInt){ throw LexerError.IllegalIdentifierName(lineNum, ident); }
             throw LexerError.IllegalRealConstant(lineNum, ident);
         }
-        double bef = Double.valueOf(before);
-        double af = Double.valueOf(after);
-        if(negative){ af = -af; }
-        double expon = Math.pow(10, af);
-        double value = bef*expon;
+        String exp = before+EXP+after;
         /* break loop when encounters a non number */
         fStream.pushBack(currentChar);
-        return new Token(TokenType.REALCONSTANT, String.format("%.12f",value), lineNum);
+        return new Token(TokenType.REALCONSTANT, exp, lineNum);
     }
 
     /**

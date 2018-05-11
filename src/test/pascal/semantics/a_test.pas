@@ -6,12 +6,23 @@ Program theUltimateTest (input,output);
 Var
   h,z,i,x,y : integer;
   w : array [1..5] of integer;
+  m : array [1..5] of real;
   rl : real;
 
-function gcd (a, b : integer) : result integer;
-var x : integer;
+procedure test(a, b : array[0..4] of Integer);
+
+var
+ x : integer;
+
 begin
-  write(a,b);
+  write(a[0])
+end
+
+function gcd (a, b : integer) : result integer;
+var
+  x : integer;
+begin
+  write(a, b);
   if (b <= 0) then gcd := a
   else begin
     x := a;
@@ -19,7 +30,7 @@ begin
     begin
       x := x - b
     end;
-    gcd := gcd(b,x)
+    gcd := gcd(b, x)
   end
 end
 
@@ -29,22 +40,25 @@ begin
     and comparisons with mixed type numbers  }
   if ((why = note - 1608) or (not (note = why)))
   then if (x - y = 0)
-  then begin
+  then
+  begin
     w[i] := why DIV 5
   end
 end
 
 procedure that;
-var h : integer;
+var
+  h : integer;
   z : real;
 begin
   h := 1;
   z := 7.43;
   x := y;
-  this (h,z)
+  this (h, z)
 end
 
 begin
+  test(w,w);
   i := 1;
   x := 5;
   While (I <= 5) and (x <= 75) do
@@ -53,14 +67,14 @@ begin
     w[x] := w[i] * 20;
     i := i + 1
   end;
-  read (x,y);
-  write(x,y);
-  if x>y then write (gcd(x, y)) else write (gcd (h,z));
+  read (x, y);
+  write(x, y);
+  if x > y then write (gcd(x, y)) else write (gcd (h, z));
   w[x] := 6758;
   rl := 23e10;
   write(w[x]);
-  this (gcd(x,y),rl);
-  this (w[x],rl);
+  this (gcd(x, y), rl);
+  this (w[x], rl);
   that;
   i := 1;
   while (i <= 5) do
@@ -68,5 +82,5 @@ begin
     write(w[i]);
     i := i + 1
   end;
-  write(h,i,x,y,z)
+  write(h, i, x, y, z)
 end.

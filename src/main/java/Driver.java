@@ -8,6 +8,7 @@ package main.java;
 
 import main.java.parser.Parser;
 import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 
 /**
  * Driver class for testing the parser.
@@ -26,13 +27,14 @@ public class Driver {
      *
      * @param args: user input
      */
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws FileNotFoundException, UnsupportedEncodingException {
         Parser prs;
         if (args.length == 1) {
             prs = new Parser(args[0]);
             System.out.println("Beginning to parse code in: " + args[0]);
             System.out.println();
             prs.run();
+            prs.writeToFile(getFileName(args[0]));
 
         } else if (args.length == 2 && (args[1].equals("-d") || args[1].equals("--debug"))) {
             prs = new Parser(args[0]);
@@ -40,9 +42,19 @@ public class Driver {
             System.out.println("Beginning to parse code in: " + args[0]);
             System.out.println("Debug Mode Enabled\n");
             prs.run();
+            prs.writeToFile(getFileName(args[0]));
         }
         else {
             System.out.println(INVALID_INPUT);
         }
+    }
+
+    /**
+     * Used to extract file name
+     */
+    public static String getFileName(String path){
+        String[] pathParts = path.split("/");
+        String nameWithExtn = pathParts[pathParts.length - 1];
+        return nameWithExtn.split("\\.")[0];
     }
 }

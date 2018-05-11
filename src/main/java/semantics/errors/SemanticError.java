@@ -44,7 +44,6 @@ public class SemanticError extends Error {
         return new SemanticError("The combination of Type: "+tt1+" and Type: "+tt2+" is unrecognized on line: "+lineNum+".");
     }
 
-    // TODO: line number?
     public static SemanticError InputOutputNotSpecified(){
         return new SemanticError("Input and Output not specified in program identifier list.");
     }
@@ -65,7 +64,6 @@ public class SemanticError extends Error {
         return new SemanticError("Bad DIV setup on line: "+lineNumber+" operands of the DIV operator must both be of type: Integer.");
     }
 
-    /* SEM PHASE 3 */
     public static SemanticError BadFunction(String name, int lineNumber){
         return new SemanticError("Bad function: "+name+" on line: "+lineNumber+".");
     }
@@ -90,27 +88,26 @@ public class SemanticError extends Error {
         return new SemanticError("Invalid expression on line: "+lineNumber+". Expected a relational expression but found an arithmetic expression.");
     }
 
-    /* SEM PHASE 4 */
     public static SemanticError NoSuchAction(int actionID){
         return new SemanticError("Semantic Action: "+actionID+" is not in use. No current implementation.");
     }
 
     public static SemanticError WrongNumberOfParameters(String routineName, int lineNumber){
-        return new SemanticError("Wrong number of parameters given to: "+routineName+" on line: "+lineNumber+".");
+        return new SemanticError("Invalid number of arguments given to: "+routineName+" on line: "+lineNumber+". The number of arguments must match the number of parameters for any function or procedure.");
     }
 
     public static SemanticError InvalidParameter(String paramName, int lineNumber){
-        return new SemanticError("Invalid parameter: "+paramName+" being passed to a function on line: "+lineNumber+" parameters must be variables, constants, or arrays.");
+        return new SemanticError("Invalid argument: "+paramName+" being passed to a function or procedure on line: "+lineNumber+". Parameters must be variables, constants, or arrays.");
     }
 
     public static SemanticError ParameterTypeMismatch(TokenType t1, TokenType t2, int lineNumber){
-        return new SemanticError("Attempting to use a parameter of type: "+t1+" when routine expected a type of: "+t2+" on line: "+lineNumber+".");
+        return new SemanticError("Attempting to use an argument of type: "+t1+" when routine expected a type of: "+t2+" on line: "+lineNumber+".");
     }
 
     public static SemanticError InvalidArrayBound(boolean upper, int lineNumber){
         String bound = "upper";
         if(!upper){ bound = "lower"; }
-        return new SemanticError("Bad "+bound+" array bound on line: "+lineNumber+".");
+        return new SemanticError("Array argument on line: "+lineNumber+" has an invalid "+bound+" bound. Parameter and argument bounds must match.");
     }
 
     public static SemanticError TypeMismatch(int lineNumber){
@@ -126,7 +123,7 @@ public class SemanticError extends Error {
     }
 
     public static SemanticError OperandStringUnknown(String name){
-        return new SemanticError("Internal Error. TVI operand string unkown for: "+name+".");
+        return new SemanticError("Internal Error. TVI operand string unknown for: "+name+".");
     }
 
 }

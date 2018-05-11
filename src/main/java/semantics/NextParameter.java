@@ -33,7 +33,7 @@ public class NextParameter{
         paramLists.push(paramList);
     }
 
-    ParameterInfo nextParam(){
+    ParameterInfo getParam(){
         ParameterInfo paramInfo = paramLists.peek().get(currentParam);
         currentParam++;
         return paramInfo;

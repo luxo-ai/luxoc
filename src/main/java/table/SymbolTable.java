@@ -31,14 +31,14 @@ public class SymbolTable{
      * @param key: a string key.
      * @return an entry in the SymbolTable.
      */
-    public SymbolTableEntry lookup(String key){ return this.table.get(key.toUpperCase()); } // get rid of to upper case?
+    public SymbolTableEntry lookup(String key){ return this.table.get(key.toLowerCase()); } // get rid of to upper case?
 
     /**
      * insert: insert a value into the symbol table.
      * @param value: a TableEntry
      */
     public void insert(SymbolTableEntry value){
-        String key = value.getName().toUpperCase();
+        String key = value.getName().toLowerCase();
         /* make sure that the name doesn't already exist */
         if(!table.containsKey(key)){ table.put(key, value); }
         else{ throw SymbolTableError.EntryAlreadyExists(value.getName()); }
@@ -50,7 +50,7 @@ public class SymbolTable{
      * @param value: a TableEntry
      */
     public void insert(String key, SymbolTableEntry value){
-        key = key.toUpperCase();
+        key = key.toLowerCase();
         /* make sure that the name doesn't already exist */
         if(!table.containsKey(key)){ table.put(key, value); }
         else{ throw SymbolTableError.EntryAlreadyExists(value.getName()); }
@@ -83,12 +83,12 @@ public class SymbolTable{
      */
     public static void installBuiltins(SymbolTable symbolTable) throws SymbolTableError{
         /* ::: reserved procedure names ::: */
-        SymbolTableEntry main  = new ProcedureEntry("MAIN", 0, new LinkedList<ParameterInfo>());
-        SymbolTableEntry read = new ProcedureEntry("READ", 0, new LinkedList<ParameterInfo>());
-        SymbolTableEntry write = new ProcedureEntry("WRITE", 0, new LinkedList<ParameterInfo>());
+        SymbolTableEntry main  = new ProcedureEntry("main", 0, new LinkedList<ParameterInfo>());
+        SymbolTableEntry read = new ProcedureEntry("read", 0, new LinkedList<ParameterInfo>());
+        SymbolTableEntry write = new ProcedureEntry("write", 0, new LinkedList<ParameterInfo>());
         /* ::: reserved IO names ::: */
-        SymbolTableEntry in = new IODeviceEntry("INPUT");
-        SymbolTableEntry out = new IODeviceEntry("OUTPUT");
+        SymbolTableEntry in = new IODeviceEntry("input");
+        SymbolTableEntry out = new IODeviceEntry("output");
         /* Set reservation flag */
         main.setToReserved();
         read.setToReserved();

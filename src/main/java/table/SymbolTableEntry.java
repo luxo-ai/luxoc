@@ -68,7 +68,7 @@ public class SymbolTableEntry implements TableEntryInterface{
     /**
      * nameToUpperCase: sets the name to upper case
      */
-    public void nameToUpperCase(){ this.name = this.name.toUpperCase(); }
+    public void nameToLowerCase(){ this.name = this.name.toLowerCase(); }
 
     /**
      * isVariable: determines if the entry is a variable
