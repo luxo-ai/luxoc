@@ -273,7 +273,7 @@ public class Tokenizer {
         if(isPlusOrMinus(lookAhead)){
             char pastSign = fStream.nextChar();
             if(isNumber(pastSign)){
-                afterE += "" + pastSign;
+                afterE += "" + lookAhead + pastSign;
                 currentChar = fStream.nextChar();
                 return accumulateExp(buffer, afterE, lineNum, fromInt, true);
             }
