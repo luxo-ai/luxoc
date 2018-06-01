@@ -4,7 +4,7 @@
 
 Author: Luis F. Serazo
 
-## A Compiler Written in Java
+## A Pascal Compiler Written in Java
 
 Luxoc is a compiler written in Java for a Pascal-like language. The parse table for the project can be found in: ``src/main/resources``. This implementation uses a **LL(1)** parser. 
 
