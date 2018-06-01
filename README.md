@@ -6,19 +6,13 @@ Author: Luis F. Serazo
 
 ## A Compiler Written in Java
 
-Luxoc is a compiler written in Java for a Pascal-like language. The project
-was assigned in CMPU-331 (Compiler Design) during the Spring semester of 2018 
-at Vassar College. 
+Luxoc is a compiler written in Java for a Pascal-like language. The parse table for the project can be found in: ``src/main/resources``. This implementation uses a **LL(1)** parser. 
 
 ### Stable Parts
 
-I've currently implemented both the lexical analyzer and the parser. These have been
-tested numerous times and have proven themselves to be stable. 
+This project has been completed and can be tested on any one of the files found in: ``src/test/pascal/semantics``. The other tests found in: ``src/test/pascal`` correspond to the various parts of the implementation, such as the Lexical Analyzer. 
 
 #### TODO:
 
-Despite implementing the lexer, parser, symbol table, and semantic action 1, there's still a lot of work to be done.
-In the coming weeks I hope to begin working on the:
-
-- Semantic Actions 2 and 3.
+Optimization. 
 
