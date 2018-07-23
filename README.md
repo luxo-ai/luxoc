@@ -14,5 +14,4 @@ This project has been completed and can be tested on any one of the files found 
 
 #### TODO:
 
-Optimization. 
-
+Optimizations.
